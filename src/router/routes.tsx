@@ -1,15 +1,23 @@
 import { lazy } from 'react';
 import PatientDetails from '../pages/Doctor/Patients/patientsDetails';
 import path from 'path';
-const Index = lazy(() => import('../pages/Index'));
 const MyPatients = lazy(() => import('../pages/Doctor/Patients/patients'));
 const Prescription = lazy(() => import('../pages/Doctor/Priscription'));
+const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard/AdminDashboard'));
+const AdminUserManagementDoctor = lazy(() => import('../pages/admin/UserManagement/Doctors/DoctorPage'))
 
 const routes = [
-    // dashboard
+    // admin-dashboard
     {
         path: '/',
-        element: <Index />,
+        element: <AdminDashboard />,
+        layout: 'default',
+    },
+
+    // admin-usermanagement-doctor
+        {
+        path: 'user-management/doctor',
+        element: <AdminUserManagementDoctor />,
         layout: 'default',
     },
     {
