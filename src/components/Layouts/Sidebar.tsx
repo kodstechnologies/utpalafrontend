@@ -70,7 +70,7 @@ const Sidebar = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-    const userrole = 'admin'; // This should be fetched from user state or context
+    const userrole = 'doctor'; // This should be fetched from user state or context
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
@@ -79,8 +79,8 @@ const Sidebar = () => {
                 <div className="bg-white dark:bg-black h-full">
                     <div className="flex justify-between items-center px-4 py-3">
                         <NavLink to="/" className="main-logo flex items-center shrink-0">
-                            <img className="w-8 ml-[5px] flex-none" src="/assets/images/logo.svg" alt="logo" />
-                            <span className="text-2xl ltr:ml-1.5 rtl:mr-1.5 font-semibold align-middle lg:inline dark:text-white-light">{t('VRISTO')}</span>
+                            <img className="w-[150px] ml-[5px] flex-none" src="/assets/images/logo.webp" alt="logo" />
+                            {/* <span className="text-2xl ltr:ml-1.5 rtl:mr-1.5 font-semibold align-middle lg:inline dark:text-white-light">{t('VRISTO')}</span> */}
                         </NavLink>
 
                         <button
@@ -127,14 +127,7 @@ const Sidebar = () => {
 
                                 <li className="nav-item">
                                     <ul>
-                                        <li className="nav-item">
-                                            <NavLink to="/apps/chat" className="group">
-                                                <div className="flex items-center">
-                                                    <IconMenuChat className="group-hover:!text-primary shrink-0" />
-                                                    <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('chat')}</span>
-                                                </div>
-                                            </NavLink>
-                                        </li>
+                                        
                                         <li className="nav-item">
                                             <NavLink to="/apps/mailbox" className="group">
                                                 <div className="flex items-center">
@@ -143,14 +136,7 @@ const Sidebar = () => {
                                                 </div>
                                             </NavLink>
                                         </li>
-                                        <li className="nav-item">
-                                            <NavLink to="/apps/todolist" className="group">
-                                                <div className="flex items-center">
-                                                    <IconMenuTodo className="group-hover:!text-primary shrink-0" />
-                                                    <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('todo_list')}</span>
-                                                </div>
-                                            </NavLink>
-                                        </li>
+                                        
                                         <li className="nav-item">
                                             <NavLink to="/apps/notes" className="group">
                                                 <div className="flex items-center">
@@ -703,7 +689,7 @@ const Sidebar = () => {
                                 </li>
                             </ul>
                         )}
-                        {userrole === 'user' && (
+                        {userrole === 'doctor' && (
                             <ul className="relative font-semibold space-y-0.5 p-4 py-0">
                                 <li className="menu nav-item">
                                     <button type="button" className={`${currentMenu === 'dashboard' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('dashboard')}>
@@ -714,10 +700,18 @@ const Sidebar = () => {
                                     </button>
                                 </li>
                                 <li className="menu nav-item">
-                                    <NavLink to="/profile" className="nav-link group">
+                                    <NavLink to="/my-patients" className="nav-link group">
                                         <div className="flex items-center">
                                             <IconMenuUsers className="group-hover:!text-primary shrink-0" />
-                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('profile')}</span>
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('My Patients')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/prescription" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuForms className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Prescription')}</span>
                                         </div>
                                     </NavLink>
                                 </li>
