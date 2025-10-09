@@ -12,17 +12,6 @@ import IconMenuDashboard from '../Icon/Menu/IconMenuDashboard';
 import IconMenuUsers from '../Icon/Menu/IconMenuUsers';
 import IconMenuPages from '../Icon/Menu/IconMenuPages';
 import IconUsers from '../Icon/IconUsers';
-import IconUser from '../Icon/IconUser';
-import IconClock from '../Icon/IconClock';
-import IconSettings from '../Icon/IconSettings';
-import IconMenuNotes from '../Icon/Menu/IconMenuNotes';
-import IconMenuMailbox from '../Icon/Menu/IconMenuMailbox';
-import IconMenuScrumboard from '../Icon/Menu/IconMenuScrumboard';
-import IconMenuContacts from '../Icon/Menu/IconMenuContacts';
-import IconMenuInvoice from '../Icon/Menu/IconMenuInvoice';
-import IconMenuCalendar from '../Icon/Menu/IconMenuCalendar';
-import IconMinus from '../Icon/IconMinus';
-import IconMenuComponents from '../Icon/Menu/IconMenuComponents';
 import IconMenuForms from '../Icon/Menu/IconMenuForms';
 
 const Sidebar = () => {
@@ -113,22 +102,22 @@ const Sidebar = () => {
                                     <AnimateHeight duration={300} height={currentMenu === 'User Management' ? 'auto' : 0}>
                                         <ul className="sub-menu text-gray-500">
                                             <li>
-                                                <NavLink to="/user-management/doctor">{t('Doctors')}</NavLink>
+                                                <NavLink to="/user-management/doctors">{t('Doctors')}</NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/components/accordions">{t('Nurses')}</NavLink>
+                                                <NavLink to="/user-management/nurses">{t('Nurses')}</NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/components/modals">{t('Receptionsists')}</NavLink>
+                                                <NavLink to="/user-management/receptionists">{t('Receptionists')}</NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/components/cards">{t('Pharmacists')}</NavLink>
+                                                <NavLink to="/user-management/pharmacists">{t('Pharmacists')}</NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/components/carousel">{t('Therapists')}</NavLink>
+                                                <NavLink to="/user-management/therapists">{t('Therapists')}</NavLink>
                                             </li>
                                             <li>
-                                                <NavLink to="/components/countdown">{t('Patients')}</NavLink>
+                                                <NavLink to="/user-management/patients">{t('Patients')}</NavLink>
                                             </li>
                                         </ul>
                                     </AnimateHeight>

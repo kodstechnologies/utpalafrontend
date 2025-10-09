@@ -1,30 +1,26 @@
 import { SetStateAction, useState } from 'react';
-import DoctorModal from './DoctorModal';
+
 import IconEye from '../../../../components/Icon/IconEye';
 import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
 import IconDownload from '../../../../components/Icon/IconDownload';
 import IconSearch from '../../../../components/Icon/IconSearch';
 
-interface Doctor {
+interface Patient {
     id: number;
     name: string;
-    email: string;
-    specialization: string;
-    status: 'Active' | 'Inactive' | 'On Leave' | 'Pending';
-    licenseNumber?: string;
-    dob?: string;
-    gender?: string;
-    department?: string;
-    joiningDate?: string;
-}
-
-interface DoctorTableProps {
-    navigate: (path: string) => void;
+    patientId: string;
+    dob: string;
+    gender: 'Male' | 'Female' | 'Other';
+    bodyType: 'Vata' | 'Pitta' | 'Kapha' | 'Tridosha';
+    status: 'Active' | 'Discharged' | 'Pending Admission' | 'Follow-up';
+    phone: string;
+    primaryDoctor?: string;
+    admissionDate?: string;
 }
 
 type StatusBadgeProps = {
-    status: Doctor['status'];
+    status: Patient['status'];
 };
 
 const StatusBadge = ({ status }: StatusBadgeProps) => {
@@ -33,13 +29,13 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
         case 'Active':
             colorClass = 'bg-green-600 text-white dark:bg-green-800 dark:text-green-100';
             break;
-        case 'Inactive':
-            colorClass = 'bg-red-400 text-white dark:bg-red-700 dark:text-red-100';
+        case 'Discharged':
+            colorClass = 'bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100';
             break;
-        case 'Pending':
+        case 'Pending Admission':
             colorClass = 'bg-amber-400 text-amber-900 dark:bg-amber-600 dark:text-amber-100';
             break;
-        case 'On Leave':
+        case 'Follow-up':
             colorClass = 'bg-blue-500 text-white dark:bg-blue-700 dark:text-blue-100';
             break;
         default:
@@ -52,35 +48,39 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
     );
 };
 
-const DoctorTable = ({ navigate }: DoctorTableProps) => {
-    const [doctorsData] = useState<Doctor[]>([
-        { id: 1, name: 'Dr. Kavita Rao', email: 'k.rao@veda.com', specialization: 'Internal Medicine', status: 'Active', licenseNumber: 'MED-1001', dob: '1985-06-15', gender: 'Female', department: 'General Medicine', joiningDate: '2010-08-01' },
-        { id: 2, name: 'Dr. Suresh Verma', email: 's.verma@veda.com', specialization: 'Wellness Therapy', status: 'Active', licenseNumber: 'MED-1002', dob: '1990-11-20', gender: 'Male', department: 'Therapy Unit', joiningDate: '2015-05-10' },
-        { id: 3, name: 'Dr. Anjali Puri', email: 'anjali.p@veda.com', specialization: 'Gynecology', status: 'Inactive', licenseNumber: 'MED-1003', dob: '1978-03-05', gender: 'Female', department: 'Women’s Health', joiningDate: '2005-01-20' },
-        { id: 4, name: 'Dr. Deepak Sharma', email: 'd.sharma@veda.com', specialization: 'Surgery', status: 'Active', licenseNumber: 'MED-1004', dob: '1995-09-25', gender: 'Male', department: 'Surgical Care', joiningDate: '2018-03-15' },
-        { id: 5, name: 'Dr. Preeti Das', email: 'preeti.d@veda.com', specialization: 'Pediatrics', status: 'Pending', licenseNumber: 'MED-1005', dob: '1982-07-12', gender: 'Female', department: 'Child Health', joiningDate: '2012-07-01' },
-    ] as Doctor[]);
+const PatientTable = () => {
+    const [patientsData] = useState<Patient[]>([
+        { id: 1, patientId: 'P-00101', name: 'Alia Bhatt', phone: '98765 43210', dob: '1995-03-14', gender: 'Female', bodyType: 'Vata', status: 'Active', primaryDoctor: 'Dr. K. Rao', admissionDate: '2024-05-10' },
+        { id: 2, patientId: 'P-00102', name: 'Rajesh Khanna', phone: '87654 32109', dob: '1968-11-20', gender: 'Male', bodyType: 'Pitta', status: 'Pending Admission', primaryDoctor: 'Dr. S. Verma', admissionDate: '2024-06-01' },
+        { id: 3, patientId: 'P-00103', name: 'Sarla Devi', phone: '76543 21098', dob: '1982-01-25', gender: 'Female', bodyType: 'Kapha', status: 'Follow-up', primaryDoctor: 'Dr. Anjali Puri', admissionDate: '2024-04-15' },
+        { id: 4, patientId: 'P-00104', name: 'Amit Singh', phone: '65432 10987', dob: '1975-09-01', gender: 'Male', bodyType: 'Tridosha', status: 'Discharged', primaryDoctor: 'Dr. Deepak Sharma', admissionDate: '2024-03-20' },
+        { id: 5, patientId: 'P-00105', name: 'Priya Mani', phone: '54321 09876', dob: '2000-07-12', gender: 'Female', bodyType: 'Vata', status: 'Active', primaryDoctor: 'Dr. Preeti Das', admissionDate: '2024-05-25' },
+        { id: 6, patientId: 'P-00106', name: 'Ganesh Iyer', phone: '43210 98765', dob: '1955-02-05', gender: 'Male', bodyType: 'Pitta', status: 'Discharged', primaryDoctor: 'Dr. K. Rao', admissionDate: '2024-01-01' },
+    ] as Patient[]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+    const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
-    const handleEdit = (doctor: Doctor) => {
-        setSelectedDoctor(doctor);
+    const handleEdit = (patient: Patient) => {
+        setSelectedPatient(patient);
         setIsModalOpen(true);
+        console.log(`Editing patient: ${patient.name}`);
     };
 
-    const handleView = (doctor: Doctor) => {
-        navigate(`/doctors/${doctor.id}`);
+    const handleView = (patient: Patient) => {
+        setSelectedPatient(patient);
+        setIsModalOpen(true);
+        console.log(`Viewing patient: ${patient.name}`);
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
-        setSelectedDoctor(null);
+        setSelectedPatient(null);
     };
 
-    const handleDelete = (doctor: Doctor) => {
-        if (window.confirm(`Are you sure you want to dismiss ${doctor.name}?`)) {
-            console.log(`Dismissing Doctor with ID: ${doctor.id}`);
+    const handleDelete = (patient: Patient) => {
+        if (window.confirm(`Are you sure you want to archive patient ${patient.name}?`)) {
+            console.log(`Archiving Patient with ID: ${patient.id}`);
         }
     };
 
@@ -88,11 +88,11 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
     const [itemsPerPage] = useState(5);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = doctorsData.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(doctorsData.length / itemsPerPage);
+    const currentItems = patientsData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(patientsData.length / itemsPerPage);
     const paginate = (pageNumber: SetStateAction<number>) => setCurrentPage(pageNumber);
 
-    const modalMode = selectedDoctor ? 'edit' : 'create';
+    const modalMode = selectedPatient ? 'edit' : 'create';
 
     return (
         <div className="panel p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
@@ -100,7 +100,7 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
                 <div className="relative w-full sm:w-auto">
                     <input
                         type="text"
-                        placeholder="Search Doctors (Doctors)..."
+                        placeholder="Search Patients (Patients)..."
                         className="form-input ltr:pl-10 rtl:pr-10 border-2 border-green-200 dark:border-gray-600 rounded-lg py-2 w-full sm:w-80 focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:text-gray-100 transition duration-150 ease-in-out"
                     />
                     <IconSearch className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 text-green-400 w-5 h-5" />
@@ -113,9 +113,9 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
                         >
                             <option value="">Filter by Status</option>
                             <option value="Active">Active</option>
-                            <option value="Inactive">Inactive</option>
-                            <option value="Pending">Pending</option>
-                            <option value="On Leave">On Leave</option>
+                            <option value="Discharged">Discharged</option>
+                            <option value="Pending Admission">Pending Admission</option>
+                            <option value="Follow-up">Follow-up</option>
                         </select>
                     </div>
 
@@ -133,49 +133,65 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-700">
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Doctor Name</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Contact Email</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Doctor Expertise</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Current Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Patient ID</th>
+
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Patient Name</th>
+
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Contact</th>
+
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Body Type</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Primary Doctor</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Admission Status</th>
                             <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
-                        {currentItems.map((doctor) => (
-                            <tr key={doctor.id} className="hover:bg-green-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                        {currentItems.map((patient) => (
+                            <tr key={patient.id} className="hover:bg-green-50/50 dark:hover:bg-gray-700/50 transition duration-150">
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-normal font-semibold text-gray-900 dark:text-white">{doctor.name}</div>
+                                    <div className="text-sm font-semibold text-green-700 dark:text-green-400">{patient.patientId}</div>
+                                </td>
+
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-normal font-semibold text-gray-900 dark:text-white">{patient.name}</div>
+                                </td>
+
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className="text-sm text-gray-600 dark:text-gray-400 font-medium">{patient.phone}</div>
+
+                                </td>
+
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                    <div className={`text-sm font-medium ${patient.bodyType === 'Pitta' ? 'text-amber-600' : patient.bodyType === 'Vata' ? 'text-blue-600' : 'text-green-600'} dark:text-gray-300`}>
+                                        {patient.bodyType}
+                                    </div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">{doctor.email}</div>
+                                    <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">{patient.primaryDoctor || 'Unassigned'}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">{doctor.specialization}</div>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                    <StatusBadge status={doctor.status} />
+                                    <StatusBadge status={patient.status} />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div className="flex items-center justify-center space-x-4">
                                         <button
                                             className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition"
-                                            title="View Profile"
-                                            onClick={() => handleView(doctor)}
-
+                                            title="View Patient File"
+                                            onClick={() => handleView(patient)}
                                         >
                                             <IconEye className="w-5 h-5" />
                                         </button>
                                         <button
                                             className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition"
-                                            title="Edit Details"
-                                            onClick={() => handleEdit(doctor)}
+                                            title="Edit Admission"
+                                            onClick={() => handleEdit(patient)}
                                         >
                                             <IconEdit className="w-5 h-5" />
                                         </button>
                                         <button
                                             className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition"
-                                            title="Dismiss Doctor"
-                                            onClick={() => handleDelete(doctor)}
+                                            title="Archive Patient"
+                                            onClick={() => handleDelete(patient)}
                                         >
                                             <IconTrash className="w-5 h-5" />
                                         </button>
@@ -189,7 +205,7 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
 
             <div className="py-4 px-6 flex justify-between items-center border-t border-gray-200 dark:border-gray-700">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Showing {indexOfFirstItem + 1} to {indexOfLastItem > doctorsData.length ? doctorsData.length : indexOfLastItem} of {doctorsData.length} results
+                    Showing {indexOfFirstItem + 1} to {indexOfLastItem > patientsData.length ? patientsData.length : indexOfLastItem} of {patientsData.length} results
                 </div>
                 <nav className="relative z-0 inline-flex rounded-lg shadow-sm" aria-label="Pagination">
                     <button
@@ -222,25 +238,16 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
                 </nav>
             </div>
 
-            <DoctorModal
+            {/* --- Patient Modal Integration (Requires a PatientModal component) --- */}
+            {/* <PatientModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                doctorData={selectedDoctor ? {
-                    firstName: selectedDoctor.name.split(' ').slice(1, -1).join(' ') || selectedDoctor.name.split(' ')[1] || '',
-                    lastName: selectedDoctor.name.split(' ').pop() || '',
-                    phone: 'N/A',
-                    email: selectedDoctor.email,
-                    specialization: selectedDoctor.specialization,
-                    licenseNumber: selectedDoctor.licenseNumber || '',
-                    dob: selectedDoctor.dob || '',
-                    gender: selectedDoctor.gender || '',
-                    department: selectedDoctor.department || '',
-                    joiningDate: selectedDoctor.joiningDate || '',
-                } : null}
+                patientData={selectedPatient}
                 mode={modalMode}
             />
+            */}
         </div>
     );
 };
 
-export default DoctorTable;
+export default PatientTable;

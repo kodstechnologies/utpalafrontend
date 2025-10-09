@@ -1,30 +1,33 @@
 import { SetStateAction, useState } from 'react';
-import DoctorModal from './DoctorModal';
 import IconEye from '../../../../components/Icon/IconEye';
 import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
 import IconDownload from '../../../../components/Icon/IconDownload';
 import IconSearch from '../../../../components/Icon/IconSearch';
+import NurseModal from './NurseModal';
 
-interface Doctor {
-    id: number;
+interface Nurse extends NurseData {
     name: string;
-    email: string;
-    specialization: string;
-    status: 'Active' | 'Inactive' | 'On Leave' | 'Pending';
-    licenseNumber?: string;
-    dob?: string;
-    gender?: string;
-    department?: string;
-    joiningDate?: string;
+    id: number;
 }
 
-interface DoctorTableProps {
-    navigate: (path: string) => void;
+interface NurseData {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+    dob: string;
+    gender: 'Male' | 'Female' | 'Other';
+    specialization: string;
+    licenseNumber: string;
+    department: 'Ayurveda' | 'Panchakarma' | 'General' | 'Other';
+    joiningDate: string;
+    status: 'Active' | 'Inactive' | 'On Leave' | 'Pending';
 }
+
 
 type StatusBadgeProps = {
-    status: Doctor['status'];
+    status: NurseData['status'];
 };
 
 const StatusBadge = ({ status }: StatusBadgeProps) => {
@@ -52,55 +55,85 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
     );
 };
 
-const DoctorTable = ({ navigate }: DoctorTableProps) => {
-    const [doctorsData] = useState<Doctor[]>([
-        { id: 1, name: 'Dr. Kavita Rao', email: 'k.rao@veda.com', specialization: 'Internal Medicine', status: 'Active', licenseNumber: 'MED-1001', dob: '1985-06-15', gender: 'Female', department: 'General Medicine', joiningDate: '2010-08-01' },
-        { id: 2, name: 'Dr. Suresh Verma', email: 's.verma@veda.com', specialization: 'Wellness Therapy', status: 'Active', licenseNumber: 'MED-1002', dob: '1990-11-20', gender: 'Male', department: 'Therapy Unit', joiningDate: '2015-05-10' },
-        { id: 3, name: 'Dr. Anjali Puri', email: 'anjali.p@veda.com', specialization: 'Gynecology', status: 'Inactive', licenseNumber: 'MED-1003', dob: '1978-03-05', gender: 'Female', department: 'Women’s Health', joiningDate: '2005-01-20' },
-        { id: 4, name: 'Dr. Deepak Sharma', email: 'd.sharma@veda.com', specialization: 'Surgery', status: 'Active', licenseNumber: 'MED-1004', dob: '1995-09-25', gender: 'Male', department: 'Surgical Care', joiningDate: '2018-03-15' },
-        { id: 5, name: 'Dr. Preeti Das', email: 'preeti.d@veda.com', specialization: 'Pediatrics', status: 'Pending', licenseNumber: 'MED-1005', dob: '1982-07-12', gender: 'Female', department: 'Child Health', joiningDate: '2012-07-01' },
-    ] as Doctor[]);
+const mapTableDataToModalData = (nurse: Nurse): NurseData => {
+    const [title, ...restOfName] = nurse.name.split(' ');
+    const firstName = restOfName.slice(0, -1).join(' ');
+    const lastName = restOfName.pop() || '';
+
+    return {
+        firstName: firstName,
+        lastName: lastName,
+        email: nurse.email,
+        specialization: nurse.specialization,
+        status: nurse.status,
+        phone: 'N/A',
+        dob: '2000-01-01',
+        gender: 'Female',
+        licenseNumber: `REG-${nurse.id * 100}`,
+        department: 'Panchakarma',
+        joiningDate: '2022-03-15'
+    } as NurseData;
+}
+
+
+const NurseTable = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+    const [selectedNurseData, setSelectedNurseData] = useState<NurseData | null>(null);
+    const [modalMode, setModalMode] = useState<'create' | 'edit'>('edit');
 
-    const handleEdit = (doctor: Doctor) => {
-        setSelectedDoctor(doctor);
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedNurseData(null);
+    };
+
+    const handleEdit = (nurse: Nurse) => {
+        setSelectedNurseData(mapTableDataToModalData(nurse));
+        setModalMode('edit');
         setIsModalOpen(true);
     };
 
-    const handleView = (doctor: Doctor) => {
-        navigate(`/doctors/${doctor.id}`);
+    const handleView = (nurse: Nurse) => {
+        setSelectedNurseData(mapTableDataToModalData(nurse));
+        setModalMode('edit');
+        setIsModalOpen(true);
     };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setSelectedDoctor(null);
-    };
-
-    const handleDelete = (doctor: Doctor) => {
-        if (window.confirm(`Are you sure you want to dismiss ${doctor.name}?`)) {
-            console.log(`Dismissing Doctor with ID: ${doctor.id}`);
+    const handleDelete = (nurse: Nurse) => {
+        if (window.confirm(`Are you sure you want to dismiss ${nurse.name}?`)) {
+            console.log(`Dismissing Nurse with ID: ${nurse.id}`);
+            // TODO: Add API call to delete
         }
     };
+
+
+    const [nursesData] = useState<Nurse[]>([
+        { id: 1, name: 'Sister Leena Nair', email: 'leena.nair@veda.com', specialization: 'Abhyanga & Shirodhara', status: 'Active' },
+        { id: 2, name: 'Nurse Rohan Patel', email: 'rohan.p@veda.com', specialization: 'Vasti & Swedana', status: 'Active' },
+        { id: 3, name: 'Sister Anjali Rao', email: 'anjali.r@veda.com', specialization: 'Yoga & Pranayama', status: 'Inactive' },
+        { id: 4, name: 'Nurse Dinesh Sharma', email: 'dinesh.s@veda.com', specialization: 'Diet & Lifestyle Counseling', status: 'Active' },
+        { id: 5, name: 'Sister Kalyani Devi', email: 'kalyani.d@veda.com', specialization: 'Herbal Preparations', status: 'On Leave' },
+        { id: 6, name: 'Nurse Shanti Menon', email: 'shanti.m@veda.com', specialization: 'Abhyanga & Shirodhara', status: 'Pending' },
+        { id: 7, name: 'Sister Tanya Kapoor', email: 'tanya.k@veda.com', specialization: 'Marma Therapy', status: 'Active' },
+    ] as Nurse[]);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(5);
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = doctorsData.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(doctorsData.length / itemsPerPage);
-    const paginate = (pageNumber: SetStateAction<number>) => setCurrentPage(pageNumber);
+    const currentItems = nursesData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(nursesData.length / itemsPerPage);
 
-    const modalMode = selectedDoctor ? 'edit' : 'create';
+    const paginate = (pageNumber: SetStateAction<number>) => setCurrentPage(pageNumber);
 
     return (
         <div className="panel p-0 bg-white dark:bg-gray-800 rounded-lg shadow-xl">
             <div className="flex flex-col sm:flex-row items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700 space-y-4 sm:space-y-0">
+
                 <div className="relative w-full sm:w-auto">
                     <input
                         type="text"
-                        placeholder="Search Doctors (Doctors)..."
+                        placeholder="Search Nurses..."
                         className="form-input ltr:pl-10 rtl:pr-10 border-2 border-green-200 dark:border-gray-600 rounded-lg py-2 w-full sm:w-80 focus:border-green-500 focus:ring-green-500 dark:bg-gray-700 dark:text-gray-100 transition duration-150 ease-in-out"
                     />
                     <IconSearch className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2 text-green-400 w-5 h-5" />
@@ -133,49 +166,48 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
                     <thead>
                         <tr className="bg-gray-50 dark:bg-gray-700">
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Doctor Name</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Name</th>
                             <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Contact Email</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Doctor Expertise</th>
-                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Current Status</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Panchakarma Expertise</th>
+                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Status</th>
                             <th className="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider dark:text-gray-300">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-100 dark:bg-gray-800 dark:divide-gray-700">
-                        {currentItems.map((doctor) => (
-                            <tr key={doctor.id} className="hover:bg-green-50/50 dark:hover:bg-gray-700/50 transition duration-150">
+                        {currentItems.map((nurse) => (
+                            <tr key={nurse.id} className="hover:bg-green-50/50 dark:hover:bg-gray-700/50 transition duration-150">
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-normal font-semibold text-gray-900 dark:text-white">{doctor.name}</div>
+                                    <div className="text-normal font-semibold text-gray-900 dark:text-white">{nurse.name}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-600 dark:text-gray-400">{doctor.email}</div>
+                                    <div className="text-sm text-gray-600 dark:text-gray-400">{nurse.email}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">{doctor.specialization}</div>
+                                    <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">{nurse.specialization}</div>
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <StatusBadge status={doctor.status} />
+                                    <StatusBadge status={nurse.status} />
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
                                     <div className="flex items-center justify-center space-x-4">
                                         <button
                                             className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition"
                                             title="View Profile"
-                                            onClick={() => handleView(doctor)}
-
+                                            onClick={() => handleView(nurse)}
                                         >
                                             <IconEye className="w-5 h-5" />
                                         </button>
                                         <button
                                             className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition"
                                             title="Edit Details"
-                                            onClick={() => handleEdit(doctor)}
+                                            onClick={() => handleEdit(nurse)}
                                         >
                                             <IconEdit className="w-5 h-5" />
                                         </button>
                                         <button
                                             className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition"
-                                            title="Dismiss Doctor"
-                                            onClick={() => handleDelete(doctor)}
+                                            title="Dismiss Nurse"
+                                            onClick={() => handleDelete(nurse)}
                                         >
                                             <IconTrash className="w-5 h-5" />
                                         </button>
@@ -189,7 +221,7 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
 
             <div className="py-4 px-6 flex justify-between items-center border-t border-gray-200 dark:border-gray-700">
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                    Showing {indexOfFirstItem + 1} to {indexOfLastItem > doctorsData.length ? doctorsData.length : indexOfLastItem} of {doctorsData.length} results
+                    Showing {indexOfFirstItem + 1} to {indexOfLastItem > nursesData.length ? nursesData.length : indexOfLastItem} of {nursesData.length} results
                 </div>
                 <nav className="relative z-0 inline-flex rounded-lg shadow-sm" aria-label="Pagination">
                     <button
@@ -222,25 +254,14 @@ const DoctorTable = ({ navigate }: DoctorTableProps) => {
                 </nav>
             </div>
 
-            <DoctorModal
+            <NurseModal
                 isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                doctorData={selectedDoctor ? {
-                    firstName: selectedDoctor.name.split(' ').slice(1, -1).join(' ') || selectedDoctor.name.split(' ')[1] || '',
-                    lastName: selectedDoctor.name.split(' ').pop() || '',
-                    phone: 'N/A',
-                    email: selectedDoctor.email,
-                    specialization: selectedDoctor.specialization,
-                    licenseNumber: selectedDoctor.licenseNumber || '',
-                    dob: selectedDoctor.dob || '',
-                    gender: selectedDoctor.gender || '',
-                    department: selectedDoctor.department || '',
-                    joiningDate: selectedDoctor.joiningDate || '',
-                } : null}
+                onClose={closeModal}
+                nurseData={selectedNurseData}
                 mode={modalMode}
             />
         </div>
     );
 };
 
-export default DoctorTable;
+export default NurseTable;

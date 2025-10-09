@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { setPageTitle } from '../../../store/themeConfigSlice';
 import { useEffect } from 'react';
@@ -48,14 +47,7 @@ const AdminDashboard = () => {
 
     return (
         <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="#" className="text-primary hover:underline">
-                        Dashboard
-                    </Link>
-                </li>
-            </ul>
-            <div className="pt-5">
+            <div className="pt-2">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                     {statsData.map((stat) => (
                         <AdminDashboardStatsCard
