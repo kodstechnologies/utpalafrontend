@@ -1,6 +1,7 @@
 import { lazy } from 'react';
 import { useLocation } from 'react-router-dom';
 import PatientDetails from '../pages/Doctor/Patients/patientsDetails';
+import FamilyMember from '../pages/Doctor/Patients/FamilyMember';
 const MyPatients = lazy(() => import('../pages/Doctor/Patients/patients'));
 const Prescription = lazy(() => import('../pages/Doctor/Priscription'));
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard/AdminDashboard'));
@@ -35,6 +36,7 @@ const UserManagementWrapper = () => {
     );
 };
 
+const PatientExamination = lazy(() => import('../pages/Doctor/Patients/PatientExamination'));
 
 const routes = [
     // admin-dashboard
@@ -70,6 +72,16 @@ const routes = [
         element: <Prescription />,
         layout: 'default',
     },
+    {
+        path: 'family-member/:id',
+        element: <FamilyMember />,
+        layout: 'default',
+    },
+    {
+        path: 'patient-examination/:id',
+        element: <PatientExamination />,
+        layout: 'default',
+    }
 
 ];
 
