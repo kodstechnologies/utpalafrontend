@@ -50,7 +50,7 @@ const Sidebar = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-    const userrole: string = 'doctor'; // This should be fetched from user state or context
+    const userrole: string = 'admin'; // This should be fetched from user state or context
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
