@@ -13,6 +13,13 @@ const AdminUserManagementTherapist = lazy(() => import('../pages/admin/UserManag
 const AdminUserManagementPatient = lazy(() => import('../pages/admin/UserManagement/Patients/PatientPage'))
 const UserManagementLayout = lazy(() => import('../pages/admin/UserManagement/UserManagementLayout'))
 const DoctorProfile = lazy(() => import('../pages/admin/UserManagement/Doctors/DoctorProfile'))
+const NurseProfile = lazy(() => import('../pages/admin/UserManagement/Nurses/NurseProfile'))
+const PatientProfile = lazy(() => import('../pages/admin/UserManagement/Patients/PatientProfile'))
+const PharmacistProfile = lazy(() => import('../pages/admin/UserManagement/Pharmacists/PharmacistProfile'))
+const ReceptionistProfile = lazy(() => import('../pages/admin/UserManagement/Receptionists/ReceptionistProfile'))
+const TherapistProfile = lazy(()=> import ('../pages/admin/UserManagement/Therapists/TherapistProfile'))
+
+
 
 const routeComponents = {
     doctors: AdminUserManagementDoctor,
@@ -52,8 +59,33 @@ const routes = [
         layout: 'default',
     },
     {
-        path: 'doctors/:id',
+        path: 'doctor/:id',
         element: <DoctorProfile />,
+        layout: 'default',
+    },
+    {
+        path: 'nurse/:id',
+        element: <NurseProfile />,
+        layout: 'default',
+    },
+    {
+        path: 'patient/:id',
+        element: <PatientProfile />,
+        layout: 'default',
+    },
+    {
+        path: 'pharmacist/:id',
+        element: <PharmacistProfile />,
+        layout: 'default',
+    },
+    {
+        path: 'receptionist/:id',
+        element: <ReceptionistProfile />,
+        layout: 'default',
+    },
+    {
+        path: 'therapist/:id',
+        element: <TherapistProfile />,
         layout: 'default',
     },
 

@@ -1,52 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import IconX from '../../../../components/Icon/IconX';
 
-export type NurseModalMode = 'create' | 'edit';
+export type ModalMode = 'add' | 'edit';
 
-export interface NurseData {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phone: string;
-    dob: string;
-    gender: 'Male' | 'Female' | 'Other';
-    specialization: string;
-    licenseNumber: string;
-    department: 'Ayurveda' | 'Panchakarma' | 'General' | 'Other';
-    joiningDate: string;
-    status: 'Active' | 'Inactive' | 'On Leave' | 'Pending';
-}
-
-export interface NurseModalProps {
+export interface PharmacistModalProps {
     isOpen: boolean;
     onClose: () => void;
-    nurseData?: NurseData | null;
-    mode: NurseModalMode;
-    onSave?: (data: NurseData) => void;
+    mode: ModalMode;
+    pharmacistData?: {
+        id?: number;
+        name: string;
+        email: string;
+        role: 'Head Pharmacist' | 'Senior' | 'Junior' | 'Trainee';
+        status: 'Active' | 'Inactive' | 'On Leave' | 'Pending';
+        licenseNumber: string;
+        dob?: string;
+        gender?: string;
+        section: 'Dispensing' | 'Compounding' | 'Inventory' | 'Clinical';
+        joiningDate?: string;
+    };
+    onSave: (data: any) => void;
 }
 
-const getInitialState = (data: NurseData | null | undefined): NurseData => ({
-    firstName: data?.firstName || '',
-    lastName: data?.lastName || '',
-    email: data?.email || '',
-    phone: data?.phone || '',
-    dob: data?.dob || '',
-    gender: data?.gender || 'Male',
-    specialization: data?.specialization || '',
-    licenseNumber: data?.licenseNumber || '',
-    department: data?.department || 'Panchakarma',
-    joiningDate: data?.joiningDate || '',
-    status: data?.status || 'Active',
-});
-
-const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mode, onSave }) => {
-    const [formData, setFormData] = useState<NurseData>(getInitialState(nurseData));
+const PharmacistModal: React.FC<PharmacistModalProps> = ({ isOpen, onClose, mode, pharmacistData, onSave }) => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        role: 'Junior' as 'Head Pharmacist' | 'Senior' | 'Junior' | 'Trainee',
+        status: 'Active' as 'Active' | 'Inactive' | 'On Leave' | 'Pending',
+        licenseNumber: '',
+        dob: '',
+        gender: 'Male' as 'Male' | 'Female' | 'Other',
+        section: 'Dispensing' as 'Dispensing' | 'Compounding' | 'Inventory' | 'Clinical',
+        joiningDate: '',
+    });
 
     useEffect(() => {
-        setFormData(getInitialState(nurseData));
-    }, [nurseData, mode, isOpen]);
-
-    if (!isOpen) return null;
+        if (mode === 'edit' && pharmacistData) {
+            setFormData({
+                name: pharmacistData.name || '',
+                email: pharmacistData.email || '',
+                role: pharmacistData.role || 'Junior',
+                status: pharmacistData.status || 'Active',
+                licenseNumber: pharmacistData.licenseNumber || '',
+                dob: pharmacistData.dob || '',
+                gender: (pharmacistData.gender === 'Male' || pharmacistData.gender === 'Female' || pharmacistData.gender === 'Other')
+                    ? pharmacistData.gender
+                    : 'Male',
+                section: pharmacistData.section || 'Dispensing',
+                joiningDate: pharmacistData.joiningDate || '',
+            });
+        } else if (mode === 'add') {
+            setFormData({
+                name: '',
+                email: '',
+                role: 'Junior',
+                status: 'Active',
+                licenseNumber: '',
+                dob: '',
+                gender: 'Male',
+                section: 'Dispensing',
+                joiningDate: '',
+            });
+        }
+    }, [mode, pharmacistData, isOpen]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -55,19 +72,20 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSave?.(formData);
+        onSave(formData);
         onClose();
     };
 
-    const title = mode === 'edit' ? `Edit Nurse: ${nurseData?.firstName} ${nurseData?.lastName}` : 'Add New Nurse';
-    const buttonText = mode === 'edit' ? 'Save Changes' : 'Add Nurse';
+    if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
             <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-3xl p-6 md:p-8 relative shadow-2xl animate-fade-in">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                        {mode === 'add' ? 'Add New Pharmacist' : `Edit Pharmacist: ${pharmacistData?.name}`}
+                    </h2>
                     <button
                         onClick={onClose}
                         className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-all"
@@ -80,13 +98,10 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
                 <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {[
-                            { label: 'First Name', name: 'firstName', type: 'text', required: true },
-                            { label: 'Last Name', name: 'lastName', type: 'text', required: true },
+                            { label: 'Full Name', name: 'name', type: 'text', required: true },
                             { label: 'Email', name: 'email', type: 'email', required: true },
-                            { label: 'Phone', name: 'phone', type: 'tel', required: false },
-                            { label: 'Date of Birth', name: 'dob', type: 'date', required: false },
-                            { label: 'Registration Number', name: 'licenseNumber', type: 'text', required: true },
-                            { label: 'Specialization', name: 'specialization', type: 'text', required: true },
+                            { label: 'License Number', name: 'licenseNumber', type: 'text', required: true },
+                            { label: 'DOB', name: 'dob', type: 'date', required: false },
                             { label: 'Joining Date', name: 'joiningDate', type: 'date', required: false },
                         ].map(field => (
                             <div key={field.name}>
@@ -94,7 +109,7 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
                                 <input
                                     type={field.type}
                                     name={field.name}
-                                    value={formData[field.name as keyof NurseData]}
+                                    value={formData[field.name as keyof typeof formData]}
                                     onChange={handleChange}
                                     required={field.required}
                                     className="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
@@ -102,7 +117,7 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
                             </div>
                         ))}
 
-                        {/* Select Fields */}
+                        {/* Select fields */}
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Gender</label>
                             <select
@@ -116,22 +131,34 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Department</label>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Role</label>
                             <select
-                                name="department"
-                                value={formData.department}
+                                name="role"
+                                value={formData.role}
                                 onChange={handleChange}
                                 className="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                             >
-                                <option value="Ayurveda">Ayurveda</option>
-                                <option value="Panchakarma">Panchakarma</option>
-                                <option value="General">General</option>
-                                <option value="Other">Other</option>
+                                <option value="Head Pharmacist">Head Pharmacist</option>
+                                <option value="Senior">Senior</option>
+                                <option value="Junior">Junior</option>
+                                <option value="Trainee">Trainee</option>
                             </select>
                         </div>
-
+                        <div>
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Section</label>
+                            <select
+                                name="section"
+                                value={formData.section}
+                                onChange={handleChange}
+                                className="mt-1 block w-full rounded-xl border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 shadow-sm px-3 py-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
+                            >
+                                <option value="Dispensing">Dispensing</option>
+                                <option value="Compounding">Compounding</option>
+                                <option value="Inventory">Inventory</option>
+                                <option value="Clinical">Clinical</option>
+                            </select>
+                        </div>
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Status</label>
                             <select
@@ -161,7 +188,7 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
                             type="submit"
                             className="px-5 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 transition-all font-semibold shadow-md"
                         >
-                            {buttonText}
+                            {mode === 'add' ? 'Add Pharmacist' : 'Save Changes'}
                         </button>
                     </div>
                 </form>
@@ -170,4 +197,4 @@ const NurseModal: React.FC<NurseModalProps> = ({ isOpen, onClose, nurseData, mod
     );
 };
 
-export default NurseModal;
+export default PharmacistModal;

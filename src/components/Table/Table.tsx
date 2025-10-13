@@ -75,7 +75,7 @@ const Table = <T extends { id: number | string }>({
                 <div className="text-sm text-gray-600 dark:text-gray-400">
                     Showing {indexOfFirstItem + 1} to {indexOfLastItem > data.length ? data.length : indexOfLastItem} of {data.length} results
                 </div>
-                {totalPages > 1 && (
+                {totalPages > 0 && (
                     <nav className="relative z-0 inline-flex rounded-lg shadow-sm" aria-label="Pagination">
                         <button
                             onClick={() => paginate(currentPage - 1)}

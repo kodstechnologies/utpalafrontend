@@ -19,6 +19,8 @@
         "@types/node": "^22.4.0",
         "@types/react": "^18.0.21",
         "@types/react-dom": "^18.0.6",
+        "file-saver": "^2.0.5",
+        "lottie-react": "^2.4.1",
         "lucide-react": "^0.545.0",
         "react": "^18.2.0",
         "react-apexcharts": "^1.7.0",
@@ -28,11 +30,13 @@
         "react-router-dom": "^6.4.2",
         "react-scripts": "5.0.1",
         "web-vitals": "^4.2.3",
+        "xlsx": "^0.18.5",
         "yup": "^1.4.0"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.3",
         "@tailwindcss/typography": "^0.5.7",
+        "@types/file-saver": "^2.0.7",
         "@types/react": "^18.0.27",
         "@types/react-dom": "^18.0.10",
         "@vitejs/plugin-react": "^4.3.1",

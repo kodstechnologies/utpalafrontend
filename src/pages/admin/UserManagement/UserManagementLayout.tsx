@@ -4,6 +4,10 @@ import IconPlus from '../../../components/Icon/IconPlus';
 import UserTabs from './components/UserTabs';
 import DoctorModal from './Doctors/DoctorModal';
 import NurseModal from './Nurses/NurseModal';
+import PatientsModal from './Patients/PatientModal';
+import PharmacistModal from './Pharmacists/PharmacistModal';
+import TherapistModal from './Therapists/TherapistModal';
+import ReceptionistModal from './Receptionists/ReceptionistModal';
 
 const UserManagementLayout = ({ children }: { children: React.ReactNode }) => {
     const { userType } = useParams();
@@ -50,11 +54,78 @@ const UserManagementLayout = ({ children }: { children: React.ReactNode }) => {
             </div>
 
             {isModalOpen && activeTab === 'Doctors' && (
-                <DoctorModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} mode={'create'} />
+                <DoctorModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={'create'}
+                    onSave={(data) => {
+                        console.log('Saving patient:', data);
+                        setIsModalOpen(false);
+                    }}
+                />
             )}
 
             {isModalOpen && activeTab === 'Nurses' && (
-                <NurseModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} nurseData={null} mode={'create'} />)}
+                <NurseModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={'create'}
+                    onSave={(data) => {
+                        console.log('Saving patient:', data);
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
+
+            {isModalOpen && activeTab === 'Patients' && (
+                <PatientsModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={'add'}
+                    onSave={(data) => {
+                        console.log('Saving patient:', data);
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
+
+            {isModalOpen && activeTab === 'Pharmacists' && (
+                <PharmacistModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={'add'}
+                    onSave={(data) => {
+                        console.log('Saving pharmacist:', data);
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
+
+
+            {isModalOpen && activeTab === 'Therapists' && (
+                <TherapistModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={'add'}
+                    onSave={(data) => {
+                        console.log('Saving pharmacist:', data);
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
+
+            {isModalOpen && activeTab === 'Receptionists' && (
+                <ReceptionistModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={'add'}
+                    onSave={(data) => {
+                        console.log('Saving pharmacist:', data);
+                        setIsModalOpen(false);
+                    }}
+                />
+            )}
+
         </div>
     );
 };

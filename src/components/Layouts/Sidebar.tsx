@@ -5,7 +5,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { toggleSidebar } from '../../store/themeConfigSlice';
 import AnimateHeight from 'react-animate-height';
 import { IRootState } from '../../store';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import IconCaretsDown from '../Icon/IconCaretsDown';
 import IconCaretDown from '../Icon/IconCaretDown';
 import IconMenuDashboard from '../Icon/Menu/IconMenuDashboard';
@@ -44,6 +44,10 @@ const Sidebar = () => {
         }
     }, []);
 
+    const isUserManagementActive = useMemo(() =>
+        location.pathname.startsWith('/user-management')
+        , [location.pathname]);
+
     useEffect(() => {
         if (window.innerWidth < 1024 && themeConfig.sidebar) {
             dispatch(toggleSidebar());
@@ -75,31 +79,43 @@ const Sidebar = () => {
                         {userrole === 'admin' && (
                             <ul className="relative font-semibold space-y-0.5 p-4 py-0">
                                 <li className="menu nav-item">
-                                    <button type="button" className={`${currentMenu === 'dashboard' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('dashboard')}>
-                                        <div className="flex items-center">
-                                            <IconMenuDashboard
-                                                className="group-hover:!text-primary shrink-0" />
-                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark"><NavLink to="/">{t('dashboard')}</NavLink></span>
-                                        </div>
-
-
-                                    </button>
-
+                                    <NavLink to="/">
+                                        <button
+                                            type="button"
+                                            className={`${currentMenu === 'dashboard' || location.pathname === '/' ? 'active' : ''} nav-link group w-full`}
+                                            onClick={() => toggleMenu('dashboard')}
+                                        >
+                                            <div className="flex items-center">
+                                                <IconMenuDashboard
+                                                    className={`${currentMenu === 'dashboard' || location.pathname === '/' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    {t('dashboard')}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </NavLink>
                                 </li>
 
                                 <li className="menu nav-item">
-                                    <button type="button" className={`${currentMenu === 'User Management' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('User Management')}>
+                                    <button
+                                        type="button"
+                                        className={`${currentMenu === 'User Management' || isUserManagementActive ? 'active' : ''} nav-link group w-full`}
+                                        onClick={() => toggleMenu('User Management')}
+                                    >
                                         <div className="flex items-center">
-                                            <IconUsers className="group-hover:!text-primary shrink-0" />
+                                            <IconUsers
+                                                className={`${currentMenu === 'User Management' || isUserManagementActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                            />
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('User Management')}</span>
                                         </div>
 
-                                        <div className={currentMenu !== 'User Management' ? 'rtl:rotate-90 -rotate-90' : ''}>
+                                        <div className={currentMenu !== 'User Management' && !isUserManagementActive ? 'rtl:rotate-90 -rotate-90' : ''}>
                                             <IconCaretDown />
                                         </div>
                                     </button>
 
-                                    <AnimateHeight duration={300} height={currentMenu === 'User Management' ? 'auto' : 0}>
+                                    <AnimateHeight duration={300} height={currentMenu === 'User Management' || isUserManagementActive ? 'auto' : 0}>
                                         <ul className="sub-menu text-gray-500">
                                             <li>
                                                 <NavLink to="/user-management/doctors">{t('Doctors')}</NavLink>
@@ -121,6 +137,25 @@ const Sidebar = () => {
                                             </li>
                                         </ul>
                                     </AnimateHeight>
+                                </li>
+
+                                <li className="menu nav-item">
+                                    <NavLink to="/ward-category">
+                                        <button
+                                            type="button"
+                                            className={`${currentMenu === 'Ward & Category' || location.pathname === '/ward-category' ? 'active' : ''} nav-link group w-full`}
+                                            onClick={() => toggleMenu('Ward & Category')}
+                                        >
+                                            <div className="flex items-center">
+                                                <IconMenuDashboard
+                                                    className={`${currentMenu === 'Ward & Category' || location.pathname === '/ward-category' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    {t('Ward & Category')}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </NavLink>
                                 </li>
                             </ul>
                         )}

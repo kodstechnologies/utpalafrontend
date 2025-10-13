@@ -1,11 +1,15 @@
-import React, { useState, useMemo } from 'react';
-import Table, { Column } from '../../../../components/Table/Table'; 
+import React, { useState, useMemo, useCallback } from 'react';
+import Table, { Column } from '../../../../components/Table/Table';
 import DoctorModal from './DoctorModal';
 import IconEye from '../../../../components/Icon/IconEye';
 import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
 import IconDownload from '../../../../components/Icon/IconDownload';
 import IconSearch from '../../../../components/Icon/IconSearch';
+import FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
+import DeleteModal from '../../../../components/DeleteModal';
+import { useNavigate } from 'react-router-dom';
 
 interface Doctor {
     id: number;
@@ -28,31 +32,89 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
         Pending: 'bg-amber-400 text-amber-900 dark:bg-amber-600 dark:text-amber-100',
         'On Leave': 'bg-blue-500 text-white dark:bg-blue-700 dark:text-blue-100',
     };
-    const colorClass = colorClasses[status] || 'bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100';
-    return <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full shadow-sm ${colorClass}`}>{status}</span>;
+    return (
+        <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full shadow-sm ${colorClasses[status] || 'bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100'}`}>
+            {status}
+        </span>
+    );
 };
 
 const DoctorsPage = () => {
-    const [doctorsData] = useState<Doctor[]>([
-        { id: 1, name: 'Dr. Kavita Rao', email: 'k.rao@veda.com', specialization: 'Internal Medicine', status: 'Active', licenseNumber: 'MED-1001', dob: '1985-06-15', gender: 'Female', department: 'General Medicine', joiningDate: '2010-08-01' },
-         { id: 8, name: 'Dr. Kavita Rao', email: 'k.rao@veda.com', specialization: 'Internal Medicine', status: 'Active', licenseNumber: 'MED-1001', dob: '1985-06-15', gender: 'Female', department: 'General Medicine', joiningDate: '2010-08-01' },
-        { id: 2, name: 'Dr. Suresh Verma', email: 's.verma@veda.com', specialization: 'Wellness Therapy', status: 'Active', licenseNumber: 'MED-1002', dob: '1990-11-20', gender: 'Male', department: 'Therapy Unit', joiningDate: '2015-05-10' },
-        { id: 3, name: 'Dr. Anjali Puri', email: 'anjali.p@veda.com', specialization: 'Gynecology', status: 'Inactive', licenseNumber: 'MED-1003', dob: '1978-03-05', gender: 'Female', department: 'Women’s Health', joiningDate: '2005-01-20' },
-        { id: 4, name: 'Dr. Deepak Sharma', email: 'd.sharma@veda.com', specialization: 'Surgery', status: 'Active', licenseNumber: 'MED-1004', dob: '1995-09-25', gender: 'Male', department: 'Surgical Care', joiningDate: '2018-03-15' },
-        { id: 5, name: 'Dr. Preeti Das', email: 'preeti.d@veda.com', specialization: 'Pediatrics', status: 'Pending', licenseNumber: 'MED-1005', dob: '1982-07-12', gender: 'Female', department: 'Child Health', joiningDate: '2012-07-01' },
+    const [doctorsData, setDoctorsData] = useState<Doctor[]>([
+        { id: 1, name: 'Kavita Rao', email: 'k.rao@veda.com', specialization: 'Internal Medicine', status: 'Active', licenseNumber: 'MED-1001', dob: '1985-06-15', gender: 'Female', department: 'General Medicine', joiningDate: '2010-08-01' },
+        { id: 2, name: 'Suresh Verma', email: 's.verma@veda.com', specialization: 'Wellness Therapy', status: 'Active', licenseNumber: 'MED-1002', dob: '1990-11-20', gender: 'Male', department: 'Therapy Unit', joiningDate: '2015-05-10' },
+        { id: 3, name: 'Anjali Puri', email: 'anjali.p@veda.com', specialization: 'Gynecology', status: 'Inactive', licenseNumber: 'MED-1003', dob: '1978-03-05', gender: 'Female', department: 'Women’s Health', joiningDate: '2005-01-20' },
+        { id: 4, name: 'Deepak Sharma', email: 'd.sharma@veda.com', specialization: 'Surgery', status: 'Active', licenseNumber: 'MED-1004', dob: '1995-09-25', gender: 'Male', department: 'Surgical Care', joiningDate: '2018-03-15' },
+        { id: 5, name: 'Preeti Das', email: 'preeti.d@veda.com', specialization: 'Pediatrics', status: 'Pending', licenseNumber: 'MED-1005', dob: '1982-07-12', gender: 'Female', department: 'Child Health', joiningDate: '2012-07-01' },
     ]);
+
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [doctorToDelete, setDoctorToDelete] = useState<Doctor | null>(null);
 
-    const navigate = (path: string) => console.log(`Navigating to ${path}`); // Mock navigation
+    const navigate = useNavigate();
 
-    // Handlers are now in the parent component
-    const handleEdit = (doctor: Doctor) => { setSelectedDoctor(doctor); setIsModalOpen(true); };
-    const handleView = (doctor: Doctor) => navigate(`/doctors/${doctor.id}`);
-    const handleCloseModal = () => { setIsModalOpen(false); setSelectedDoctor(null); };
-    const handleDelete = (doctor: Doctor) => { if (window.confirm(`Are you sure you want to dismiss ${doctor.name}?`)) console.log(`Dismissing ${doctor.name}`); };
+    const handleView = (doctor: Doctor) => navigate(`/doctor/${doctor.id}`);
+
+    const handleEdit = (doctor: Doctor) => {
+        setSelectedDoctor(doctor);
+        setIsModalOpen(true);
+    };
+
+    const handleAdd = () => {
+        setSelectedDoctor(null);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedDoctor(null);
+    };
+
+    const handleSaveDoctor = (data: any) => {
+        if (selectedDoctor) {
+            // Edit mode
+            setDoctorsData(prev =>
+                prev.map(doc => (doc.id === selectedDoctor.id ? { ...doc, ...data, name: `${data.firstName} ${data.lastName}` } : doc))
+            );
+        } else {
+            // Create mode
+            const newDoctor: Doctor = {
+                id: doctorsData.length + 1,
+                name: `${data.firstName} ${data.lastName}`,
+                email: data.email,
+                specialization: data.specialization,
+                status: 'Active',
+                licenseNumber: data.licenseNumber,
+                dob: data.dob,
+                gender: data.gender,
+                department: data.department,
+                joiningDate: data.joiningDate,
+            };
+            setDoctorsData(prev => [...prev, newDoctor]);
+        }
+    };
+
+    const handleDeleteClick = (doctor: Doctor) => {
+        setDoctorToDelete(doctor);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        if (doctorToDelete) {
+            setDoctorsData(prev => prev.filter(d => d.id !== doctorToDelete.id));
+        }
+        setIsDeleteModalOpen(false);
+        setDoctorToDelete(null);
+    };
+
+    const handleCancelDelete = () => {
+        setIsDeleteModalOpen(false);
+        setDoctorToDelete(null);
+    };
 
     const filteredData = useMemo(() => doctorsData
         .filter(d => d.name.toLowerCase().includes(search.toLowerCase()))
@@ -60,44 +122,72 @@ const DoctorsPage = () => {
         [doctorsData, search, statusFilter]
     );
 
-    // 1. Define the columns for the table
     const columns: Column<Doctor>[] = useMemo(() => [
         { Header: 'Doctor Name', accessor: 'name', Cell: ({ value }) => <div className="font-semibold text-gray-900 dark:text-white">{value}</div> },
-        { Header: 'Contact Email', accessor: 'email', Cell: ({ value }) => <div className="text-gray-600 dark:text-gray-400">{value}</div> },
-        { Header: 'Doctor Expertise', accessor: 'specialization' },
-        { Header: 'Current Status', accessor: 'status', Cell: ({ value }) => <StatusBadge status={value} /> },
+        { Header: 'Email', accessor: 'email', Cell: ({ value }) => <div className="text-gray-600 dark:text-gray-400">{value}</div> },
+        { Header: 'Specialization', accessor: 'specialization' },
+        { Header: 'Status', accessor: 'status', Cell: ({ value }) => <StatusBadge status={value} /> },
     ], []);
 
-    // 2. Define the actions for each row
+    const handleExportData = useCallback(() => {
+        const dataToExport = filteredData.map(item => ({
+            'Doctor Name': item.name,
+            'Email': item.email,
+            'Specialization': item.specialization,
+            'Status': item.status,
+        }));
+        const ws = XLSX.utils.json_to_sheet(dataToExport);
+        const wb = { Sheets: { 'Doctors_Data': ws }, SheetNames: ['Doctors_Data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
+        FileSaver.saveAs(blob, 'doctors_data_export.xlsx');
+    }, [filteredData]);
+
     const renderActions = (doctor: Doctor) => (
-        <>
-            <button title="View Profile" onClick={() => handleView(doctor)}><IconEye className="w-5 h-5 text-blue-500 hover:text-blue-700" /></button>
-            <button title="Edit Details" onClick={() => handleEdit(doctor)}><IconEdit className="w-5 h-5 text-amber-500 hover:text-amber-700" /></button>
-            <button title="Dismiss Doctor" onClick={() => handleDelete(doctor)}><IconTrash className="w-5 h-5 text-red-500 hover:text-red-700" /></button>
-        </>
+        <div className="flex items-center space-x-3">
+            <button title="View" onClick={() => handleView(doctor)}><IconEye className="w-5 h-5 text-blue-500 hover:text-blue-700" /></button>
+            <button title="Edit" onClick={() => handleEdit(doctor)}><IconEdit className="w-5 h-5 text-amber-500 hover:text-amber-700" /></button>
+            <button title="Delete" onClick={() => handleDeleteClick(doctor)}><IconTrash className="w-5 h-5 text-red-500 hover:text-red-700" /></button>
+        </div>
     );
 
-    // 3. Define the content for the top bar (search, filters, etc.)
     const renderTopContent = () => (
-        <>
-            <div className="relative"><input type="text" placeholder="Search Doctors..." value={search} onChange={e => setSearch(e.target.value)} className="form-input ltr:pl-10 rtl:pr-10" /><IconSearch className="absolute ltr:left-3 rtl:right-3 top-1/2 -translate-y-1/2" /></div>
-            <div className="flex items-center space-x-3">
-                <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="form-select"><option value="">Filter by Status</option><option value="Active">Active</option><option value="Inactive">Inactive</option><option value="Pending">Pending</option><option value="On Leave">On Leave</option></select>
-                 <button
-                        type="button"
-                        className="flex items-center bg-green-500 text-white border border-green-600 rounded-lg py-2 px-4 hover:bg-green-600 dark:bg-green-700 dark:hover:bg-green-600 transition duration-150 shadow-md"
-                    >
-                        <IconDownload className="w-5 h-5 mr-1.5" />
-                        Export Data
-                    </button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 w-full">
+            <div className="relative w-full sm:w-60">
+                <input
+                    type="text"
+                    placeholder="Search Doctors..."
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="w-full border-2 border-green-200 dark:border-gray-600 rounded-lg py-2 pl-10 dark:bg-gray-700 dark:text-gray-100 focus:border-green-500 focus:ring-green-500 transition"
+                />
+                <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-green-400" />
             </div>
-        </>
+            <div className="flex items-center space-x-3 w-full sm:w-auto justify-end ">
+                <button
+                    onClick={handleExportData}
+                    className="flex items-center bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
+                >
+                    <IconDownload className="w-5 h-5 mr-1" /> Export Data
+                </button>
+            </div>
+        </div>
     );
 
     return (
         <>
             <Table columns={columns} data={filteredData} actions={renderActions} topContent={renderTopContent()} />
-            <DoctorModal isOpen={isModalOpen} onClose={handleCloseModal} doctorData={selectedDoctor ? { firstName: selectedDoctor.name.split(' ')[1] || '', lastName: selectedDoctor.name.split(' ').pop() || '', phone: 'N/A', email: selectedDoctor.email, specialization: selectedDoctor.specialization, licenseNumber: selectedDoctor.licenseNumber || '', dob: selectedDoctor.dob || '', gender: selectedDoctor.gender || '', department: selectedDoctor.department || '', joiningDate: selectedDoctor.joiningDate || '', } : null} mode={selectedDoctor ? 'edit' : 'create'} />
+            <DoctorModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                mode={selectedDoctor ? 'edit' : 'create'}
+                onSave={handleSaveDoctor}
+            />
+            <DeleteModal
+                isOpen={isDeleteModalOpen}
+                onCancel={handleCancelDelete}
+                onConfirm={handleConfirmDelete}
+            />
         </>
     );
 };
