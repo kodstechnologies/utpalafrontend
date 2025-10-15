@@ -181,7 +181,7 @@ const PatientProfile = () => {
                      <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">404 - Patient Not Found</h1>
                      <p className="text-gray-600 dark:text-gray-300">No profile found for ID: <span className="font-mono bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">{id}</span></p>
                      <button
-                         onClick={() => navigate('/user-management/patients')}
+                         onClick={() => navigate('/my-patients')}
                          className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-sky-600 hover:bg-sky-700 dark:bg-sky-700 dark:hover:bg-sky-600 transition"
                      >
                          Go Back to Patients List

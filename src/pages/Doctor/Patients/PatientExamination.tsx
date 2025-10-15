@@ -3,10 +3,18 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import AnimateHeight from 'react-animate-height';
 import { setPageTitle } from '../../../store/themeConfigSlice';
-import IconUser from '../../../components/Icon/IconUser';
+import IconUser from '../../../components/Icon/IconUser'; // Icon for 'Examination' (Placeholder for IconHome/IconListCheck)
+import IconX from '../../../components/Icon/IconX';
+import Prescription from '../Priscription';
+import TreatmentSessions from '../Treatment';
 import IconHeart from '../../../components/Icon/IconHeart';
 
-interface PatientType {
+// Define placeholder icons for the tabs (you should replace these with your actual icon imports)
+const IconExamination = IconUser;
+const IconPrescription = IconHeart;
+const IconTreatment = IconX; // Placeholder for a third icon
+
+interface Patient {
     id: string | undefined;
     name: string;
     age: number;
@@ -17,71 +25,130 @@ interface PatientType {
     vikruti?: string;
 }
 
-interface Examination {
-    date: string;
-    notes: string;
+interface Recommendation {
+    id: number;
+    label: string;
+    value: string;
 }
 
-interface Prescription {
-    medication: string;
-    dosage: string;
-    frequency: string;
-    duration?: string;
-    purpose?: string;
+interface DynamicField {
+    id: number;
+    label: string;
+    value: string;
 }
 
-interface Therapy {
-    type: string;
-    schedule: string;
-    oilOrHerbs?: string;
-    duration?: string;
-    notes?: string;
-}
+// Custom hook for managing accordion state for multiple sections
+const useAccordionState = (initialState: Record<string, boolean>) => {
+    const [openStates, setOpenStates] = useState(initialState);
+    const toggle = (key: string) => {
+        setOpenStates((prev) => ({ ...prev, [key]: !prev[key] }));
+    };
+    return { openStates, toggle };
+};
 
 const PatientExamination: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const dispatch = useDispatch();
-    const [patient, setPatient] = useState<PatientType | null>(null);
-    const [isProfileOpen, setIsProfileOpen] = useState(true);
-    const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'therapy'>('examination');
-    const [isOpen, setIsOpen] = useState(false);
-    const [presciptionOpen, setPresciptionOpen] = useState(false);
+    const [patient, setPatient] = useState<Patient | null>(null);
+    // Updated tab state to include all three tabs
+    const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'treatment'>('examination');
 
-    // Mock patient data
-    const patientData: PatientType = {
-        id: '1',
-        name: 'Jay Sharam',
-        age: 30,
-        gender: 'Male',
-        image: '/assets/images/user-profile.jpeg',
-        condition: 'Diabetes',
-        prakruti: 'Vata-Pitta',
-        vikruti: 'Pitta Imbalance',
-    };
+    // --- START: Tab Specific Classes (Based on your first code block) ---
+    const tabActiveClasses = 'text-primary border-b-2 border-primary dark:text-primary dark:border-primary';
+    const tabInactiveClasses = 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600';
+    // --- END: Tab Specific Classes ---
 
-    // Mock Ayurvedic data
-    const [examinationData, setExaminationData] = useState<Examination[]>([
-        { date: '2025-09-23', notes: 'Blood sugar slightly elevated. Pulse: Teevra Nadi, Agni: Tikshna' },
-        { date: '2025-06-15', notes: 'Adjusted diet and lifestyle. Blood pressure normal.' },
-    ]);
+    // Accordion states for the new and existing sections
+    const { openStates, toggle } = useAccordionState({
+        isProfileOpen: true,
+        isPrakritAssessmentOpen: true, 
+        isComplaintsOpen: true, 
+        isHistoryOfPatientIllnessOpen: true, 
+        isOnGoingMedicationsOpen: true, 
+        isPreviousInvestigationsOpen: true, 
+        isPresentInvestigationsOpen: true, 
+        isMedicalSurgicalHistoryOpen: true, 
+        isExamAccordionOpen: true, 
+        isDiagnosisAccordionOpen: true, 
+    });
 
-    const [prescriptionData, setPrescriptionData] = useState<Prescription[]>([
-        { medication: 'Triphala Churna', dosage: '1 tsp', frequency: 'Morning before food', duration: '30 days', purpose: 'Digestive support' },
-        { medication: 'Ashwagandha Powder', dosage: '1 tsp', frequency: 'Evening', duration: '45 days', purpose: 'Stress relief and immunity' },
-    ]);
+    const [recommendations, setRecommendations] = useState<Recommendation[]>([{ id: 1, label: 'Diet Recommendation', value: '' }]);
+    const [examinationValues, setExaminationValues] = useState<Record<string, string>>({});
+    const [additionalExamFields, setAdditionalExamFields] = useState<DynamicField[]>([]);
 
-    const [therapyData, setTherapyData] = useState<Therapy[]>([
-        { type: 'Abhyanga (Oil Massage)', schedule: 'Daily', oilOrHerbs: 'Sesame Oil', duration: '30 minutes', notes: 'Relaxation and vata pacification' },
-        { type: 'Shirodhara', schedule: 'Weekly', oilOrHerbs: 'Bala Oil', duration: '30 minutes', notes: 'Mental relaxation and pitta balance' },
-    ]);
+    // Mock patient data - in a real app, this would be fetched
+    const patientData: Patient[] = [
+        { id: '1', name: 'Jay Sharma', age: 30, gender: 'Male', image: '/assets/images/user-profile.jpeg', condition: 'Diabetes', prakruti: 'Vata-Pitta', vikruti: 'Vata Imbalance' },
+        // ... other patients
+    ];
 
     useEffect(() => {
         dispatch(setPageTitle('Patient Examination'));
-        // In a real app, you'd fetch patient data based on the id.
-        if (id === patientData.id) {
-            setPatient(patientData);
-        }
+        const selectedPatient = patientData.find((p) => p.id === id);
+        setPatient(selectedPatient || null);
     }, [id, dispatch]);
+
+    const handleAddRecommendation = () => {
+        setRecommendations([...recommendations, { id: Date.now(), label: '', value: '' }]);
+    };
+
+    const handleRecommendationChange = (id: number, field: 'label' | 'value', text: string) => {
+        setRecommendations(recommendations.map((rec) => (rec.id === id ? { ...rec, [field]: text } : rec)));
+    };
+
+    const handleRemoveRecommendation = (id: number) => {
+        setRecommendations((prev) => prev.filter((rec) => rec.id !== id));
+    };
+
+    const handleStaticExamChange = (label: string, value: string) => {
+        setExaminationValues((prev) => ({ ...prev, [label]: value }));
+    };
+
+    const handleAddAdditionalExamField = () => {
+        setAdditionalExamFields((prev) => [...prev, { id: Date.now(), label: '', value: '' }]);
+    };
+
+    const handleAdditionalExamChange = (id: number, field: 'label' | 'value', text: string) => {
+        setAdditionalExamFields((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: text } : item)));
+    };
+
+    const handleRemoveAdditionalExamField = (id: number) => {
+        setAdditionalExamFields((prev) => prev.filter((item) => item.id !== id));
+    };
+
+    // Helper component for the new sections to maintain UI consistency
+    const SectionAccordion: React.FC<{ title: string; stateKey: string; required?: boolean }> = ({ title, stateKey, required = false }) => (
+        <div className="panel p-0 shadow-none">
+            <div
+                className="flex justify-between items-center cursor-pointer p-4 border-b dark:border-gray-700"
+                onClick={() => toggle(stateKey)}
+            >
+                <h5 className={`font-semibold text-lg text-primary`}>
+                    {title} {required && <span className="text-red-500">*</span>}
+                </h5>
+                <span className="text-sm">{openStates[stateKey] ? 'Close' : 'Open'}</span>
+            </div>
+            <AnimateHeight duration={300} height={openStates[stateKey] ? 'auto' : 0}>
+                <div className="p-4">
+                    <textarea
+                        className="form-input text-sm w-full min-h-[100px]"
+                        placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin felis a eget eget urna. Ultricies sit pharetra maecenas neque, vel hendrerit viverra consectetur adipiscing dolor sit."
+                        rows={4}
+                        // In a real application, you would add state management here for the textarea value
+                        readOnly={true} // Set to true for placeholder example
+                    />
+                    {title.includes('Investigations') && (
+                        <div className="mt-2">
+                            <button type="button" className="btn btn-outline-primary btn-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" /></svg>
+                                Upload file
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </AnimateHeight>
+        </div>
+    );
 
     if (!patient) return <div className="text-center mt-10">Patient not found</div>;
 
@@ -89,283 +156,178 @@ const PatientExamination: React.FC = () => {
         <div className="px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
             <ul className="flex space-x-2 rtl:space-x-reverse mb-5">
-                <li>
-                    <Link to="/" className="text-primary hover:underline">
-                        Dashboard
-                    </Link>
-                </li>
+                <li><Link to="/" className="text-primary hover:underline">Dashboard</Link></li>
                 <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <Link to="/my-patients" className="text-primary hover:underline">
-                        My Patients
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <Link to={`/patient-details/${patient.id}`} className="text-primary hover:underline">
-                        Patient Details
-                    </Link>
+                    <Link to="/my-patients" className="text-primary hover:underline">My Patients</Link>
                 </li>
                 <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
                     <span>Patient Examination</span>
                 </li>
             </ul>
 
-            {/* Profile Section */}
-            <div className="panel mb-5">
-                <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsProfileOpen(!isProfileOpen)}>
-                    <h5 className="font-semibold text-lg dark:text-white-light">Profile - {patient.name}</h5>
-                    <span className="text-xl">{isProfileOpen ? '-' : '+'}</span>
-                </div>
-                <AnimateHeight duration={300} height={isProfileOpen ? 'auto' : 0}>
-                    <div className="flex flex-col sm:flex-row items-center gap-5 mt-3">
-                        <img src={patient.image} alt={patient.name} className="w-24 h-24 rounded-full object-cover" />
-                        <div className="flex-1">
-                            <h3 className="font-semibold text-primary text-xl mb-2">{patient.name}</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
-                                <div className="flex items-center gap-2">
-                                    <IconUser /> <strong>{patient.age} years</strong>
+            {/* Main Content Panel */}
+            <div className="panel p-0 mb-5">
+                {/* Profile Section (Kept outside the tab logic as it appears to be a header) */}
+                <div className="p-6 sm:p-8">
+                    <div className="flex justify-between items-center cursor-pointer" onClick={() => toggle('isProfileOpen')}>
+                        <h5 className="font-semibold text-lg dark:text-white-light">Profile - {patient.name}</h5>
+                        <span className="text-sm">{openStates.isProfileOpen ? 'Close' : 'Open'}</span>
+                    </div>
+                    <AnimateHeight duration={300} height={openStates.isProfileOpen ? 'auto' : 0}>
+                        <div className="flex flex-col sm:flex-row items-center gap-5 mt-3">
+                            <img src={patient.image} alt={patient.name} className="w-24 h-24 rounded-full object-cover" />
+                            <div className="flex-1">
+                                <h3 className="font-semibold text-primary text-xl mb-2">{patient.name}</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+                                    <div className="flex items-center gap-2"><IconUser /> <strong>{patient.age} years, {patient.gender}</strong></div>
+                                    <div className="flex items-center gap-2"><IconHeart /> <span><strong>Condition:</strong> {patient.condition}</span></div>
+                                    {patient.prakruti && <div><strong>Prakruti:</strong> {patient.prakruti}</div>}
+                                    {patient.vikruti && <div><strong>Vikruti:</strong> {patient.vikruti}</div>}
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <IconHeart /> <span><strong>Condition:</strong> {patient.condition}</span>
-                                </div>
-                                {patient.prakruti && (
-                                    <div>
-                                        <strong>Prakruti:</strong> {patient.prakruti}
-                                    </div>
-                                )}
-                                {patient.vikruti && (
-                                    <div>
-                                        <strong>Vikruti:</strong> {patient.vikruti}
-                                    </div>
-                                )}
                             </div>
                         </div>
-                    </div>
-                </AnimateHeight>
-            </div>
-
-            {/* Tabs */}
-            <div className="panel">
-                <ul className="flex border-b border-gray-200 dark:border-gray-800 font-semibold mb-4">
-                    <li className="mr-4">
-                        <button onClick={() => setActiveTab('examination')} className={`pb-2 ${activeTab === 'examination' ? 'border-b-2 border-primary text-primary' : ''}`}>
-                            Examination
+                    </AnimateHeight>
+                </div>
+                
+                {/* Tabs for Navigation (NEW STYLING APPLIED HERE) */}
+                <div className="border-b border-gray-200 dark:border-gray-700 px-6 sm:px-8">
+                    <div className="flex space-x-6 -mb-px">
+                        {/* Doctor Examination Tab */}
+                        <button
+                            onClick={() => setActiveTab('examination')}
+                            className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
+                                activeTab === 'examination' ? tabActiveClasses : tabInactiveClasses
+                            }`}
+                        >
+                            <IconExamination className="w-5 h-5 inline ltr:mr-2 rtl:ml-2 align-text-bottom" />
+                            Doctor Examination
                         </button>
-                    </li>
-                    <li className="mr-4">
-                        <button onClick={() => setActiveTab('prescription')} className={`pb-2 ${activeTab === 'prescription' ? 'border-b-2 border-primary text-primary' : ''}`}>
+                        
+                        {/* Prescription Tab */}
+                        <button
+                            onClick={() => setActiveTab('prescription')}
+                            className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
+                                activeTab === 'prescription' ? tabActiveClasses : tabInactiveClasses
+                            }`}
+                        >
+                            <IconPrescription className="w-5 h-5 inline ltr:mr-2 rtl:ml-2 align-text-bottom" />
                             Prescription
                         </button>
-                    </li>
-                    <li className="mr-4">
-                        <button onClick={() => setActiveTab('therapy')} className={`pb-2 ${activeTab === 'therapy' ? 'border-b-2 border-primary text-primary' : ''}`}>
-                            Therapy
+
+                        {/* Treatment Tab */}
+                        <button
+                            onClick={() => setActiveTab('treatment')}
+                            className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
+                                activeTab === 'treatment' ? tabActiveClasses : tabInactiveClasses
+                            }`}
+                        >
+                            <IconTreatment className="w-5 h-5 inline ltr:mr-2 rtl:ml-2 align-text-bottom" />
+                            Treatment
                         </button>
-                    </li>
-                </ul>
+                    </div>
+                </div>
 
-                <div>
-                    {/* Examination Tab */}
+                {/* Tab Content */}
+                <div className="p-6 sm:p-8 min-h-[400px]">
                     {activeTab === 'examination' && (
-                        <div className="space-y-3">
-                            {/* Existing Examination Records */}
-                            {examinationData.map((item, idx) => (
-                                <div key={idx} className="border rounded p-3 shadow-sm">
-                                    <div className="flex justify-between text-sm text-gray-500">
-                                        <span>Date: {item.date}</span>
-                                    </div>
-                                    <p className="mt-2">{item.notes}</p>
+                        <div className="space-y-5">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                                <div className="space-y-5">
+                                    <SectionAccordion title="Prakriti Assessment" stateKey="isPrakritAssessmentOpen" />
+                                    <SectionAccordion title="Complaints" stateKey="isComplaintsOpen" required={true} />
+                                    <SectionAccordion title="History of Patient Illness" stateKey="isHistoryOfPatientIllnessOpen" />
+                                    <SectionAccordion title="Ongoing Medications" stateKey="isOnGoingMedicationsOpen" />
+                                    <SectionAccordion title="Previous Investigations" stateKey="isPreviousInvestigationsOpen" />
+                                    <SectionAccordion title="Present Investigations" stateKey="isPresentInvestigationsOpen" />
+                                    <SectionAccordion title="Medical History / Surgical History" stateKey="isMedicalSurgicalHistoryOpen" />
                                 </div>
-                            ))}
-
-                            {/* Side-by-Side Accordions */}
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
-                                {/* Add Examination Accordion */}
-                                <div className="border rounded p-3 shadow-sm bg-white dark:bg-gray-800">
-                                    <div className="flex justify-between items-center cursor-pointer" onClick={() => setIsOpen(!isOpen)}>
-                                        <h5 className="font-semibold text-lg text-primary">Add Examination</h5>
-                                        <span className="text-xl">{isOpen ? '-' : '+'}</span>
-                                    </div>
-
-                                    <AnimateHeight duration={300} height={isOpen ? 'auto' : 0}>
-                                        <div className="mt-3">
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                {['Height (cm)', 'Weight (kg)', 'Blood Pressure (BP)', 'Pulse Type (Nadi)', 'Temperature', 'BMI', 'SPO2', 'Heart Rate', 'Vata Level', 'Pitta Level', 'Kapha Level', 'Agni (Digestion)', 'Stool', 'Urine', 'Sleep Quality'].map((label, idx) => (
-                                                    <div key={idx} className="flex flex-col">
-                                                        <label className="text-sm font-medium mb-1">{label}</label>
-                                                        <input type="text" className="border rounded px-2 py-1 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="Input value" />
+                                <div className="space-y-5">
+                                    {/* Add Examination Accordion */}
+                                    <div className="panel p-0 shadow-none">
+                                        <div className="flex justify-between items-center cursor-pointer p-4 border-b dark:border-gray-700" onClick={() => toggle('isExamAccordionOpen')}>
+                                            <h5 className="font-semibold text-lg text-primary">Add Examination</h5>
+                                            <span className="text-sm">{openStates.isExamAccordionOpen ? 'Close' : 'Open'}</span>
+                                        </div>
+                                        <AnimateHeight duration={300} height={openStates.isExamAccordionOpen ? 'auto' : 0}>
+                                            <div className="p-4 space-y-3">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {['Height (cm)', 'Weight (kg)', 'Blood Pressure (BP)', 'Temperature', 'BMI', 'SPO2', 'Heart Rate', 'Pulse Rate'].map((label) => (
+                                                        <div key={label} className="flex flex-col">
+                                                            <label className="text-sm font-medium mb-1">{label}</label>
+                                                            <input type="text" className="form-input text-sm" placeholder="Input value" value={examinationValues[label] || ''} onChange={(e) => handleStaticExamChange(label, e.target.value)} />
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                                {additionalExamFields.map((field) => (
+                                                    <div key={field.id} className="pt-2 border-t border-dashed dark:border-gray-700">
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                                                            <div>
+                                                                <label className="text-sm font-medium mb-1">Additional Parameter</label>
+                                                                <input type="text" className="form-input text-sm" placeholder="Enter parameter name" value={field.label} onChange={(e) => handleAdditionalExamChange(field.id, 'label', e.target.value)} />
+                                                            </div>
+                                                            <div className="flex items-end gap-2">
+                                                                <div className="flex-grow">
+                                                                    <label className="text-sm font-medium mb-1">Value</label>
+                                                                    <input type="text" className="form-input text-sm" placeholder="Enter value" value={field.value} onChange={(e) => handleAdditionalExamChange(field.id, 'value', e.target.value)} />
+                                                                </div>
+                                                                <button type="button" onClick={() => handleRemoveAdditionalExamField(field.id)} className="btn btn-outline-danger p-2"> <IconX className="w-4 h-4" /> </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 ))}
+                                                <button type="button" onClick={handleAddAdditionalExamField} className="btn btn-sm btn-outline-primary mt-4">+ Add More</button>
                                             </div>
-                                            <button className="mt-3 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Add Examination</button>
-                                        </div>
-                                    </AnimateHeight>
-                                </div>
-
-                                {/* Diagnosis & Recommendations Accordion */}
-                                <div className="border rounded p-3 shadow-sm bg-white dark:bg-gray-800">
-                                    <div className="flex justify-between items-center cursor-pointer" onClick={() => setPresciptionOpen(!presciptionOpen)}>
-                                        <h5 className="font-semibold text-lg text-primary">Diagnosis & Recommendations</h5>
-                                        <span className="text-xl">{presciptionOpen ? '-' : '+'}</span>
+                                        </AnimateHeight>
                                     </div>
 
-                                    <AnimateHeight duration={300} height={presciptionOpen ? 'auto' : 0}>
-                                        <div className="mt-3">
-                                            <div className="grid grid-cols-1 gap-2">
-                                                {['Diet Recommendation', 'Lifestyle Advice', 'Herbal Medication', 'Therapy Suggestion'].map((label, idx) => (
-                                                    <div key={idx} className="flex flex-col">
-                                                        <label className="text-sm font-medium mb-1">{label}</label>
-                                                        <textarea className="border rounded px-2 py-1 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder={`Enter ${label.toLowerCase()}`} rows={2} />
+                                    {/* Diagnosis & Recommendations Accordion */}
+                                    <div className="panel p-0 shadow-none">
+                                        <div className="flex justify-between items-center cursor-pointer p-4 border-b dark:border-gray-700" onClick={() => toggle('isDiagnosisAccordionOpen')}>
+                                            <h5 className="font-semibold text-lg text-primary">Diagnosis & Recommendations</h5>
+                                            <span className="text-sm">{openStates.isDiagnosisAccordionOpen ? 'Close' : 'Open'}</span>
+                                        </div>
+                                        <AnimateHeight duration={300} height={openStates.isDiagnosisAccordionOpen ? 'auto' : 0}>
+                                            <div className="p-4 space-y-3">
+                                                {recommendations.map((rec, index) => (
+                                                    <div key={rec.id} className="flex items-start gap-2">
+                                                        <div className="flex-grow">
+                                                            <textarea
+                                                                className="form-input text-sm w-full"
+                                                                placeholder={index === 0 ? 'Enter diagnosis/recommendation...' : 'Enter details...'}
+                                                                rows={2}
+                                                                value={rec.value}
+                                                                onChange={(e) => handleRecommendationChange(rec.id, 'value', e.target.value)}
+                                                            />
+                                                        </div>
+                                                        {index > 0 && (
+                                                            <button type="button" onClick={() => handleRemoveRecommendation(rec.id)} className="btn btn-outline-danger p-2 mt-1"> <IconX className="w-4 h-4" /> </button>
+                                                        )}
                                                     </div>
                                                 ))}
+                                                <button type="button" onClick={handleAddRecommendation} className="btn btn-sm btn-outline-primary mt-3">+ Add Diagnosis/Recommendation</button>
                                             </div>
-                                            <button className="mt-3 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Add Diagnosis</button>
-                                        </div>
-                                    </AnimateHeight>
+                                        </AnimateHeight>
+                                    </div>
                                 </div>
+                            </div>
+                            <div className="flex justify-end gap-4 mt-5">
+                                <button type="button" className="btn btn-outline-danger">Cancel</button>
+                                <button type="button" className="btn btn-success">Confirm</button>
                             </div>
                         </div>
                     )}
-
-                    {/* Prescription Tab */}
+                    
+                    {/* Prescription Tab Content */}
                     {activeTab === 'prescription' && (
-                        <div className="space-y-5">
-                            {/* Existing Prescriptions */}
-                            {prescriptionData.map((item, idx) => (
-                                <div key={idx} className="border rounded p-3 shadow-sm bg-white dark:bg-gray-800">
-                                    <p>
-                                        <strong>Medication:</strong> {item.medication}
-                                    </p>
-                                    <p>
-                                        <strong>Dosage:</strong> {item.dosage}
-                                    </p>
-                                    <p>
-                                        <strong>Frequency:</strong> {item.frequency}
-                                    </p>
-                                    {item.duration && (
-                                        <p>
-                                            <strong>Duration:</strong> {item.duration}
-                                        </p>
-                                    )}
-                                    {item.purpose && (
-                                        <p>
-                                            <strong>Purpose:</strong> {item.purpose}
-                                        </p>
-                                    )}
-                                </div>
-                            ))}
-
-                            {/* Add Prescription Form */}
-                            <div className="flex justify-between items-center cursor-pointer mb-4" onClick={() => setPresciptionOpen(!presciptionOpen)}>
-                                <h5 className="font-semibold text-lg text-primary">Add Ayurvedic Prescription</h5>
-                                <span className="text-xl">{presciptionOpen ? '-' : '+'}</span>
-                            </div>
-
-                            {/* Collapsible Form */}
-                            <AnimateHeight duration={300} height={presciptionOpen ? 'auto' : 0}>
-                                <form className="space-y-4">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Herbal Medicine / Formulation</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="e.g., Triphala Churna" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Dosage</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="e.g., 1 tsp" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Frequency</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="Morning / Evening" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Duration</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="e.g., 30 days" />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col">
-                                        <label className="text-sm font-medium mb-1">Purpose / Notes</label>
-                                        <textarea className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="Enter purpose or notes" rows={3}></textarea>
-                                    </div>
-
-                                    <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2 rounded-md transition">
-                                        Add Prescription
-                                    </button>
-                                </form>
-                            </AnimateHeight>
+                        <div>
+                            <Prescription />
                         </div>
                     )}
-
-                    {/* Therapy Tab */}
-                    {activeTab === 'therapy' && (
-                        <div className="space-y-5">
-                            {/* Existing Therapy Records */}
-                            {therapyData.map((item, idx) => (
-                                <div key={idx} className="border rounded p-3 shadow-sm bg-white dark:bg-gray-800">
-                                    <p>
-                                        <strong>Therapy:</strong> {item.type}
-                                    </p>
-                                    <p>
-                                        <strong>Schedule:</strong> {item.schedule}
-                                    </p>
-                                    {item.oilOrHerbs && (
-                                        <p>
-                                            <strong>Oil / Herbs:</strong> {item.oilOrHerbs}
-                                        </p>
-                                    )}
-                                    {item.duration && (
-                                        <p>
-                                            <strong>Duration:</strong> {item.duration}
-                                        </p>
-                                    )}
-                                    {item.notes && (
-                                        <p>
-                                            <strong>Notes:</strong> {item.notes}
-                                        </p>
-                                    )}
-                                </div>
-                            ))}
-                            <div className="flex justify-between items-center cursor-pointer mb-4" onClick={() => setIsOpen(!isOpen)}>
-                                <h5 className="font-semibold text-lg text-primary">Add Ayurvedic Therapy</h5>
-                                <span className="text-xl">{isOpen ? '-' : '+'}</span>
-                            </div>
-                            {/* Add Therapy Form */}
-                            <AnimateHeight duration={300} height={isOpen ? 'auto' : 0}>
-                                <form className="space-y-4">
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Therapy Type</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="e.g., Abhyanga" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Schedule / Frequency</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="Daily / Weekly" />
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Oil / Herbs used</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="e.g., Sesame Oil" />
-                                        </div>
-                                        <div className="flex flex-col">
-                                            <label className="text-sm font-medium mb-1">Duration / Session Time</label>
-                                            <input type="text" className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="e.g., 30 min" />
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-col">
-                                        <label className="text-sm font-medium mb-1">Purpose / Notes</label>
-                                        <textarea className="border rounded px-3 py-2 text-sm focus:ring focus:ring-primary focus:outline-none" placeholder="Enter purpose or notes" rows={3}></textarea>
-                                    </div>
-
-                                    <button type="submit" className="bg-green-500 hover:bg-green-600 text-white px-5 py-2 rounded-md transition">
-                                        Add Therapy
-                                    </button>
-                                </form>
-                            </AnimateHeight>
+                    
+                    {/* Treatment Tab Content */}
+                    {activeTab === 'treatment' && (
+                        <div>
+                            <TreatmentSessions />
                         </div>
                     )}
                 </div>

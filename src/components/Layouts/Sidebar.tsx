@@ -13,6 +13,15 @@ import IconMenuUsers from '../Icon/Menu/IconMenuUsers';
 import IconMenuPages from '../Icon/Menu/IconMenuPages';
 import IconUsers from '../Icon/IconUsers';
 import IconMenuForms from '../Icon/Menu/IconMenuForms';
+import IconCalendar from '../Icon/IconCalendar';
+import IconMenuInvoice from '../Icon/Menu/IconMenuInvoice';
+import IconCreditCard from '../Icon/IconCreditCard';
+import IconReport from '../Icon/IconFile';
+import IconHeart from '../Icon/IconHeart';
+import IconLogout from '../Icon/IconLogout';
+import IconNotes from '../Icon/IconNotes';
+import IconFile from '../Icon/IconFile';
+
 
 const Sidebar = () => {
     const [currentMenu, setCurrentMenu] = useState<string>('');
@@ -54,7 +63,7 @@ const Sidebar = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-    const userrole: string = 'admin'; // This should be fetched from user state or context
+    const userrole: string = 'nurse'; // This should be fetched from user state or context
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
@@ -186,10 +195,198 @@ const Sidebar = () => {
                                     </NavLink>
                                 </li>
                                 <li className="menu nav-item">
-                                    <NavLink to="/settings" className="nav-link group">
+                                    <NavLink to="/treatments" className="nav-link group">
                                         <div className="flex items-center">
                                             <IconMenuPages className="group-hover:!text-primary shrink-0" />
-                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('settings')}</span>
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Threatment')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/next-visit" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconCalendar className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Schedule next visit')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/discharge-summary" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconFile className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Discharge Summary')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+
+
+                            </ul>
+                        )}
+                        {userrole === 'pharmacist' && (
+                            <ul className="relative font-semibold space-y-0.5 p-4 py-0">
+                                <li className="menu nav-item">
+                                    <button type="button" className={`${currentMenu === 'dashboard' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('dashboard')}>
+                                        <div className="flex items-center">
+                                            <IconMenuDashboard className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark"><NavLink to="/">{t('dashboard')}</NavLink></span>
+                                        </div>
+                                    </button>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/prescriptions" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconNotes className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Prescriptions')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/inventory" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconCreditCard className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Inventory')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/invoice" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuInvoice className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Invoice')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+
+
+                            </ul>
+                        )}
+                        {userrole === 'nurse' && (
+                            <ul className="relative font-semibold space-y-0.5 p-4 py-0">
+                                <li className="menu nav-item">
+                                    <NavLink to="/" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuDashboard className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Dashboard')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/admissions" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconUsers className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Admissions')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/monitoring" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconHeart className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Patient Monitoring')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/discharge" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconLogout className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Discharge Preparation')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        )}
+                        {userrole === 'patient' && (
+                            <ul className="relative font-semibold space-y-0.5 p-4 py-0">
+                                <li className="menu nav-item">
+                                    <NavLink to="/" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuDashboard className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Dashboard')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/patient/family" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconUsers className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Family Members')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/patient/consultations" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconNotes className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Consultations')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/patient/prescriptions" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuForms className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Prescriptions')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/patient/therapies" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconCalendar className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Therapies')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/patient/reports" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconReport className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Reports & Investigations')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                            </ul>
+                        )}
+                        {userrole === 'receptionist' && (
+                            <ul className="relative font-semibold space-y-0.5 p-4 py-0">
+                                <li className="menu nav-item">
+                                    <NavLink to="/" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuDashboard className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Dashboard')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/receptionist/appointments" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconUsers className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Appointment')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/receptionist/payments" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconCreditCard className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Payments')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/receptionist/reports" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuForms className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Reports')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/discharge-summary" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconFile className="group-hover:!text-primary shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Discharge Summary')}</span>
                                         </div>
                                     </NavLink>
                                 </li>
