@@ -13,19 +13,22 @@ import IconMenuUsers from '../Icon/Menu/IconMenuUsers';
 import IconMenuPages from '../Icon/Menu/IconMenuPages';
 import IconUsers from '../Icon/IconUsers';
 import IconMenuForms from '../Icon/Menu/IconMenuForms';
+import { Layers } from 'lucide-react';
+import { Stethoscope } from "lucide-react";
+import { CalendarClock } from "lucide-react";
+import { PackagePlus } from "lucide-react";
 
 const Sidebar = () => {
-    const [currentMenu, setCurrentMenu] = useState<string>('');
+    const [currentMenu, setCurrentMenu] = useState<string | null>(null);
     const themeConfig = useSelector((state: IRootState) => state.themeConfig);
     const semidark = useSelector((state: IRootState) => state.themeConfig.semidark);
     const location = useLocation();
     const dispatch = useDispatch();
     const { t } = useTranslation();
-    const toggleMenu = (value: string) => {
-        setCurrentMenu((oldValue) => {
-            return oldValue === value ? '' : value;
-        });
+    const toggleMenu = (menu: string) => {
+        setCurrentMenu(prev => (prev === menu ? null : menu));
     };
+
 
     useEffect(() => {
         const selector = document.querySelector('.sidebar ul a[href="' + window.location.pathname + '"]');
@@ -100,7 +103,7 @@ const Sidebar = () => {
                                 <li className="menu nav-item">
                                     <button
                                         type="button"
-                                        className={`${currentMenu === 'User Management' || isUserManagementActive ? 'active' : ''} nav-link group w-full`}
+                                        className={`${currentMenu === 'User Management' ? 'active' : ''} nav-link group w-full`}
                                         onClick={() => toggleMenu('User Management')}
                                     >
                                         <div className="flex items-center">
@@ -110,12 +113,13 @@ const Sidebar = () => {
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('User Management')}</span>
                                         </div>
 
-                                        <div className={currentMenu !== 'User Management' && !isUserManagementActive ? 'rtl:rotate-90 -rotate-90' : ''}>
+                                        <div className={currentMenu === 'User Management' ? '' : 'rtl:rotate-90 -rotate-90'}>
                                             <IconCaretDown />
                                         </div>
                                     </button>
 
-                                    <AnimateHeight duration={300} height={currentMenu === 'User Management' || isUserManagementActive ? 'auto' : 0}>
+                                    <AnimateHeight duration={300}
+                                        height={currentMenu === 'User Management' ? 'auto' : 0}>
                                         <ul className="sub-menu text-gray-500">
                                             <li>
                                                 <NavLink to="/user-management/doctors">{t('Doctors')}</NavLink>
@@ -139,7 +143,7 @@ const Sidebar = () => {
                                     </AnimateHeight>
                                 </li>
 
-                                <li className="menu nav-item">
+                                {/* <li className="menu nav-item">
                                     <NavLink to="/ward-category">
                                         <button
                                             type="button"
@@ -147,11 +151,68 @@ const Sidebar = () => {
                                             onClick={() => toggleMenu('Ward & Category')}
                                         >
                                             <div className="flex items-center">
-                                                <IconMenuDashboard
+                                                <Layers
                                                     className={`${currentMenu === 'Ward & Category' || location.pathname === '/ward-category' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
                                                 />
                                                 <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
                                                     {t('Ward & Category')}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </NavLink>
+                                </li> */}
+
+                                <li className="menu nav-item">
+                                    <NavLink to="/treatment-therapy">
+                                        <button
+                                            type="button"
+                                            className={`${currentMenu === 'Treatment & Therapy' || location.pathname === '/treatment-therapy' ? 'active' : ''} nav-link group w-full`}
+                                            onClick={() => toggleMenu('Treatment & Therapy')}
+                                        >
+                                            <div className="flex items-center">
+                                                <Stethoscope
+                                                    className={`${currentMenu === 'Treatment & Therapy' || location.pathname === '/treatment-therapy' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    {t('Treatment & Therapy')}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </NavLink>
+                                </li>
+
+                                  <li className="menu nav-item">
+                                    <NavLink to="/consultation-scheduling">
+                                        <button
+                                            type="button"
+                                            className={`${currentMenu === 'Consultation & Scheduling' || location.pathname === '/consultation-scheduling' ? 'active' : ''} nav-link group w-full`}
+                                            onClick={() => toggleMenu('Consultation & Scheduling')}
+                                        >
+                                            <div className="flex items-center">
+                                                <CalendarClock
+                                                    className={`${currentMenu === 'Consultation & Scheduling' || location.pathname === '/consultation-scheduling' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    {t('Consultation & Scheduling')}
+                                                </span>
+                                            </div>
+                                        </button>
+                                    </NavLink>
+                                </li>
+
+                                  <li className="menu nav-item">
+                                    <NavLink to="/pharmacy-inventory">
+                                        <button
+                                            type="button"
+                                            className={`${currentMenu === 'Pharmacy & Inventory' || location.pathname === '/pharmacy-inventory' ? 'active' : ''} nav-link group w-full`}
+                                            onClick={() => toggleMenu('Pharmacy & Inventory')}
+                                        >
+                                            <div className="flex items-center">
+                                                <PackagePlus
+                                                    className={`${currentMenu === 'Pharmacy & Inventory' || location.pathname === '/pharmacy-inventory' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
+                                                    {t('Pharmacy & Inventory')}
                                                 </span>
                                             </div>
                                         </button>

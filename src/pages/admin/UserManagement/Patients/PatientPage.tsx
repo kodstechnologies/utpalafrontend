@@ -22,6 +22,7 @@ interface Patient {
     bodyType: 'Vata' | 'Pitta' | 'Kapha' | 'Tridosha';
     status: 'Active' | 'Discharged' | 'Pending Admission' | 'Follow-up';
     phone: string;
+    mail: any,
     primaryDoctor?: string;
     admissionDate?: string;
 }
@@ -54,12 +55,12 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
 
 const PatientsPage = () => {
     const [patientsData, setPatientsData] = useState<Patient[]>([
-        { id: 1, patientId: 'P-00101', name: 'Alia Bhatt', phone: '98765 43210', dob: '1995-03-14', gender: 'Female', bodyType: 'Vata', status: 'Active', primaryDoctor: 'Dr. K. Rao', admissionDate: '2024-05-10' },
-        { id: 2, patientId: 'P-00102', name: 'Rajesh Khanna', phone: '87654 32109', dob: '1968-11-20', gender: 'Male', bodyType: 'Pitta', status: 'Pending Admission', primaryDoctor: 'Dr. S. Verma', admissionDate: '2024-06-01' },
-        { id: 3, patientId: 'P-00103', name: 'Sarla Devi', phone: '76543 21098', dob: '1982-01-25', gender: 'Female', bodyType: 'Kapha', status: 'Follow-up', primaryDoctor: 'Dr. Anjali Puri', admissionDate: '2024-04-15' },
-        { id: 4, patientId: 'P-00104', name: 'Amit Singh', phone: '65432 10987', dob: '1975-09-01', gender: 'Male', bodyType: 'Tridosha', status: 'Discharged', primaryDoctor: 'Dr. Deepak Sharma', admissionDate: '2024-03-20' },
-        { id: 5, patientId: 'P-00105', name: 'Priya Mani', phone: '54321 09876', dob: '2000-07-12', gender: 'Female', bodyType: 'Vata', status: 'Active', primaryDoctor: 'Dr. Preeti Das', admissionDate: '2024-05-25' },
-        { id: 6, patientId: 'P-00106', name: 'Ganesh Iyer', phone: '43210 98765', dob: '1955-02-05', gender: 'Male', bodyType: 'Pitta', status: 'Discharged', primaryDoctor: 'Dr. K. Rao', admissionDate: '2024-01-01' },
+        { id: 1, patientId: 'P-00101', name: 'Alia Bhatt', phone: '98765 43210', mail: 'alia.b@example.com', dob: '1995-03-14', gender: 'Female', bodyType: 'Vata', status: 'Active', primaryDoctor: 'Dr. K. Rao', admissionDate: '2024-05-10' },
+        { id: 2, patientId: 'P-00102', name: 'Rajesh Khanna', phone: '87654 32109', mail: 'rajesh.k@example.com', dob: '1968-11-20', gender: 'Male', bodyType: 'Pitta', status: 'Pending Admission', primaryDoctor: 'Dr. S. Verma', admissionDate: '2024-06-01' },
+        { id: 3, patientId: 'P-00103', name: 'Sarla Devi', phone: '76543 21098', mail: 'sarla.d@example.com', dob: '1982-01-25', gender: 'Female', bodyType: 'Kapha', status: 'Follow-up', primaryDoctor: 'Dr. Anjali Puri', admissionDate: '2024-04-15' },
+        { id: 4, patientId: 'P-00104', name: 'Amit Singh', phone: '65432 10987', mail: 'amit.s@example.com', dob: '1975-09-01', gender: 'Male', bodyType: 'Tridosha', status: 'Discharged', primaryDoctor: 'Dr. Deepak Sharma', admissionDate: '2024-03-20' },
+        { id: 5, patientId: 'P-00105', name: 'Priya Mani', phone: '54321 09876', mail: 'priya.m@example.com', dob: '2000-07-12', gender: 'Female', bodyType: 'Vata', status: 'Active', primaryDoctor: 'Dr. Preeti Das', admissionDate: '2024-05-25' },
+        { id: 6, patientId: 'P-00106', name: 'Ganesh Iyer', phone: '43210 98765', mail: 'ganesh.i@example.com', dob: '1955-02-05', gender: 'Male', bodyType: 'Pitta', status: 'Discharged', primaryDoctor: 'Dr. K. Rao', admissionDate: '2024-01-01' },
     ]);
 
     const [search, setSearch] = useState('');
@@ -121,6 +122,7 @@ const PatientsPage = () => {
         { Header: 'Patient ID', accessor: 'patientId', Cell: ({ value }) => <div className="text-sm font-semibold text-green-700 dark:text-green-400">{value}</div> },
         { Header: 'Patient Name', accessor: 'name', Cell: ({ value }) => <div className="font-semibold text-gray-900 dark:text-white">{value}</div> },
         { Header: 'Contact', accessor: 'phone', Cell: ({ value }) => <div className="text-gray-600 dark:text-gray-400 font-medium">{value}</div> },
+        { Header: 'Email', accessor: 'mail', Cell: ({ value }) => <div className="text-gray-600 dark:text-gray-400 font-medium">{value}</div> },
         {
             Header: 'Body Type',
             accessor: 'bodyType',

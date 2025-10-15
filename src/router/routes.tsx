@@ -17,7 +17,12 @@ const NurseProfile = lazy(() => import('../pages/admin/UserManagement/Nurses/Nur
 const PatientProfile = lazy(() => import('../pages/admin/UserManagement/Patients/PatientProfile'))
 const PharmacistProfile = lazy(() => import('../pages/admin/UserManagement/Pharmacists/PharmacistProfile'))
 const ReceptionistProfile = lazy(() => import('../pages/admin/UserManagement/Receptionists/ReceptionistProfile'))
-const TherapistProfile = lazy(()=> import ('../pages/admin/UserManagement/Therapists/TherapistProfile'))
+const TherapistProfile = lazy(() => import('../pages/admin/UserManagement/Therapists/TherapistProfile'))
+const WardAndCategory = lazy(() => import('../pages/admin/WardAndCategory/WardCategoryManagement'))
+const TreatmentTherapy = lazy(() => import('../pages/admin/TreatmentAndTherapy/TreatmemtTherapyManagement'))
+const ConsultationScheduling = lazy(() => import('../pages/admin/ConsultationAndScheduling/ConsultationSchedulingManagement'))
+const TherapyDetails = lazy(() => import('../pages/admin/TreatmentAndTherapy/TherapyDetails'))
+const PharmacyInventory = lazy(() => import('../pages/admin/PharmacyAndInventory/PharmacyInventoryPage'))
 
 
 
@@ -34,7 +39,9 @@ const UserManagementWrapper = () => {
     const location = useLocation();
     const userTypeKey = location.pathname.split('/').pop() || 'doctors';
 
-    const UserTableComponent = routeComponents[userTypeKey.toLowerCase()] || AdminUserManagementDoctor;
+    const UserTableComponent =
+        routeComponents[userTypeKey.toLowerCase() as keyof typeof routeComponents] ||
+        AdminUserManagementDoctor;
 
     return (
         <UserManagementLayout key={userTypeKey}>
@@ -88,6 +95,32 @@ const routes = [
         element: <TherapistProfile />,
         layout: 'default',
     },
+    {
+        path: 'ward-category',
+        element: <WardAndCategory />,
+        layout: 'default',
+    },
+    {
+        path: 'treatment-therapy',
+        element: <TreatmentTherapy />,
+        layout: 'default',
+    },
+    {
+        path: 'patient-therapy/:id',
+        element: <TherapyDetails />,
+        layout: 'default',
+    },
+    {
+        path: 'consultation-scheduling',
+        element: <ConsultationScheduling />,
+        layout: 'default',
+    },
+        {
+        path: 'pharmacy-inventory',
+        element: <PharmacyInventory/>,
+        layout: 'default',
+    },
+
 
     {
         path: 'my-patients',
