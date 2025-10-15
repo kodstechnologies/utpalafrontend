@@ -14,6 +14,7 @@ export interface FieldConfig {
     | "textarea"
     | "file"
     | "checkbox"
+    | "checkbox-group"
     | "time";
     options?: string[];
     required?: boolean;
@@ -213,6 +214,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                             </label>
                                         </div>
                                     );
+                                    
 
                                 default:
                                     return (

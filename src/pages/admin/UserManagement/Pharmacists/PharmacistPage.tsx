@@ -8,8 +8,7 @@ import IconSearch from '../../../../components/Icon/IconSearch';
 import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
-import PharmacistModal from './PharmacistModal';
-
+import GlobalModal from '../../../../components/Modal/GlobalModal';
 interface Pharmacist {
   id: number;
   name: string;
@@ -61,11 +60,6 @@ const PharmacistsPage = () => {
     setIsModalOpen(true);
   }, []);
 
-  const handleAdd = () => {
-    setSelectedPharmacist(null);
-    setIsModalOpen(true);
-  };
-
   const handleView = (pharmacist: Pharmacist) => navigate(`/pharmacist/${pharmacist.id}`);
 
   const handleDelete = useCallback((pharmacist: Pharmacist) => {
@@ -78,11 +72,8 @@ const PharmacistsPage = () => {
     if (selectedPharmacist) {
       // Edit
       setPharmacistsData(prev => prev.map(p => p.id === selectedPharmacist.id ? { ...p, ...data } : p));
-    } else {
-      // Add new
-      const newId = Math.max(...pharmacistsData.map(p => p.id)) + 1;
-      setPharmacistsData(prev => [...prev, { id: newId, ...data }]);
     }
+    setIsModalOpen(false);
   };
 
   const filteredData = useMemo(() => pharmacistsData
@@ -142,15 +133,9 @@ const PharmacistsPage = () => {
 
   const renderActions = (pharmacist: Pharmacist) => (
     <div className="flex items-center justify-center space-x-4">
-      <button className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition" title="View Profile" onClick={() => handleView(pharmacist)}>
-        <IconEye className="w-5 h-5" />
-      </button>
-      <button className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition" title="Edit Details" onClick={() => handleEdit(pharmacist)}>
-        <IconEdit className="w-5 h-5" />
-      </button>
-      <button className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition" title="Dismiss Pharmacist" onClick={() => handleDelete(pharmacist)}>
-        <IconTrash className="w-5 h-5" />
-      </button>
+      <button title="View Profile" onClick={() => handleView(pharmacist)}><IconEye className="w-5 h-5 text-blue-500" /></button>
+      <button title="Edit Details" onClick={() => handleEdit(pharmacist)}><IconEdit className="w-5 h-5 text-amber-500" /></button>
+      <button title="Dismiss Pharmacist" onClick={() => handleDelete(pharmacist)}><IconTrash className="w-5 h-5 text-red-500" /></button>
     </div>
   );
 
@@ -189,12 +174,25 @@ const PharmacistsPage = () => {
         topContent={renderTopContent()}
       />
 
-      {isModalOpen && (
-        <PharmacistModal
+      {/* GlobalModal */}
+      {isModalOpen && selectedPharmacist && (
+        <GlobalModal<Pharmacist>
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          pharmacistData={selectedPharmacist || undefined}
-          mode={selectedPharmacist ? 'edit' : 'add'}
+          mode="edit"
+          title="Pharmacist"
+          fields={[
+            { name: 'name', label: 'Name', type: 'text', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'role', label: 'Role', type: 'select', options: ['Head Pharmacist', 'Senior', 'Junior', 'Trainee'], required: true },
+            { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'On Leave', 'Pending'], required: true },
+            { name: 'licenseNumber', label: 'License Number', type: 'text', required: true },
+            { name: 'dob', label: 'DOB', type: 'date' },
+            { name: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other'] },
+            { name: 'section', label: 'Section', type: 'select', options: ['Dispensing', 'Compounding', 'Inventory', 'Clinical'], required: true },
+            { name: 'joiningDate', label: 'Joining Date', type: 'date' },
+          ]}
+          initialData={selectedPharmacist}
           onSave={handleSave}
         />
       )}
