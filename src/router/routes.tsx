@@ -77,7 +77,7 @@ const UserManagementWrapper = () => {
 };
 
 const PatientExamination = lazy(() => import('../pages/Doctor/Patients/PatientExamination'));
-const role = 'admin';
+const role = 'doctor';
 const routes = [
     // admin-dashboard
   

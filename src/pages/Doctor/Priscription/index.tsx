@@ -4,7 +4,23 @@ import { Link } from 'react-router-dom';
 import { setPageTitle } from '../../../store/themeConfigSlice';
 import Table, { Column } from '../../../components/Table/Table';
 import IconTrash from '../../../components/Icon/IconTrash';
+// 🛑 Assuming GlobalModal can handle custom content or you adapt the form
+import GlobalModal, { FieldConfig } from '../../../components/Modal/GlobalModal';
+import IconPlus from '../../../components/Icon/IconPlus';
 
+// Interface for form data that would be returned by GlobalModal
+interface PrescriptionFormData {
+    patientName: string;
+    medicineName: string;
+    medicineType: string;
+    dosageMorning: boolean;
+    dosageAfternoon: boolean;
+    dosageEvening: boolean;
+    intakeTime: string;
+    specialInstructions: string;
+}
+
+// Interface for the table data
 interface PrescriptionData {
     id: number;
     patientName: string;
@@ -15,80 +31,80 @@ interface PrescriptionData {
     specialInstructions: string;
 }
 
+const prescriptionFields: FieldConfig[] = [
+    { name: 'patientName', label: 'Patient Name', type: 'text', required: true },
+    {
+        name: 'medicineType',
+        label: 'Medicine Type',
+        type: 'select',
+        required: true, // This is correct for a select field
+        options: [ // This is correct for a select field
+            'Vati (Tablet)', 'Churna (Powder)', 'Kwatha (Decoction)', 'Taila (Oil)', 'Leha (Paste)'
+            // '', 'kwatha', 'taila', 'leha'
+            // { value: '', label: 'Select Type',type },
+            // { value: 'vati', label: 'Vati (Tablet)' },
+            // { value: 'churna', label: 'Churna (Powder)' },
+            // { value: 'kwatha', label: 'Kwatha (Decoction)' },
+            // { value: 'taila', label: 'Taila (Oil)' },
+            // { value: 'leha', label: 'Leha (Paste)' },
+        ],
+    },
+    { name: 'medicineName', label: 'Medicine Name', type: 'text', required: true },
+   
+    // checkbox-group
+ 
+    // { name: 'dosageMorning', label: 'Pratahkal (Morning)', type: 'checkbox' },
+    // { name: 'dosageAfternoon', label: 'Madhyahn (Afternoon)', type: 'checkbox' },
+    // { name: 'dosageEvening', label: 'Sayankal (Evening)', type: 'checkbox' },
+    {
+        name: 'intakeTime',
+        label: 'Intake Time',
+        type: 'select',
+        required: true,
+        options: [
+            '','before_food', 'after_food', 'with_honey', 'with_ghee'
+            // { value: '', label: 'Select Intake Time' },
+            // { value: 'before_food', label: 'Before Food' },
+            // { value: 'after_food', label: 'After Food' },
+            // { value: 'with_honey', label: 'With Honey' },
+            // { value: 'with_ghee', label: 'With Ghee' },
+        ],
+    },
+    { 
+        name: 'dosage', // This name will correspond to the object key in FormData
+        label: 'Dosage', 
+        type: 'checkbox-group', // Custom type for the GlobalModal
+        options: [
+            // The value here must match the key used in the Dosage object
+            { value: 'morning', label: 'Pratahkal (Morning)' },
+            { value: 'afternoon', label: 'Madhyahn (Afternoon)' },
+            { value: 'evening', label: 'Sayankal (Evening)' },
+        ],
+    },
+    { name: 'specialInstructions', label: 'Special Instructions', type: 'textarea' },
+];
+
 const Prescription = () => {
     const dispatch = useDispatch();
     useEffect(() => {
         dispatch(setPageTitle('Prescription'));
-    });
-    const [search, setSearch] = useState('');
+    }, [dispatch]);
 
-    const [patientName, setPatientName] = useState('');
-    const [medicineName, setMedicineName] = useState('');
-    const [medicineType, setMedicineType] = useState('');
-    const [dosage, setDosage] = useState({
-        morning: false,
-        afternoon: false,
-        evening: false,
-    });
-    const [intakeTime, setIntakeTime] = useState('');
-    const [specialInstructions, setSpecialInstructions] = useState('');
+    const [search, setSearch] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    // In this refactoring, we won't need the individual form states if GlobalModal manages them.
+    // However, we'll keep a state for editing, though we'll only implement 'create' for now.
+    const [selectedPrescription, setSelectedPrescription] = useState<PrescriptionData | null>(null);
 
     // 🌿 Ayurvedic-style sample prescriptions
     const [recentPrescriptions, setRecentPrescriptions] = useState<PrescriptionData[]>([
-        {
-            id: 1,
-            patientName: 'Rohit Sharma',
-            medicineName: 'Triphala Churna',
-            medicineType: 'churna',
-            dosage: 'Morning, Evening',
-            intakeTime: 'before_food',
-            specialInstructions: 'Take with warm water for better digestion.',
-        },
-        {
-            id: 2,
-            patientName: 'Sneha Patil',
-            medicineName: 'Ashwagandha Vati',
-            medicineType: 'vati',
-            dosage: 'Morning, Night',
-            intakeTime: 'after_food',
-            specialInstructions: 'Helps in improving strength and immunity.',
-        },
-        {
-            id: 3,
-            patientName: 'Aarav Deshmukh',
-            medicineName: 'Brahmi Ghrita',
-            medicineType: 'taila',
-            dosage: 'Morning',
-            intakeTime: 'with_ghee',
-            specialInstructions: 'Improves focus and memory power.',
-        },
-        {
-            id: 4,
-            patientName: 'Priya Nair',
-            medicineName: 'Amla Rasayana',
-            medicineType: 'leha',
-            dosage: 'Morning',
-            intakeTime: 'after_food',
-            specialInstructions: 'Rich in Vitamin C, boosts immunity.',
-        },
-        {
-            id: 5,
-            patientName: 'Vikas Kumar',
-            medicineName: 'Guduchi Kwatha',
-            medicineType: 'kwatha',
-            dosage: 'Morning, Evening',
-            intakeTime: 'before_food',
-            specialInstructions: 'Effective in fever and detoxification.',
-        },
-        {
-            id: 6,
-            patientName: 'Rina Joshi',
-            medicineName: 'Shatavari Churna',
-            medicineType: 'churna',
-            dosage: 'Morning, Evening',
-            intakeTime: 'after_food',
-            specialInstructions: 'Helps in hormonal balance and vitality.',
-        },
+        { id: 1, patientName: 'Rohit Sharma', medicineName: 'Triphala Churna', medicineType: 'churna', dosage: 'Morning, Evening', intakeTime: 'before_food', specialInstructions: 'Take with warm water for better digestion.' },
+        { id: 2, patientName: 'Sneha Patil', medicineName: 'Ashwagandha Vati', medicineType: 'vati', dosage: 'Morning, Night', intakeTime: 'after_food', specialInstructions: 'Helps in improving strength and immunity.' },
+        { id: 3, patientName: 'Aarav Deshmukh', medicineName: 'Brahmi Ghrita', medicineType: 'taila', dosage: 'Morning', intakeTime: 'with_ghee', specialInstructions: 'Improves focus and memory power.' },
+        { id: 4, patientName: 'Priya Nair', medicineName: 'Amla Rasayana', medicineType: 'leha', dosage: 'Morning', intakeTime: 'after_food', specialInstructions: 'Rich in Vitamin C, boosts immunity.' },
+        { id: 5, patientName: 'Vikas Kumar', medicineName: 'Guduchi Kwatha', medicineType: 'kwatha', dosage: 'Morning, Evening', intakeTime: 'before_food', specialInstructions: 'Effective in fever and detoxification.' },
+        { id: 6, patientName: 'Rina Joshi', medicineName: 'Shatavari Churna', medicineType: 'churna', dosage: 'Morning, Evening', intakeTime: 'after_food', specialInstructions: 'Helps in hormonal balance and vitality.' },
     ]);
 
     const filteredData = useMemo(() => {
@@ -98,42 +114,46 @@ const Prescription = () => {
         );
     }, [recentPrescriptions, search]);
 
-    const handleDosageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = e.target;
-        setDosage((prev) => ({ ...prev, [name]: checked }));
+    // Function to close the modal and reset selected data
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedPrescription(null);
     };
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
+    // Function to handle save action from GlobalModal
+    const handleSavePrescription = (formData: PrescriptionFormData) => {
+        
+        const selectedDosages = [];
+        if (formData.dosageMorning) selectedDosages.push('Morning');
+        if (formData.dosageAfternoon) selectedDosages.push('Afternoon');
+        if (formData.dosageEvening) selectedDosages.push('Evening');
+
+        if (selectedDosages.length === 0) {
+            alert('Please select at least one dosage time.');
+            return;
+        }
+
         const newPrescription: PrescriptionData = {
-            id: Date.now(),
-            patientName,
-            medicineName,
-            medicineType,
-            dosage: Object.entries(dosage)
-                .filter(([, value]) => value)
-                .map(([key]) => key)
-                .join(', ') || 'Not specified',
-            intakeTime,
-            specialInstructions,
+            id: selectedPrescription ? selectedPrescription.id : Date.now(),
+            patientName: formData.patientName,
+            medicineName: formData.medicineName,
+            medicineType: formData.medicineType,
+            dosage: selectedDosages.join(', '),
+            intakeTime: formData.intakeTime,
+            specialInstructions: formData.specialInstructions,
         };
-        setRecentPrescriptions((prev) => [newPrescription, ...prev]);
 
-        // ✅ Reset form fields after save
-        handleCancel();
-    };
+        if (selectedPrescription) {
+            // Edit logic (simplified)
+            setRecentPrescriptions((prev) => 
+                prev.map((p) => (p.id === newPrescription.id ? newPrescription : p))
+            );
+        } else {
+            // Create logic
+            setRecentPrescriptions((prev) => [newPrescription, ...prev]);
+        }
 
-    const handleCancel = () => {
-        setPatientName('');
-        setMedicineName('');
-        setMedicineType('');
-        setDosage({
-            morning: false,
-            afternoon: false,
-            evening: false,
-        });
-        setIntakeTime('');
-        setSpecialInstructions('');
+        handleCloseModal();
     };
 
     const columns: Column<PrescriptionData>[] = useMemo(() => [
@@ -158,26 +178,42 @@ const Prescription = () => {
         >
             <IconTrash className="w-5 h-5" />
         </button>
+        // Note: Adding an edit button would require opening the modal with the prescription data
     );
 
     const renderTopContent = (): ReactNode => (
         <div className="flex items-center justify-between w-full">
-            <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>
+            <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>                
+            {/* Search Input */}
             <div className="relative">
-                <input
-                    type="text"
-                    placeholder="Search..."
-                    className="form-input ltr:pr-10 rtl:pl-10"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
+                <input type="text" placeholder="Search..." className="form-input ltr:pr-10 rtl:pl-10" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
         </div>
     );
 
+    // Function to derive initial data for the GlobalModal's fields
+    const getInitialPrescriptionData = (prescription: PrescriptionData | null): PrescriptionFormData | undefined => {
+        if (!prescription) return undefined;
+
+        // Convert the comma-separated dosage string back into boolean flags for the fields
+        const dosageArray = prescription.dosage.split(',').map(d => d.trim().toLowerCase());
+
+        return {
+            patientName: prescription.patientName,
+            medicineName: prescription.medicineName,
+            medicineType: prescription.medicineType,
+            dosageMorning: dosageArray.includes('morning'),
+            dosageAfternoon: dosageArray.includes('afternoon'),
+            dosageEvening: dosageArray.includes('evening'),
+            intakeTime: prescription.intakeTime, // Ensure intakeTime is always a string
+            specialInstructions: prescription.specialInstructions,
+        };
+    };
+
     return (
-        <div>
-            <ul className="flex space-x-2 rtl:space-x-reverse">
+        <>
+            {/* Breadcrumbs */}
+            {/* <ul className="flex space-x-2 rtl:space-x-reverse">
                 <li>
                     <Link to="/" className="text-primary hover:underline">
                         Dashboard
@@ -186,137 +222,27 @@ const Prescription = () => {
                 <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
                     <span>Prescription</span>
                 </li>
-            </ul>
+            </ul> */}
 
-            <div className="pt-5 grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Left Panel - Create Prescription */}
-                <div className="panel">
-                    <div className="flex items-center justify-between mb-5">
-                        <h5 className="font-semibold text-lg dark:text-white-light">Create Prescription</h5>
-                    </div>
-                    <form onSubmit={handleSubmit} className="space-y-5">
-                        <div>
-                            <label htmlFor="patientId">Patient Name</label>
-                            <input
-                                id="patientId"
-                                type="text"
-                                placeholder="Enter Patient Name"
-                                className="form-input"
-                                value={patientName}
-                                onChange={(e) => setPatientName(e.target.value)}
-                                required
-                            />
-                        </div>
+            {/* Header with Add Button */}
+            <div className="pt-5 flex justify-between items-center">
+                <h5 className="font-semibold text-lg dark:text-white-light">Prescriptions</h5>
+                <button
+                    type="button"
+                    className="btn btn-primary flex items-center"
+                    onClick={() => {
+                        setSelectedPrescription(null); // Ensure 'create' mode
+                        setIsModalOpen(true);
+                    }}
+                >
+                    <IconPlus className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
+                    Add Prescription
+                </button>
+            </div>
 
-                        <div>
-                            <label htmlFor="medicineType">Medicine Type</label>
-                            <select
-                                id="medicineType"
-                                className="form-select"
-                                value={medicineType}
-                                onChange={(e) => setMedicineType(e.target.value)}
-                                required
-                            >
-                                <option value="">Select Type</option>
-                                <option value="vati">Vati (Tablet)</option>
-                                <option value="churna">Churna (Powder)</option>
-                                <option value="kwatha">Kwatha (Decoction)</option>
-                                <option value="taila">Taila (Oil)</option>
-                                <option value="leha">Leha (Paste)</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label htmlFor="medicineName">Medicine Name</label>
-                            <input
-                                id="medicineName"
-                                type="text"
-                                placeholder="Enter Medicine Name"
-                                className="form-input"
-                                value={medicineName}
-                                onChange={(e) => setMedicineName(e.target.value)}
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <label>Dosage</label>
-                            <div className="flex gap-4">
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        name="morning"
-                                        checked={dosage.morning}
-                                        onChange={handleDosageChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span>Pratahkal (Morning)</span>
-                                </label>
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        name="afternoon"
-                                        checked={dosage.afternoon}
-                                        onChange={handleDosageChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span>Madhyahn (Afternoon)</span>
-                                </label>
-                                <label className="flex items-center space-x-2">
-                                    <input
-                                        type="checkbox"
-                                        name="evening"
-                                        checked={dosage.evening}
-                                        onChange={handleDosageChange}
-                                        className="form-checkbox"
-                                    />
-                                    <span>Sayankal (Evening)</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="intakeTime">Intake Time</label>
-                            <select
-                                id="intakeTime"
-                                className="form-select"
-                                value={intakeTime}
-                                onChange={(e) => setIntakeTime(e.target.value)}
-                                required
-                            >
-                                <option value="">Select Intake Time</option>
-                                <option value="before_food">Before Food</option>
-                                <option value="after_food">After Food</option>
-                                <option value="with_honey">With Honey</option>
-                                <option value="with_ghee">With Ghee</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label htmlFor="specialInstructions">Special Instructions</label>
-                            <textarea
-                                id="specialInstructions"
-                                rows={3}
-                                className="form-textarea"
-                                placeholder="Example: Take with honey or warm water after meals"
-                                value={specialInstructions}
-                                onChange={(e) => setSpecialInstructions(e.target.value)}
-                            ></textarea>
-                        </div>
-
-                        <div className="flex items-center justify-start gap-4 !mt-6">
-                            <button type="submit" className="btn btn-primary">
-                                Save Prescription
-                            </button>
-                            <button type="button" className="btn btn-danger" onClick={handleCancel}>
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                {/* Right Panel - Recent Prescriptions */}
-                {recentPrescriptions.length > 0 && (
+            {/* Main Content Area */}
+            <div className="pt-5">
+                {recentPrescriptions.length > 0 ? (
                     <Table<PrescriptionData>
                         columns={columns}
                         data={filteredData}
@@ -324,9 +250,32 @@ const Prescription = () => {
                         topContent={renderTopContent()}
                         itemsPerPage={5}
                     />
+                ) : (
+                    <div className="panel flex items-center justify-center p-10">
+                        <p className="text-gray-500">No prescriptions found. Click 'Add Prescription' to create one.</p>
+                        <button 
+                            type="button" 
+                            className="btn btn-primary ml-4 flex items-center" 
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            <IconPlus className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
+                            Add Prescription
+                        </button>
+                    </div>
                 )}
             </div>
-        </div>
+
+            {/* GLOBAL MODAL FOR CREATE/EDIT PRESCRIPTION */}
+            <GlobalModal
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                mode={selectedPrescription ? "edit" : "create"}
+                title={selectedPrescription ? "Edit Prescription" : "Create Prescription"}
+                fields={prescriptionFields as FieldConfig[]}
+                initialData={getInitialPrescriptionData(selectedPrescription)}
+                onSave={handleSavePrescription} // This function replaces handleSubmit
+            />
+        </>
     );
 };
 
