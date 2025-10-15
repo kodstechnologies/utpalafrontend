@@ -1,13 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { setPageTitle } from '../../../store/themeConfigSlice';
+import Table, { Column } from '../../../components/Table/Table';
+import IconTrash from '../../../components/Icon/IconTrash';
+
+interface PrescriptionData {
+    id: number;
+    patientName: string;
+    medicineName: string;
+    medicineType: string;
+    dosage: string;
+    intakeTime: string;
+    specialInstructions: string;
+}
 
 const Prescription = () => {
     const dispatch = useDispatch();
     useEffect(() => {
-        dispatch(setPageTitle('Create Prescription'));
+        dispatch(setPageTitle('Prescription'));
     });
+    const [search, setSearch] = useState('');
 
     const [patientName, setPatientName] = useState('');
     const [medicineName, setMedicineName] = useState('');
@@ -20,13 +33,10 @@ const Prescription = () => {
     const [intakeTime, setIntakeTime] = useState('');
     const [specialInstructions, setSpecialInstructions] = useState('');
 
-    // Pagination states
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5;
-
     // 🌿 Ayurvedic-style sample prescriptions
-    const [recentPrescriptions, setRecentPrescriptions] = useState<any[]>([
+    const [recentPrescriptions, setRecentPrescriptions] = useState<PrescriptionData[]>([
         {
+            id: 1,
             patientName: 'Rohit Sharma',
             medicineName: 'Triphala Churna',
             medicineType: 'churna',
@@ -35,6 +45,7 @@ const Prescription = () => {
             specialInstructions: 'Take with warm water for better digestion.',
         },
         {
+            id: 2,
             patientName: 'Sneha Patil',
             medicineName: 'Ashwagandha Vati',
             medicineType: 'vati',
@@ -43,6 +54,7 @@ const Prescription = () => {
             specialInstructions: 'Helps in improving strength and immunity.',
         },
         {
+            id: 3,
             patientName: 'Aarav Deshmukh',
             medicineName: 'Brahmi Ghrita',
             medicineType: 'taila',
@@ -51,6 +63,7 @@ const Prescription = () => {
             specialInstructions: 'Improves focus and memory power.',
         },
         {
+            id: 4,
             patientName: 'Priya Nair',
             medicineName: 'Amla Rasayana',
             medicineType: 'leha',
@@ -59,6 +72,7 @@ const Prescription = () => {
             specialInstructions: 'Rich in Vitamin C, boosts immunity.',
         },
         {
+            id: 5,
             patientName: 'Vikas Kumar',
             medicineName: 'Guduchi Kwatha',
             medicineType: 'kwatha',
@@ -67,6 +81,7 @@ const Prescription = () => {
             specialInstructions: 'Effective in fever and detoxification.',
         },
         {
+            id: 6,
             patientName: 'Rina Joshi',
             medicineName: 'Shatavari Churna',
             medicineType: 'churna',
@@ -76,6 +91,13 @@ const Prescription = () => {
         },
     ]);
 
+    const filteredData = useMemo(() => {
+        return recentPrescriptions.filter(p =>
+            p.patientName.toLowerCase().includes(search.toLowerCase()) ||
+            p.medicineName.toLowerCase().includes(search.toLowerCase())
+        );
+    }, [recentPrescriptions, search]);
+
     const handleDosageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
         setDosage((prev) => ({ ...prev, [name]: checked }));
@@ -83,14 +105,15 @@ const Prescription = () => {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const newPrescription = {
+        const newPrescription: PrescriptionData = {
+            id: Date.now(),
             patientName,
             medicineName,
             medicineType,
             dosage: Object.entries(dosage)
                 .filter(([, value]) => value)
                 .map(([key]) => key)
-                .join(', '),
+                .join(', ') || 'Not specified',
             intakeTime,
             specialInstructions,
         };
@@ -98,13 +121,6 @@ const Prescription = () => {
 
         // ✅ Reset form fields after save
         handleCancel();
-
-        // ✅ Reset pagination to first page
-        setCurrentPage(1);
-    };
-
-    const handleRemovePrescription = (indexToRemove: number) => {
-        setRecentPrescriptions((prev) => prev.filter((_, index) => index !== indexToRemove));
     };
 
     const handleCancel = () => {
@@ -120,16 +136,44 @@ const Prescription = () => {
         setSpecialInstructions('');
     };
 
-    // Pagination logic
-    const totalPages = Math.ceil(recentPrescriptions.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const currentItems = recentPrescriptions.slice(startIndex, startIndex + itemsPerPage);
+    const columns: Column<PrescriptionData>[] = useMemo(() => [
+        { Header: 'Patient', accessor: 'patientName' },
+        { Header: 'Medicine', accessor: 'medicineName' },
+        { Header: 'Type', accessor: 'medicineType', Cell: ({ value }) => <span className="capitalize">{value}</span> },
+        { Header: 'Dosage', accessor: 'dosage', Cell: ({ value }) => <span className="capitalize">{value}</span> },
+        { Header: 'Intake', accessor: 'intakeTime', Cell: ({ value }) => <span className="capitalize">{value.replace('_', ' ')}</span> },
+        { Header: 'Instructions', accessor: 'specialInstructions' },
+    ], []);
 
-    const goToPage = (page: number) => {
-        if (page >= 1 && page <= totalPages) {
-            setCurrentPage(page);
-        }
+    const handleRemovePrescription = (id: number) => {
+        setRecentPrescriptions((prev) => prev.filter((p) => p.id !== id));
     };
+
+    const renderActions = (prescription: PrescriptionData): ReactNode => (
+        <button
+            type="button"
+            onClick={() => handleRemovePrescription(prescription.id)}
+            className="text-red-600 hover:text-red-800"
+            title="Remove Prescription"
+        >
+            <IconTrash className="w-5 h-5" />
+        </button>
+    );
+
+    const renderTopContent = (): ReactNode => (
+        <div className="flex items-center justify-between w-full">
+            <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>
+            <div className="relative">
+                <input
+                    type="text"
+                    placeholder="Search..."
+                    className="form-input ltr:pr-10 rtl:pl-10"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+            </div>
+        </div>
+    );
 
     return (
         <div>
@@ -273,76 +317,13 @@ const Prescription = () => {
 
                 {/* Right Panel - Recent Prescriptions */}
                 {recentPrescriptions.length > 0 && (
-                    <div className="panel">
-                        <div className="flex items-center justify-between mb-5">
-                            <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>
-                        </div>
-                        <div className="table-responsive">
-                            <table className="table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Patient</th>
-                                        <th>Medicine</th>
-                                        <th>Type</th>
-                                        <th>Dosage</th>
-                                        <th>Intake</th>
-                                        <th>Special Instruction</th>
-                                        <th className="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {currentItems.map((prescription, index) => (
-                                        <tr key={index}>
-                                            <td>{prescription.patientName}</td>
-                                            <td>{prescription.medicineName}</td>
-                                            <td className="capitalize">{prescription.medicineType}</td>
-                                            <td className="capitalize">{prescription.dosage}</td>
-                                            <td className="capitalize">{prescription.intakeTime.replace('_', ' ')}</td>
-                                            <td>{prescription.specialInstructions}</td>
-                                            <td className="text-center">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleRemovePrescription(startIndex + index)}
-                                                    className="text-red-600 hover:text-red-800"
-                                                >
-                                                    X
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Pagination Controls */}
-                        {totalPages > 1 && (
-                            <div className="flex justify-center mt-4 space-x-2">
-                                <button
-                                    className="btn btn-sm btn-outline-primary"
-                                    disabled={currentPage === 1}
-                                    onClick={() => goToPage(currentPage - 1)}
-                                >
-                                    Prev
-                                </button>
-                                {[...Array(totalPages)].map((_, i) => (
-                                    <button
-                                        key={i}
-                                        className={`btn btn-sm ${currentPage === i + 1 ? 'btn-primary' : 'btn-outline-primary'}`}
-                                        onClick={() => goToPage(i + 1)}
-                                    >
-                                        {i + 1}
-                                    </button>
-                                ))}
-                                <button
-                                    className="btn btn-sm btn-outline-primary"
-                                    disabled={currentPage === totalPages}
-                                    onClick={() => goToPage(currentPage + 1)}
-                                >
-                                    Next
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    <Table<PrescriptionData>
+                        columns={columns}
+                        data={filteredData}
+                        actions={renderActions}
+                        topContent={renderTopContent()}
+                        itemsPerPage={5}
+                    />
                 )}
             </div>
         </div>

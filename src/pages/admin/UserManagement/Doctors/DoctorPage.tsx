@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import Table, { Column } from '../../../../components/Table/Table';
-import DoctorModal from './DoctorModal';
+import GlobalModal, { FieldConfig } from '../../../../components/Modal/GlobalModal';
 import IconEye from '../../../../components/Icon/IconEye';
 import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
@@ -47,6 +47,25 @@ const DoctorsPage = () => {
         { id: 4, name: 'Deepak Sharma', email: 'd.sharma@veda.com', specialization: 'Surgery', status: 'Active', licenseNumber: 'MED-1004', dob: '1995-09-25', gender: 'Male', department: 'Surgical Care', joiningDate: '2018-03-15' },
         { id: 5, name: 'Preeti Das', email: 'preeti.d@veda.com', specialization: 'Pediatrics', status: 'Pending', licenseNumber: 'MED-1005', dob: '1982-07-12', gender: 'Female', department: 'Child Health', joiningDate: '2012-07-01' },
     ]);
+
+    const doctorFields: FieldConfig[] = [
+        { name: "firstName", label: "First Name", type: "text", required: true },
+        { name: "lastName", label: "Last Name", type: "text", required: true },
+        { name: "email", label: "Email", type: "email", required: true },
+        { name: "phone", label: "Phone", type: "text" },
+        { name: "dob", label: "Date of Birth", type: "date" },
+        { name: "gender", label: "Gender", type: "select", options: ["Male", "Female", "Other"] },
+        { name: "specialization", label: "Specialization", type: "text", required: true },
+        { name: "licenseNumber", label: "License Number", type: "text", required: true, disabledInEdit: true },
+        {
+            name: "department",
+            label: "Department",
+            type: "select",
+            options: ["Cardiology", "Neurology", "Orthopedics", "Pediatrics", "General Surgery"],
+        },
+        { name: "joiningDate", label: "Joining Date", type: "date" }
+    ];
+
 
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
@@ -177,12 +196,30 @@ const DoctorsPage = () => {
     return (
         <>
             <Table columns={columns} data={filteredData} actions={renderActions} topContent={renderTopContent()} />
-            <DoctorModal
+            <GlobalModal
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
-                mode={selectedDoctor ? 'edit' : 'create'}
+                mode={selectedDoctor ? "edit" : "create"}
+                title="Doctor"
+                fields={doctorFields}
+                initialData={
+                    selectedDoctor
+                        ? {
+                            firstName: selectedDoctor.name.split(" ")[0] || "",
+                            lastName: selectedDoctor.name.split(" ")[1] || "",
+                            email: selectedDoctor.email,
+                            specialization: selectedDoctor.specialization,
+                            licenseNumber: selectedDoctor.licenseNumber,
+                            dob: selectedDoctor.dob,
+                            gender: selectedDoctor.gender,
+                            department: selectedDoctor.department,
+                            joiningDate: selectedDoctor.joiningDate,
+                        }
+                        : undefined
+                }
                 onSave={handleSaveDoctor}
             />
+
             <DeleteModal
                 isOpen={isDeleteModalOpen}
                 onCancel={handleCancelDelete}

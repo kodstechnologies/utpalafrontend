@@ -5,6 +5,7 @@ import AnimateHeight from 'react-animate-height';
 import { setPageTitle } from '../../../store/themeConfigSlice';
 import IconUser from '../../../components/Icon/IconUser';
 import IconHeart from '../../../components/Icon/IconHeart';
+import IconX from '../../../components/Icon/IconX';
 
 interface FamilyMemberType {
     id: string | undefined;
@@ -38,14 +39,30 @@ interface Therapy {
     notes?: string;
 }
 
+interface Recommendation {
+    id: number;
+    label: string;
+    value: string;
+}
+
+interface DynamicField {
+    id: number;
+    label: string;
+    value: string;
+}
+
 const FamilyMember: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const dispatch = useDispatch();
     const [member, setMember] = useState<FamilyMemberType | null>(null);
     const [isProfileOpen, setIsProfileOpen] = useState(true);
     const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'therapy'>('examination');
-    const [isOpen, setIsOpen] = useState(false);
-    const [presciptionOpen, setPresciptionOpen] = useState(false);
+    const [isOpen, setIsOpen] = useState(true);
+    const [recommendations, setRecommendations] = useState<Recommendation[]>([{ id: 1, label: 'Diet Recommendation', value: '' }]);
+    const [examinationValues, setExaminationValues] = useState<Record<string, string>>({});
+    const [additionalExamFields, setAdditionalExamFields] = useState<DynamicField[]>([]);
+
+    const [presciptionOpen, setPresciptionOpen] = useState(true);
 
 
     // Mock family data
@@ -76,6 +93,44 @@ const FamilyMember: React.FC = () => {
         const selectedMember = familyData.find((m) => m.id === id);
         setMember(selectedMember || null);
     }, [id, dispatch]);
+
+    const handleAddRecommendation = () => {
+        setRecommendations([...recommendations, { id: Date.now(), label: '', value: '' }]);
+    };
+
+    const handleRecommendationChange = (id: number, field: 'label' | 'value', text: string) => {
+        setRecommendations(
+            recommendations.map((rec) =>
+                rec.id === id ? { ...rec, [field]: text } : rec
+            )
+        );
+    };
+
+    const handleRemoveRecommendation = (id: number) => {
+        setRecommendations(prev => prev.filter(rec => rec.id !== id));
+    };
+
+    const handleStaticExamChange = (label: string, value: string) => {
+        setExaminationValues(prev => ({ ...prev, [label]: value }));
+    };
+
+    const handleAddAdditionalExamField = () => {
+        setAdditionalExamFields(prev => [...prev, { id: Date.now(), label: '', value: '' }]);
+    };
+
+    const handleAdditionalExamChange = (id: number, field: 'label' | 'value', text: string) => {
+        setAdditionalExamFields(prev =>
+            prev.map(item =>
+                item.id === id ? { ...item, [field]: text } : item
+            )
+        );
+    };
+
+    const handleRemoveAdditionalExamField = (id: number) => {
+        setAdditionalExamFields(prev => prev.filter(item => item.id !== id));
+    };
+
+
 
     if (!member) return <div className="text-center mt-10">Member not found</div>;
 
@@ -168,26 +223,47 @@ const FamilyMember: React.FC = () => {
 
                 <AnimateHeight duration={300} height={isOpen ? 'auto' : 0}>
                     <div className="mt-3">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="space-y-3">
+                            {/* Static Fields */}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {[
-                                'Height (cm)', 'Weight (kg)', 'Blood Pressure (BP)', 'Pulse Type (Nadi)',
-                                'Temperature', 'BMI', 'SPO2', 'Heart Rate',
-                                'Vata Level', 'Pitta Level', 'Kapha Level', 'Agni (Digestion)',
-                                'Stool', 'Urine', 'Sleep Quality'
+                                'Height (cm)', 'Weight (kg)', 'Blood Pressure (BP)','Temperature', 'BMI', 'SPO2', 'Heart Rate','Pulse Rate'
                             ].map((label, idx) => (
                                 <div key={idx} className="flex flex-col">
                                     <label className="text-sm font-medium mb-1">{label}</label>
                                     <input
                                         type="text"
-                                        className="border rounded px-2 py-1 text-sm focus:ring focus:ring-primary focus:outline-none"
+                                        className="form-input text-sm"
                                         placeholder="Input value"
+                                        value={examinationValues[label] || ''}
+                                        onChange={(e) => handleStaticExamChange(label, e.target.value)}
                                     />
                                 </div>
                             ))}
+                            </div>
+
+                            {/* Dynamic "Add More" Fields */}
+                            {additionalExamFields.map((field, index) => (
+                                <div key={field.id} className="pt-2 border-t border-dashed dark:border-gray-700">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                                        <div className="flex flex-col">
+                                            <label className="text-sm font-medium mb-1">Additional Parameter</label>
+                                            <input type="text" className="form-input text-sm" placeholder="Enter parameter name" value={field.label} onChange={(e) => handleAdditionalExamChange(field.id, 'label', e.target.value)} />
+                                        </div>
+                                        <div className="flex items-end gap-2">
+                                            <div className="flex-grow">
+                                                <label className="text-sm font-medium mb-1">Value</label>
+                                                <input type="text" className="form-input text-sm" placeholder="Enter value" value={field.value} onChange={(e) => handleAdditionalExamChange(field.id, 'value', e.target.value)} />
+                                            </div>
+                                            <button type="button" onClick={() => handleRemoveAdditionalExamField(field.id)} className="btn btn-outline-danger p-2"> <IconX className="w-4 h-4" /> </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {/* Add More Button */}
+                            <button type="button" onClick={handleAddAdditionalExamField} className="btn btn-sm btn-outline-primary mt-4">+ Add More</button>
                         </div>
-                        <button className="mt-3 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                            Add Examination
-                        </button>
                     </div>
                 </AnimateHeight>
             </div>
@@ -206,27 +282,37 @@ const FamilyMember: React.FC = () => {
 
                 <AnimateHeight duration={300} height={presciptionOpen ? 'auto' : 0}>
                     <div className="mt-3">
-                        <div className="grid grid-cols-1 gap-2">
-                            {[
-                                'Diet Recommendation', 'Lifestyle Advice',
-                                'Herbal Medication', 'Therapy Suggestion'
-                            ].map((label, idx) => (
-                                <div key={idx} className="flex flex-col">
-                                    <label className="text-sm font-medium mb-1">{label}</label>
-                                    <textarea
-                                        className="border rounded px-2 py-1 text-sm focus:ring focus:ring-primary focus:outline-none"
-                                        placeholder={`Enter ${label.toLowerCase()}`}
-                                        rows={2}
-                                    />
+                        <div className="space-y-3">
+                            {recommendations.map((rec, index) => (
+                                <div key={rec.id} className="flex items-start gap-2">
+                                    <div className="flex-grow">
+                                        <textarea
+                                            className="form-input text-sm w-full"
+                                            placeholder={index === 0 ? 'Enter diet recommendation...' : 'Enter details...'}
+                                            rows={2}
+                                            value={rec.value}
+                                            onChange={(e) => handleRecommendationChange(rec.id, 'value', e.target.value)}
+                                        />
+                                    </div>
+                                    {index > 0 && ( /* Only show remove for added fields */
+                                        <button type="button" onClick={() => handleRemoveRecommendation(rec.id)} className="btn btn-outline-danger p-2 mt-1"> <IconX className="w-4 h-4" /> </button>
+                                    )}
                                 </div>
                             ))}
+                            <button type="button" onClick={handleAddRecommendation} className="btn btn-sm btn-outline-primary mt-3">+ Add Field</button>
                         </div>
-                        <button className="mt-3 px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                            Add Diagnosis
-                        </button>
                     </div>
                 </AnimateHeight>
             </div>
+        </div>
+        {/* Action Buttons */}
+        <div className="flex justify-end gap-4 mt-5">
+            <button type="button" className="btn btn-outline-danger">
+                Cancel
+            </button>
+            <button type="button" className="btn btn-success">
+                Confirm
+            </button>
         </div>
     </div>
 )}

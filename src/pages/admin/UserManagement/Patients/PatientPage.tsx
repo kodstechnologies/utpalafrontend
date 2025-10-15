@@ -1,5 +1,3 @@
-// pages/admin/UserManagement/Patients/PatientsPage.tsx
-
 import React, { useState, useMemo, useCallback } from 'react';
 import Table, { Column } from '../../../../components/Table/Table';
 import IconEye from '../../../../components/Icon/IconEye';
@@ -7,12 +5,10 @@ import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
 import IconDownload from '../../../../components/Icon/IconDownload';
 import IconSearch from '../../../../components/Icon/IconSearch';
-import IconPlus from '../../../../components/Icon/IconPlus';
 import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
-import PatientsModal, { ModalMode } from './PatientModal';
-
+import GlobalModal, { ModalMode } from '../../../../components/Modal/GlobalModal';
 interface Patient {
     id: number;
     name: string;
@@ -22,7 +18,7 @@ interface Patient {
     bodyType: 'Vata' | 'Pitta' | 'Kapha' | 'Tridosha';
     status: 'Active' | 'Discharged' | 'Pending Admission' | 'Follow-up';
     phone: string;
-    mail: any,
+    mail: any;
     primaryDoctor?: string;
     admissionDate?: string;
 }
@@ -66,17 +62,12 @@ const PatientsPage = () => {
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [modalMode, setModalMode] = useState<ModalMode>('add');
+    const [modalMode, setModalMode] = useState<ModalMode>('create'); // GlobalModal mode
     const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
     const navigate = useNavigate();
 
-    const handleCloseModal = useCallback(() => {
-        setIsModalOpen(false);
-        setSelectedPatient(null);
-    }, []);
-
     const handleAddPatient = () => {
-        setModalMode('add');
+        setModalMode('create');
         setSelectedPatient(null);
         setIsModalOpen(true);
     };
@@ -92,24 +83,17 @@ const PatientsPage = () => {
     const handleDelete = useCallback((patient: Patient) => {
         if (window.confirm(`Are you sure you want to archive patient ${patient.name}?`)) {
             setPatientsData(prev => prev.filter(p => p.id !== patient.id));
-            console.log(`Archived Patient with ID: ${patient.id}`);
         }
     }, []);
 
     const handleSavePatient = (data: any) => {
-        if (modalMode === 'add') {
-            const newPatient: Patient = {
-                ...data,
-                id: patientsData.length + 1,
-            };
+        if (modalMode === 'create') {
+            const newPatient: Patient = { ...data, id: patientsData.length + 1 };
             setPatientsData(prev => [...prev, newPatient]);
-            console.log('Added patient:', newPatient);
         } else {
-            setPatientsData(prev =>
-                prev.map(p => p.id === selectedPatient?.id ? { ...p, ...data } : p)
-            );
-            console.log('Edited patient:', data);
+            setPatientsData(prev => prev.map(p => p.id === selectedPatient?.id ? { ...p, ...data } : p));
         }
+        setIsModalOpen(false);
     };
 
     const filteredData = useMemo(() => patientsData
@@ -124,12 +108,8 @@ const PatientsPage = () => {
         { Header: 'Contact', accessor: 'phone', Cell: ({ value }) => <div className="text-gray-600 dark:text-gray-400 font-medium">{value}</div> },
         { Header: 'Email', accessor: 'mail', Cell: ({ value }) => <div className="text-gray-600 dark:text-gray-400 font-medium">{value}</div> },
         {
-            Header: 'Body Type',
-            accessor: 'bodyType',
-            Cell: ({ value }) => (
-                <div className={`text-sm font-medium ${value === 'Pitta' ? 'text-amber-600' : value === 'Vata' ? 'text-blue-600' : 'text-green-600'} dark:text-gray-300`}>
-                    {value}
-                </div>
+            Header: 'Body Type', accessor: 'bodyType', Cell: ({ value }) => (
+                <div className={`text-sm font-medium ${value === 'Pitta' ? 'text-amber-600' : value === 'Vata' ? 'text-blue-600' : 'text-green-600'} dark:text-gray-300`}>{value}</div>
             )
         },
         { Header: 'Primary Doctor', accessor: 'primaryDoctor', Cell: ({ value }) => <div className="text-sm text-gray-700 dark:text-gray-300 font-medium">{value || 'Unassigned'}</div> },
@@ -164,27 +144,9 @@ const PatientsPage = () => {
 
     const renderActions = (patient: Patient) => (
         <div className="flex items-center justify-center space-x-4">
-            <button
-                className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition"
-                title="View Patient File"
-                onClick={() => handleView(patient)}
-            >
-                <IconEye className="w-5 h-5" />
-            </button>
-            <button
-                className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition"
-                title="Edit Admission"
-                onClick={() => handleEdit(patient)}
-            >
-                <IconEdit className="w-5 h-5" />
-            </button>
-            <button
-                className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition"
-                title="Archive Patient"
-                onClick={() => handleDelete(patient)}
-            >
-                <IconTrash className="w-5 h-5" />
-            </button>
+            <button onClick={() => handleView(patient)} title="View Patient File"><IconEye className="w-5 h-5 text-blue-500" /></button>
+            <button onClick={() => handleEdit(patient)} title="Edit Admission"><IconEdit className="w-5 h-5 text-amber-500" /></button>
+            <button onClick={() => handleDelete(patient)} title="Archive Patient"><IconTrash className="w-5 h-5 text-red-500" /></button>
         </div>
     );
 
@@ -223,14 +185,29 @@ const PatientsPage = () => {
                 topContent={renderTopContent()}
             />
 
-            {/* Patients Modal */}
-            <PatientsModal
-                isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                mode={modalMode}
-                patientData={selectedPatient || undefined}
-                onSave={handleSavePatient}
-            />
+            {/* GlobalModal */}
+            {isModalOpen && (
+                <GlobalModal<Patient>
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
+                    mode={modalMode}
+                    title="Patient"
+                    fields={[
+                        { name: 'patientId', label: 'Patient ID', type: 'text', required: true },
+                        { name: 'name', label: 'Patient Name', type: 'text', required: true },
+                        { name: 'phone', label: 'Phone', type: 'text', required: true },
+                        { name: 'mail', label: 'Email', type: 'email', required: true },
+                        { name: 'dob', label: 'Date of Birth', type: 'date' },
+                        { name: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other'] },
+                        { name: 'bodyType', label: 'Body Type', type: 'select', options: ['Vata', 'Pitta', 'Kapha', 'Tridosha'] },
+                        { name: 'primaryDoctor', label: 'Primary Doctor', type: 'text' },
+                        { name: 'admissionDate', label: 'Admission Date', type: 'date' },
+                        { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Discharged', 'Pending Admission', 'Follow-up'] },
+                    ]}
+                    initialData={selectedPatient || undefined}
+                    onSave={handleSavePatient}
+                />
+            )}
         </>
     );
 };

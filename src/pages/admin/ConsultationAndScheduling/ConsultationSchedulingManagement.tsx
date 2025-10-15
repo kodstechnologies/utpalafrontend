@@ -1,16 +1,16 @@
-import React, { useState, useMemo, useCallback } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import Table, { Column } from '../../../components/Table/Table';
-import ConsultationSchedulingModal from './ConsultationSchedulingModal';
-import IconEye from '../../../components/Icon/IconEye';
-import IconEdit from '../../../components/Icon/IconEdit';
-import IconTrash from '../../../components/Icon/IconTrash';
-import IconDownload from '../../../components/Icon/IconDownload';
-import IconSearch from '../../../components/Icon/IconSearch';
-import FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
-import DeleteModal from '../../../components/DeleteModal';
-import IconPlus from '../../../components/Icon/IconPlus';
+import React, { useState, useMemo, useCallback } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import Table, { Column } from "../../../components/Table/Table";
+import IconEye from "../../../components/Icon/IconEye";
+import IconEdit from "../../../components/Icon/IconEdit";
+import IconTrash from "../../../components/Icon/IconTrash";
+import IconDownload from "../../../components/Icon/IconDownload";
+import IconSearch from "../../../components/Icon/IconSearch";
+import FileSaver from "file-saver";
+import * as XLSX from "xlsx";
+import DeleteModal from "../../../components/DeleteModal";
+import IconPlus from "../../../components/Icon/IconPlus";
+import GlobalModal, { FieldConfig } from "../../../components/Modal/GlobalModal";
 
 interface Consultation {
   id: number;
@@ -29,56 +29,74 @@ const ConsultationSchedulingManagement: React.FC = () => {
   const [consultations, setConsultations] = useState<Consultation[]>([
     {
       id: 1,
-      doctorName: 'Dr. Priya Sharma',
-      ward: 'ICU',
-      patientName: 'John Doe',
-      day: 'Monday',
-      startTime: '10:00 AM',
-      endTime: '11:00 AM',
+      doctorName: "Dr. Priya Sharma",
+      ward: "ICU",
+      patientName: "John Doe",
+      day: "Monday",
+      startTime: "10:00 AM",
+      endTime: "11:00 AM",
       availableSlots: 5,
     },
     {
       id: 2,
-      doctorName: 'Dr. Ramesh Kumar',
-      ward: 'General',
-      patientName: 'soumyan',
-      day: 'Tuesday',
-      startTime: '12:00 PM',
-      endTime: '01:00 PM',
+      doctorName: "Dr. Ramesh Kumar",
+      ward: "General",
+      patientName: "Soumyan",
+      day: "Tuesday",
+      startTime: "12:00 PM",
+      endTime: "01:00 PM",
       availableSlots: 2,
     },
   ]);
 
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Consultation | null>(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [consultationToDelete, setConsultationToDelete] = useState<Consultation | null>(null);
 
-  // Filter consultations by search
+  const consultationFields: FieldConfig[] = [
+    { name: "doctorName", label: "Doctor Name", type: "text", required: true },
+    { name: "ward", label: "Ward", type: "text" },
+    { name: "patientName", label: "Patient Name", type: "text" },
+    {
+      name: "day",
+      label: "Day",
+      type: "select",
+      options: [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ],
+      required: true,
+    },
+    { name: "startTime", label: "Start Time", type: "time", required: true },
+    { name: "endTime", label: "End Time", type: "time", required: true },
+    { name: "availableSlots", label: "Available Slots", type: "number", required: true },
+  ];
+
   const filteredConsultations = useMemo(
-    () =>
-      consultations.filter((c) =>
-        c.doctorName.toLowerCase().includes(search.toLowerCase())
-      ),
+    () => consultations.filter((c) => c.doctorName.toLowerCase().includes(search.toLowerCase())),
     [consultations, search]
   );
 
-  // Columns for Table
   const columns: Column<Consultation>[] = [
-    { Header: 'Doctor', accessor: 'doctorName' },
-    { Header: 'Ward', accessor: 'ward' },
-    { Header: 'Patient', accessor: 'patientName' },
-    { Header: 'Day', accessor: 'day' },
+    { Header: "Doctor", accessor: "doctorName" },
+    { Header: "Ward", accessor: "ward" },
+    { Header: "Patient", accessor: "patientName" },
+    { Header: "Day", accessor: "day" },
     {
-      Header: 'Time',
-      accessor: 'startTime',
+      Header: "Time",
+      accessor: "startTime",
       Cell: ({ row }) => `${row.startTime} - ${row.endTime}`,
     },
-    { Header: 'Available Slots', accessor: 'availableSlots' },
+    { Header: "Available Slots", accessor: "availableSlots" },
   ];
 
-  // Actions
   const renderActions = (row: Consultation) => (
     <div className="flex items-center space-x-3">
       <button title="View Doctor" onClick={() => navigate(`/doctor/${row.id}`)}>
@@ -105,24 +123,32 @@ const ConsultationSchedulingManagement: React.FC = () => {
     </div>
   );
 
-  // Export to Excel
   const handleExportData = useCallback(() => {
     const dataToExport = filteredConsultations.map((c) => ({
-      'Doctor Name': c.doctorName,
-      Ward: c.ward || 'Not assigned',
-      Patient: c.patientName || 'Not assigned',
+      "Doctor Name": c.doctorName,
+      Ward: c.ward || "Not assigned",
+      Patient: c.patientName || "Not assigned",
       Day: c.day,
       Time: `${c.startTime} - ${c.endTime}`,
-      'Available Slots': c.availableSlots,
+      "Available Slots": c.availableSlots,
     }));
     const ws = XLSX.utils.json_to_sheet(dataToExport);
-    const wb = { Sheets: { 'Consultation_Data': ws }, SheetNames: ['Consultation_Data'] };
-    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8' });
-    FileSaver.saveAs(blob, 'consultations_data.xlsx');
+    const wb = { Sheets: { Consultation_Data: ws }, SheetNames: ["Consultation_Data"] };
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+    FileSaver.saveAs(blob, "consultations_data.xlsx");
   }, [filteredConsultations]);
 
-  // Top Content (Search + Export)
+  const handleConfirmDelete = () => {
+    if (consultationToDelete) {
+      setConsultations((prev) => prev.filter((c) => c.id !== consultationToDelete.id));
+    }
+    setDeleteModalOpen(false);
+    setConsultationToDelete(null);
+  };
+
   const topContent = (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 w-full">
       <div className="relative w-full sm:w-60">
@@ -145,15 +171,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
       </div>
     </div>
   );
-
-  // Delete consultation
-  const handleConfirmDelete = () => {
-    if (consultationToDelete) {
-      setConsultations((prev) => prev.filter((c) => c.id !== consultationToDelete.id));
-    }
-    setDeleteModalOpen(false);
-    setConsultationToDelete(null);
-  };
 
   return (
     <>
@@ -178,34 +195,29 @@ const ConsultationSchedulingManagement: React.FC = () => {
           <span className="ml-2 ">Add Slot</span>
         </button>
       </div>
-      <Table
-        columns={columns}
-        data={filteredConsultations}
-        actions={renderActions}
-        topContent={topContent}
-      />
 
-      {modalOpen && (
-        <ConsultationSchedulingModal
-          isOpen={modalOpen}
-          onClose={() => {
-            setModalOpen(false);
-            setEditing(null);
-          }}
-          onSave={(data) => {
-            if (editing) {
-              setConsultations((prev) =>
-                prev.map((c) => (c.id === editing.id ? { ...editing, ...data } : c))
-              );
-            } else {
-              setConsultations((prev) => [...prev, { ...data, id: Date.now() }]);
-            }
-            setModalOpen(false);
-            setEditing(null);
-          }}
-          data={editing || undefined}
-        />
-      )}
+      <Table columns={columns} data={filteredConsultations} actions={renderActions} topContent={topContent} />
+
+      <GlobalModal
+        title="slot"
+        isOpen={modalOpen}
+        onClose={() => {
+          setModalOpen(false);
+          setEditing(null);
+        }}
+        mode={editing ? "edit" : "create"}
+        fields={consultationFields}
+        initialData={editing || undefined}
+        onSave={(data) => {
+          if (editing) {
+            setConsultations((prev) => prev.map((c) => (c.id === editing.id ? { ...editing, ...data } : c)));
+          } else {
+            setConsultations((prev) => [...prev, { ...data, id: Date.now() }]);
+          }
+          setModalOpen(false);
+          setEditing(null);
+        }}
+      />
 
       <DeleteModal
         isOpen={deleteModalOpen}

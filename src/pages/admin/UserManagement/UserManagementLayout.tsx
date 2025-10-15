@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import IconPlus from '../../../components/Icon/IconPlus';
 import UserTabs from './components/UserTabs';
-import DoctorModal from './Doctors/DoctorModal';
-import NurseModal from './Nurses/NurseModal';
-import PatientsModal from './Patients/PatientModal';
-import PharmacistModal from './Pharmacists/PharmacistModal';
-import TherapistModal from './Therapists/TherapistModal';
-import ReceptionistModal from './Receptionists/ReceptionistModal';
-
+import GlobalModal, { FieldConfig } from '../../../components/Modal/GlobalModal';
 const UserManagementLayout = ({ children }: { children: React.ReactNode }) => {
     const { userType } = useParams();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,21 +10,65 @@ const UserManagementLayout = ({ children }: { children: React.ReactNode }) => {
     const userTypes = ['Doctors', 'Nurses', 'Receptionists', 'Pharmacists', 'Therapists', 'Patients'];
     const activeTab = userTypes.find(t => t.toLowerCase() === userType) || 'Doctors';
 
+    const getSingularType = (type: string) => type.endsWith('s') ? type.slice(0, -1) : type;
 
-    const getSingularType = (type: string) => {
-        if (type.endsWith('s')) {
-            return type.slice(0, -1);
-        }
-        return type;
+    // Fields for each user type
+    const fieldsMap: Record<string, FieldConfig[]> = {
+        Doctors: [
+            { name: 'firstName', label: 'First Name', type: 'text', required: true },
+            { name: 'lastName', label: 'Last Name', type: 'text', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'specialization', label: 'Specialization', type: 'text' },
+            { name: 'phone', label: 'Phone', type: 'text' },
+            { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'On Leave', 'Pending'] },
+        ],
+        Nurses: [
+            { name: 'firstName', label: 'First Name', type: 'text', required: true },
+            { name: 'lastName', label: 'Last Name', type: 'text', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'phone', label: 'Phone', type: 'text' },
+            { name: 'specialization', label: 'Specialization', type: 'text' },
+            { name: 'department', label: 'Department', type: 'select', options: ['Ayurveda', 'Panchakarma', 'General', 'Other'] },
+            { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'On Leave', 'Pending'] },
+        ],
+        Receptionists: [
+            { name: 'firstName', label: 'First Name', type: 'text' },
+            { name: 'lastName', label: 'Last Name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone', type: 'text' },
+        ],
+        Pharmacists: [
+            { name: 'firstName', label: 'First Name', type: 'text' },
+            { name: 'lastName', label: 'Last Name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone', type: 'text' },
+        ],
+        Therapists: [
+            { name: 'firstName', label: 'First Name', type: 'text' },
+            { name: 'lastName', label: 'Last Name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'specialization', label: 'Specialization', type: 'text' },
+            { name: 'phone', label: 'Phone', type: 'text' },
+        ],
+        Patients: [
+            { name: 'firstName', label: 'First Name', type: 'text' },
+            { name: 'lastName', label: 'Last Name', type: 'text' },
+            { name: 'email', label: 'Email', type: 'email' },
+            { name: 'phone', label: 'Phone', type: 'text' },
+            { name: 'dob', label: 'Date of Birth', type: 'date' },
+        ],
+    };
+
+    const handleSave = (data: any) => {
+        console.log(`Saving ${activeTab} data:`, data);
+        setIsModalOpen(false);
     };
 
     return (
         <div>
             <ul className="flex space-x-2 rtl:space-x-reverse">
                 <li>
-                    <Link to="#" className="text-green-600 hover:underline">
-                        User Management
-                    </Link>
+                    <Link to="#" className="text-green-600 hover:underline">User Management</Link>
                 </li>
                 <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
                     <span>{activeTab}</span>
@@ -49,83 +87,18 @@ const UserManagementLayout = ({ children }: { children: React.ReactNode }) => {
                 </button>
             </div>
 
-            <div className="pt-4">
-                {children}
-            </div>
+            <div className="pt-4">{children}</div>
 
-            {isModalOpen && activeTab === 'Doctors' && (
-                <DoctorModal
+            {isModalOpen && (
+                <GlobalModal
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
-                    mode={'create'}
-                    onSave={(data) => {
-                        console.log('Saving patient:', data);
-                        setIsModalOpen(false);
-                    }}
+                    mode="create"
+                    title={getSingularType(activeTab)}
+                    fields={fieldsMap[activeTab]}
+                    onSave={handleSave}
                 />
             )}
-
-            {isModalOpen && activeTab === 'Nurses' && (
-                <NurseModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    mode={'create'}
-                    onSave={(data) => {
-                        console.log('Saving patient:', data);
-                        setIsModalOpen(false);
-                    }}
-                />
-            )}
-
-            {isModalOpen && activeTab === 'Patients' && (
-                <PatientsModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    mode={'add'}
-                    onSave={(data) => {
-                        console.log('Saving patient:', data);
-                        setIsModalOpen(false);
-                    }}
-                />
-            )}
-
-            {isModalOpen && activeTab === 'Pharmacists' && (
-                <PharmacistModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    mode={'add'}
-                    onSave={(data) => {
-                        console.log('Saving pharmacist:', data);
-                        setIsModalOpen(false);
-                    }}
-                />
-            )}
-
-
-            {isModalOpen && activeTab === 'Therapists' && (
-                <TherapistModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    mode={'add'}
-                    onSave={(data) => {
-                        console.log('Saving pharmacist:', data);
-                        setIsModalOpen(false);
-                    }}
-                />
-            )}
-
-            {isModalOpen && activeTab === 'Receptionists' && (
-                <ReceptionistModal
-                    isOpen={isModalOpen}
-                    onClose={() => setIsModalOpen(false)}
-                    mode={'add'}
-                    onSave={(data) => {
-                        console.log('Saving pharmacist:', data);
-                        setIsModalOpen(false);
-                    }}
-                />
-            )}
-
         </div>
     );
 };
