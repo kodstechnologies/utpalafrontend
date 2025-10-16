@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import Table, { Column } from '../../../../components/Table/Table';
-import TherapistModal from './TherapistModal';
 import IconEye from '../../../../components/Icon/IconEye';
 import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
@@ -9,7 +8,7 @@ import IconSearch from '../../../../components/Icon/IconSearch';
 import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
-
+import GlobalModal from '../../../../components/Modal/GlobalModal';
 interface Therapist {
   id: number;
   name: string;
@@ -26,26 +25,13 @@ type StatusBadgeProps = { status: Therapist['status'] };
 const StatusBadge = ({ status }: StatusBadgeProps) => {
   let colorClass = '';
   switch (status) {
-    case 'Active':
-      colorClass = 'bg-green-600 text-white dark:bg-green-800 dark:text-green-100';
-      break;
-    case 'Inactive':
-      colorClass = 'bg-red-400 text-white dark:bg-red-700 dark:text-red-100';
-      break;
-    case 'Training':
-      colorClass = 'bg-amber-400 text-amber-900 dark:bg-amber-600 dark:text-amber-100';
-      break;
-    case 'On Leave':
-      colorClass = 'bg-blue-500 text-white dark:bg-blue-700 dark:text-blue-100';
-      break;
-    default:
-      colorClass = 'bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100';
+    case 'Active': colorClass = 'bg-green-600 text-white dark:bg-green-800 dark:text-green-100'; break;
+    case 'Inactive': colorClass = 'bg-red-400 text-white dark:bg-red-700 dark:text-red-100'; break;
+    case 'Training': colorClass = 'bg-amber-400 text-amber-900 dark:bg-amber-600 dark:text-amber-100'; break;
+    case 'On Leave': colorClass = 'bg-blue-500 text-white dark:bg-blue-700 dark:text-blue-100'; break;
+    default: colorClass = 'bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100';
   }
-  return (
-    <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full shadow-sm ${colorClass}`}>
-      {status}
-    </span>
-  );
+  return <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full shadow-sm ${colorClass}`}>{status}</span>;
 };
 
 const TherapistsPage = () => {
@@ -63,37 +49,12 @@ const TherapistsPage = () => {
   const [selectedTherapist, setSelectedTherapist] = useState<Therapist | null>(null);
   const navigate = useNavigate();
 
-  const modalMode = selectedTherapist ? 'edit' : 'add';
-
-  const handleCloseModal = useCallback(() => {
-    setIsModalOpen(false);
-    setSelectedTherapist(null);
-  }, []);
-
-  const handleEdit = useCallback((therapist: Therapist) => {
-    setSelectedTherapist(therapist);
-    setIsModalOpen(true);
-  }, []);
-
-  const handleAdd = useCallback(() => {
-    setSelectedTherapist(null);
-    setIsModalOpen(true);
-  }, []);
-
+  const handleEdit = (therapist: Therapist) => { setSelectedTherapist(therapist); setIsModalOpen(true); };
   const handleView = (therapist: Therapist) => navigate(`/therapist/${therapist.id}`);
-
-  const handleDelete = useCallback((therapist: Therapist) => {
-    if (window.confirm(`Are you sure you want to dismiss ${therapist.name}?`)) {
-      console.log(`Dismissing Therapist with ID: ${therapist.id}`);
-    }
-  }, []);
+  const handleDelete = (therapist: Therapist) => { if (window.confirm(`Dismiss ${therapist.name}?`)) console.log(`Dismiss Therapist ${therapist.id}`); };
 
   const filteredData = useMemo(() => therapistsData
-    .filter(t =>
-      t.name.toLowerCase().includes(search.toLowerCase()) ||
-      t.employeeId.toLowerCase().includes(search.toLowerCase()) ||
-      t.email.toLowerCase().includes(search.toLowerCase())
-    )
+    .filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || t.employeeId.toLowerCase().includes(search.toLowerCase()) || t.email.toLowerCase().includes(search.toLowerCase()))
     .filter(t => specialtyFilter ? t.specialty === specialtyFilter : true),
     [therapistsData, search, specialtyFilter]
   );
@@ -110,7 +71,6 @@ const TherapistsPage = () => {
   const handleExportData = useCallback(() => {
     const fileExtension = '.xlsx';
     const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-
     const dataToExport = filteredData.map(item => ({
       'ID': item.id,
       'Employee ID': item.employeeId,
@@ -122,31 +82,18 @@ const TherapistsPage = () => {
       'License ID': item.licenseId,
       'Joining Date': item.joiningDate || 'N/A',
     }));
-
     const ws = XLSX.utils.json_to_sheet(dataToExport);
-    ws['!cols'] = [
-      { wch: 5 }, { wch: 15 }, { wch: 25 }, { wch: 30 },
-      { wch: 25 }, { wch: 15 }, { wch: 15 }, { wch: 15 }, { wch: 15 },
-    ];
-
     const wb = { Sheets: { 'Therapists_Data': ws }, SheetNames: ['Therapists_Data'] };
     const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-
     const blob = new Blob([excelBuffer], { type: fileType });
     FileSaver.saveAs(blob, 'therapists_data_export' + fileExtension);
   }, [filteredData]);
 
   const renderActions = (therapist: Therapist) => (
     <div className="flex items-center justify-center space-x-4">
-      <button onClick={() => handleView(therapist)} title="View" className="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition">
-        <IconEye className="w-5 h-5" />
-      </button>
-      <button onClick={() => handleEdit(therapist)} title="Edit" className="text-amber-500 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300 transition">
-        <IconEdit className="w-5 h-5" />
-      </button>
-      <button onClick={() => handleDelete(therapist)} title="Dismiss" className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 transition">
-        <IconTrash className="w-5 h-5" />
-      </button>
+      <button onClick={() => handleView(therapist)} title="View" className="text-blue-500 hover:text-blue-700"><IconEye className="w-5 h-5" /></button>
+      <button onClick={() => handleEdit(therapist)} title="Edit" className="text-amber-500 hover:text-amber-700"><IconEdit className="w-5 h-5" /></button>
+      <button onClick={() => handleDelete(therapist)} title="Dismiss" className="text-red-500 hover:text-red-700"><IconTrash className="w-5 h-5" /></button>
     </div>
   );
 
@@ -168,20 +115,35 @@ const TherapistsPage = () => {
         </button>
       </div>
     </div>
-
   );
+
+  const handleSave = (data: any) => {
+    console.log('Saved Therapist:', data);
+    setIsModalOpen(false);
+  };
 
   return (
     <>
       <Table columns={columns} data={filteredData} actions={renderActions} topContent={renderTopContent()} />
 
-      {isModalOpen && (
-        <TherapistModal
+      {isModalOpen && selectedTherapist && (
+        <GlobalModal<Therapist>
           isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          mode={modalMode}
-          therapistData={selectedTherapist || undefined}
-          onSave={(data) => console.log('Saved Therapist:', data)}
+          onClose={() => setIsModalOpen(false)}
+          mode="edit"
+          title="Therapist"
+          fields={[
+            { name: 'employeeId', label: 'Employee ID', type: 'text', required: true },
+            { name: 'name', label: 'Name', type: 'text', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'specialty', label: 'Specialty', type: 'select', options: ['Physiotherapist', 'Occupational Therapist', 'Speech Therapist', 'Psychotherapist'], required: true },
+            { name: 'schedule', label: 'Schedule', type: 'select', options: ['Full-time', 'Part-time', 'Contract'], required: true },
+            { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'On Leave', 'Training'], required: true },
+            { name: 'licenseId', label: 'License ID', type: 'text' },
+            { name: 'joiningDate', label: 'Joining Date', type: 'date' },
+          ]}
+          initialData={selectedTherapist}
+          onSave={handleSave}
         />
       )}
     </>

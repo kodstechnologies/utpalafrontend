@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import Table, { Column } from '../../../../components/Table/Table';
-import ReceptionistModal, { ModalMode } from './ReceptionistModal';
 import IconEye from '../../../../components/Icon/IconEye';
 import IconEdit from '../../../../components/Icon/IconEdit';
 import IconTrash from '../../../../components/Icon/IconTrash';
@@ -9,7 +8,7 @@ import IconSearch from '../../../../components/Icon/IconSearch';
 import FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import { useNavigate } from 'react-router-dom';
-
+import GlobalModal from '../../../../components/Modal/GlobalModal';
 interface Receptionist {
   id: number;
   name: string;
@@ -41,15 +40,12 @@ const ReceptionistsPage = () => {
     { id: 1, employeeId: 'R-001', name: 'Manoj Patel', email: 'manoj.p@veda.com', shift: 'Morning', status: 'Active', department: 'Front Desk', joiningDate: '2021-01-15' },
     { id: 2, employeeId: 'R-002', name: 'Neha Sharma', email: 'neha.s@veda.com', shift: 'Full Day', status: 'On Leave', department: 'Admissions', joiningDate: '2020-05-20' },
     { id: 3, employeeId: 'R-003', name: 'Vijay Kumar', email: 'vijay.k@veda.com', shift: 'Evening', status: 'Inactive', department: 'Billing', joiningDate: '2022-08-01' },
-    { id: 4, employeeId: 'R-003', name: 'Vijay Kumar', email: 'vijay.k@veda.com', shift: 'Evening', status: 'Inactive', department: 'Billing', joiningDate: '2022-08-01' },
-    { id: 5, employeeId: 'R-003', name: 'Vijay Kumar', email: 'vijay.k@veda.com', shift: 'Evening', status: 'Inactive', department: 'Billing', joiningDate: '2022-08-01' },
   ]);
 
   const [search, setSearch] = useState('');
   const [shiftFilter, setShiftFilter] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReceptionist, setSelectedReceptionist] = useState<Receptionist | null>(null);
-  const [modalMode, setModalMode] = useState<ModalMode>('add');
   const navigate = useNavigate();
 
   // Filtered data
@@ -71,7 +67,7 @@ const ReceptionistsPage = () => {
 
   // Actions
   const handleView = (receptionist: Receptionist) => navigate(`/receptionist/${receptionist.id}`);
-  const handleEdit = (receptionist: Receptionist) => { setSelectedReceptionist(receptionist); setModalMode('edit'); setIsModalOpen(true); };
+  const handleEdit = (receptionist: Receptionist) => { setSelectedReceptionist(receptionist); setIsModalOpen(true); };
   const handleDelete = (receptionist: Receptionist) => { if (window.confirm(`Dismiss ${receptionist.name}?`)) setReceptionistsData(prev => prev.filter(r => r.id !== receptionist.id)); };
 
   const renderActions = (receptionist: Receptionist) => (
@@ -98,7 +94,6 @@ const ReceptionistsPage = () => {
     FileSaver.saveAs(blob, 'receptionists_data_export' + fileExtension);
   }, [filteredData]);
 
-  // Top content with Add & Export buttons
   const renderTopContent = () => (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0 w-full">
       <div className="relative w-full sm:w-60">
@@ -121,28 +116,41 @@ const ReceptionistsPage = () => {
         </button>
       </div>
     </div>
-
   );
 
-  // Save new or edited receptionist
   const handleSaveReceptionist = (data: any) => {
-    if (modalMode === 'add') {
-      setReceptionistsData(prev => [...prev, { ...data, id: Date.now() }]);
-    } else if (modalMode === 'edit' && selectedReceptionist) {
+    if (selectedReceptionist) {
       setReceptionistsData(prev => prev.map(r => r.id === selectedReceptionist.id ? { ...r, ...data } : r));
     }
+    setIsModalOpen(false);
   };
 
   return (
     <>
       <Table columns={columns} data={filteredData} actions={renderActions} topContent={renderTopContent()} />
-      <ReceptionistModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        mode={modalMode}
-        receptionistData={selectedReceptionist || undefined}
-        onSave={handleSaveReceptionist}
-      />
+
+      {/* GlobalModal for Edit only */}
+      {isModalOpen && selectedReceptionist && (
+        <GlobalModal<Receptionist>
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          mode="edit"
+          title="Receptionist"
+          fields={[
+            { name: 'employeeId', label: 'Employee ID', type: 'text', required: true },
+            { name: 'name', label: 'Name', type: 'text', required: true },
+            { name: 'email', label: 'Email', type: 'email', required: true },
+            { name: 'department', label: 'Department', type: 'select', options: ['Front Desk', 'Billing', 'Admissions'], required: true },
+            { name: 'shift', label: 'Shift', type: 'select', options: ['Morning', 'Afternoon', 'Evening', 'Full Day'], required: true },
+            { name: 'status', label: 'Status', type: 'select', options: ['Active', 'Inactive', 'On Leave', 'Training'], required: true },
+            { name: 'dob', label: 'DOB', type: 'date' },
+            { name: 'gender', label: 'Gender', type: 'select', options: ['Male', 'Female', 'Other'] },
+            { name: 'joiningDate', label: 'Joining Date', type: 'date' },
+          ]}
+          initialData={selectedReceptionist}
+          onSave={handleSaveReceptionist}
+        />
+      )}
     </>
   );
 };

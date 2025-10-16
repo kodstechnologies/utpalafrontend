@@ -13,8 +13,8 @@ export interface FieldConfig {
     | "select"
     | "textarea"
     | "file"
-    | "checkbox" // Single checkbox
-    | "checkbox-group" // Group of checkboxes
+    | "checkbox"
+    | "checkbox-group"
     | "time";
     options?: (string | { value: string; label: string })[];
     required?: boolean;
