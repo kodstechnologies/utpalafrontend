@@ -10,12 +10,10 @@ import IconPlus from '../../../components/Icon/IconPlus';
 
 // Interface for form data that would be returned by GlobalModal
 interface PrescriptionFormData {
-    patientName: string;
+    patientId: string;
     medicineName: string;
     medicineType: string;
-    dosageMorning: boolean;
-    dosageAfternoon: boolean;
-    dosageEvening: boolean;
+    dosage: { [key: string]: boolean };
     intakeTime: string;
     specialInstructions: string;
 }
@@ -32,21 +30,25 @@ interface PrescriptionData {
 }
 
 const prescriptionFields: FieldConfig[] = [
-    { name: 'patientName', label: 'Patient Name', type: 'text', required: true },
+    {
+        name: 'patientId', label: 'Patient Name', type: 'select', required: true,
+        options: [ // This would typically be fetched from an API
+            { value: 'Rohit Sharma', label: 'Rohit Sharma' },
+            { value: 'Sneha Patil', label: 'Sneha Patil' },
+            { value: 'Aarav Deshmukh', label: 'Aarav Deshmukh' },
+        ]
+    },
     {
         name: 'medicineType',
         label: 'Medicine Type',
         type: 'select',
-        required: true, // This is correct for a select field
-        options: [ // This is correct for a select field
-            'Vati (Tablet)', 'Churna (Powder)', 'Kwatha (Decoction)', 'Taila (Oil)', 'Leha (Paste)'
-            // '', 'kwatha', 'taila', 'leha'
-            // { value: '', label: 'Select Type',type },
-            // { value: 'vati', label: 'Vati (Tablet)' },
-            // { value: 'churna', label: 'Churna (Powder)' },
-            // { value: 'kwatha', label: 'Kwatha (Decoction)' },
-            // { value: 'taila', label: 'Taila (Oil)' },
-            // { value: 'leha', label: 'Leha (Paste)' },
+        required: true,
+        options: [
+            { value: 'vati', label: 'Vati (Tablet)' },
+            { value: 'churna', label: 'Churna (Powder)' },
+            { value: 'kwatha', label: 'Kwatha (Decoction)' },
+            { value: 'taila', label: 'Taila (Oil)' },
+            { value: 'leha', label: 'Leha (Paste)' },
         ],
     },
     { name: 'medicineName', label: 'Medicine Name', type: 'text', required: true },
@@ -61,13 +63,11 @@ const prescriptionFields: FieldConfig[] = [
         label: 'Intake Time',
         type: 'select',
         required: true,
-        options: [
-            '','before_food', 'after_food', 'with_honey', 'with_ghee'
-            // { value: '', label: 'Select Intake Time' },
-            // { value: 'before_food', label: 'Before Food' },
-            // { value: 'after_food', label: 'After Food' },
-            // { value: 'with_honey', label: 'With Honey' },
-            // { value: 'with_ghee', label: 'With Ghee' },
+        options: [ 
+            { value: 'before_food', label: 'Before Food' },
+            { value: 'after_food', label: 'After Food' },
+            { value: 'with_honey', label: 'With Honey' },
+            { value: 'with_ghee', label: 'With Ghee' },
         ],
     },
     { 
@@ -122,20 +122,18 @@ const Prescription = () => {
 
     // Function to handle save action from GlobalModal
     const handleSavePrescription = (formData: PrescriptionFormData) => {
-        
-        const selectedDosages = [];
-        if (formData.dosageMorning) selectedDosages.push('Morning');
-        if (formData.dosageAfternoon) selectedDosages.push('Afternoon');
-        if (formData.dosageEvening) selectedDosages.push('Evening');
+        const selectedDosages = Object.entries(formData.dosage || {})
+            .filter(([, checked]) => checked)
+            .map(([key]) => key.charAt(0).toUpperCase() + key.slice(1)); // Capitalize: 'morning' -> 'Morning'
 
         if (selectedDosages.length === 0) {
             alert('Please select at least one dosage time.');
             return;
         }
-
+        
         const newPrescription: PrescriptionData = {
             id: selectedPrescription ? selectedPrescription.id : Date.now(),
-            patientName: formData.patientName,
+            patientName: formData.patientId, // Use patientId which holds the name
             medicineName: formData.medicineName,
             medicineType: formData.medicineType,
             dosage: selectedDosages.join(', '),
@@ -182,11 +180,11 @@ const Prescription = () => {
     );
 
     const renderTopContent = (): ReactNode => (
-        <div className="flex items-center justify-between w-full">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
             <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>                
             {/* Search Input */}
-            <div className="relative">
-                <input type="text" placeholder="Search..." className="form-input ltr:pr-10 rtl:pl-10" value={search} onChange={(e) => setSearch(e.target.value)} />
+            <div className="relative w-full sm:w-auto">
+                <input type="text" placeholder="Search by Patient or Medicine..." className="form-input ltr:pr-10 rtl:pl-10 w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
         </div>
     );
@@ -194,42 +192,32 @@ const Prescription = () => {
     // Function to derive initial data for the GlobalModal's fields
     const getInitialPrescriptionData = (prescription: PrescriptionData | null): PrescriptionFormData | undefined => {
         if (!prescription) return undefined;
-
+    
         // Convert the comma-separated dosage string back into boolean flags for the fields
         const dosageArray = prescription.dosage.split(',').map(d => d.trim().toLowerCase());
-
+    
         return {
-            patientName: prescription.patientName,
+            patientId: prescription.patientName,
             medicineName: prescription.medicineName,
             medicineType: prescription.medicineType,
-            dosageMorning: dosageArray.includes('morning'),
-            dosageAfternoon: dosageArray.includes('afternoon'),
-            dosageEvening: dosageArray.includes('evening'),
+            dosage: {
+                morning: dosageArray.includes('morning'),
+                afternoon: dosageArray.includes('afternoon'),
+                evening: dosageArray.includes('evening'),
+            },
             intakeTime: prescription.intakeTime, // Ensure intakeTime is always a string
             specialInstructions: prescription.specialInstructions,
         };
     };
 
     return (
-        <>
-            {/* Breadcrumbs */}
-            {/* <ul className="flex space-x-2 rtl:space-x-reverse">
-                <li>
-                    <Link to="/" className="text-primary hover:underline">
-                        Dashboard
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>Prescription</span>
-                </li>
-            </ul> */}
-
+        <div className="space-y-6">
             {/* Header with Add Button */}
-            <div className="pt-5 flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h5 className="font-semibold text-lg dark:text-white-light">Prescriptions</h5>
                 <button
                     type="button"
-                    className="btn btn-primary flex items-center"
+                    className="btn btn-primary w-full sm:w-auto"
                     onClick={() => {
                         setSelectedPrescription(null); // Ensure 'create' mode
                         setIsModalOpen(true);
@@ -241,8 +229,8 @@ const Prescription = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="pt-5">
-                {recentPrescriptions.length > 0 ? (
+            <div className="panel">
+                {filteredData.length > 0 ? (
                     <Table<PrescriptionData>
                         columns={columns}
                         data={filteredData}
@@ -251,7 +239,7 @@ const Prescription = () => {
                         itemsPerPage={5}
                     />
                 ) : (
-                    <div className="panel flex items-center justify-center p-10">
+                    <div className="flex flex-col sm:flex-row items-center justify-center p-10 gap-4">
                         <p className="text-gray-500">No prescriptions found. Click 'Add Prescription' to create one.</p>
                         <button 
                             type="button" 
@@ -275,7 +263,7 @@ const Prescription = () => {
                 initialData={getInitialPrescriptionData(selectedPrescription)}
                 onSave={handleSavePrescription} // This function replaces handleSubmit
             />
-        </>
+        </div>
     );
 };
 

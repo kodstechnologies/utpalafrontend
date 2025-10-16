@@ -125,6 +125,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                 onChange: handleChange,
                                 required: field.required,
                                 disabled: field.disabledInEdit && mode === "edit",
+                                placeholder : field.label,
                             };
 
                             // ✅ Custom render (for special fields)
@@ -172,6 +173,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                                 {...commonProps}
                                                 value={value || ""}
                                                 rows={7}
+                                                placeholder={commonProps.placeholder}
                                                 className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 px-3 py-2 focus:ring-2 focus:ring-green-500"
                                             />
                                         </div>
@@ -216,7 +218,6 @@ const GlobalModal = <T extends Record<string, any>>({
                                             </label>
                                         </div>
                                     );
-                                    
                                     case 'checkbox-group':
         // Renders the checkboxes side-by-side
         return (
