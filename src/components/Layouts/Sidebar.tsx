@@ -66,7 +66,7 @@ const Sidebar = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-    const userrole: string = 'doctor'; // This should be fetched from user state or context
+    const userrole: string = 'patient'; // This should be fetched from user state or context
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
@@ -443,14 +443,14 @@ const Sidebar = () => {
                                         </div>
                                     </NavLink>
                                 </li>
-                                <li className="menu nav-item">
+                                {/* <li className="menu nav-item">
                                     <NavLink to="/discharge-summary" className="nav-link group">
                                         <div className="flex items-center">
                                             <IconFile className="group-hover:!text-primary shrink-0" />
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Discharge Summary')}</span>
                                         </div>
                                     </NavLink>
-                                </li>
+                                </li> */}
                             </ul>
                         )}
                     </PerfectScrollbar>

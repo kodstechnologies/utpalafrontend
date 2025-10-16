@@ -20,6 +20,7 @@ export interface FieldConfig {
     required?: boolean;
     disabledInEdit?: boolean;
     accept?: string;
+    textareaSize?: number;
     customRender?: (
         value: any,
         onChange: (value: any) => void,
@@ -124,8 +125,9 @@ const GlobalModal = <T extends Record<string, any>>({
                                 name: field.name,
                                 onChange: handleChange,
                                 required: field.required,
+                                size:field.textareaSize, // Property 'size' does not exist on type
+                                placeholder: field.label,
                                 disabled: field.disabledInEdit && mode === "edit",
-                                placeholder : field.label,
                             };
 
                             // ✅ Custom render (for special fields)
@@ -172,7 +174,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                             <textarea
                                                 {...commonProps}
                                                 value={value || ""}
-                                                rows={7}
+                                                rows={commonProps.size || 3}
                                                 placeholder={commonProps.placeholder}
                                                 className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 px-3 py-2 focus:ring-2 focus:ring-green-500"
                                             />
@@ -267,6 +269,7 @@ const GlobalModal = <T extends Record<string, any>>({
         );
     
     // ... default case or other field types ...
+                                    
 
                                 default:
                                     return (
