@@ -14,6 +14,7 @@ import IconMenuPages from '../Icon/Menu/IconMenuPages';
 import IconUsers from '../Icon/IconUsers';
 import IconMenuForms from '../Icon/Menu/IconMenuForms';
 import { Layers } from 'lucide-react';
+import { ClipboardCheck } from "lucide-react";
 import { Stethoscope } from "lucide-react";
 import { CalendarClock } from "lucide-react";
 import { PackagePlus } from "lucide-react";
@@ -190,26 +191,57 @@ const Sidebar = () => {
                                     </NavLink>
                                 </li>
 
-                                  <li className="menu nav-item">
-                                    <NavLink to="/consultation-scheduling">
+                                <li className="menu nav-item">
+                                    <button
+                                        type="button"
+                                        className={`${currentMenu === 'Consultation & Scheduling' ? 'active' : ''} nav-link group w-full`}
+                                        onClick={() => toggleMenu('Consultation & Scheduling')}
+                                    >
+                                        <div className="flex items-center">
+                                            <CalendarClock
+                                                className={`${currentMenu === 'Consultation & Scheduling' || isUserManagementActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                            />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Consultation & Scheduling')}</span>
+                                        </div>
+
+                                        <div className={currentMenu === 'Consultation & Scheduling' ? '' : 'rtl:rotate-90 -rotate-90'}>
+                                            <IconCaretDown />
+                                        </div>
+                                    </button>
+
+                                    <AnimateHeight duration={300}
+                                        height={currentMenu === 'Consultation & Scheduling' ? 'auto' : 0}>
+                                        <ul className="sub-menu text-gray-500">
+                                            <li>
+                                                <NavLink to="/consultation-scheduling/slot">{t('Add Slot')}</NavLink>
+                                            </li>
+                                            <li>
+                                                <NavLink to="/consultation-scheduling/doctors">{t('Assign Doctor')}</NavLink>
+                                            </li>
+                                        </ul>
+                                    </AnimateHeight>
+                                </li>
+
+                                <li className="menu nav-item">
+                                    <NavLink to="/billing-discharge">
                                         <button
                                             type="button"
-                                            className={`${currentMenu === 'Consultation & Scheduling' || location.pathname === '/consultation-scheduling' ? 'active' : ''} nav-link group w-full`}
-                                            onClick={() => toggleMenu('Consultation & Scheduling')}
+                                            className={`${currentMenu === 'Pharmacy & Inventory' || location.pathname === '/billing-discharge' ? 'active' : ''} nav-link group w-full`}
+                                            onClick={() => toggleMenu('Billing & Discharge')}
                                         >
                                             <div className="flex items-center">
-                                                <CalendarClock
-                                                    className={`${currentMenu === 'Consultation & Scheduling' || location.pathname === '/consultation-scheduling' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                <ClipboardCheck
+                                                    className={`${currentMenu === 'Billing & Discharge' || location.pathname === '/billing-discharge' ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
                                                 />
                                                 <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">
-                                                    {t('Consultation & Scheduling')}
+                                                    {t('Billing & Discharge')}
                                                 </span>
                                             </div>
                                         </button>
                                     </NavLink>
                                 </li>
 
-                                  <li className="menu nav-item">
+                                <li className="menu nav-item">
                                     <NavLink to="/pharmacy-inventory">
                                         <button
                                             type="button"

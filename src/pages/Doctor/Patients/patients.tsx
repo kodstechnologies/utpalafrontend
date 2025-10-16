@@ -208,7 +208,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
             // Start Treatment -> Active
             setActiveTreatments((prev) => ({ ...prev, [patientId]: 'Active' }));
             // Navigate to the prescription page after starting
-            // navigate(`/prescription?patientId=${patientId}`);
+            navigate(`/patient-examination/${patientId}`);
         } else if (currentStatus === 'Active') {
             // Stop Treatment -> Completed
             setActiveTreatments((prev) => ({ ...prev, [patientId]: 'Completed' }));

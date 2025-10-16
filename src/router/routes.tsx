@@ -3,7 +3,6 @@ import { useLocation } from 'react-router-dom';
 import PatientDetails from '../pages/Doctor/Patients/patientsDetails';
 import DoctorDashboard from '../pages/Doctor/Dashboard';
 import FamilyMember from '../pages/Doctor/Patients/FamilyMember';
-import path from 'path';
 import TreatmentSessions from '../pages/Doctor/Treatment';
 import PharmaDashboard from '../pages/Pharmacist/Dashboard';
 import PharmacistInventory from '../pages/Pharmacist/Inventory';
@@ -24,11 +23,11 @@ const PharmacistProfile = lazy(() => import('../pages/admin/UserManagement/Pharm
 const ReceptionistProfile = lazy(() => import('../pages/admin/UserManagement/Receptionists/ReceptionistProfile'))
 const WardAndCategory = lazy(() => import('../pages/admin/WardAndCategory/WardCategoryManagement'))
 const TreatmentTherapy = lazy(() => import('../pages/admin/TreatmentAndTherapy/TreatmemtTherapyManagement'))
-const ConsultationScheduling = lazy(() => import('../pages/admin/ConsultationAndScheduling/ConsultationSchedulingManagement'))
+const AddSlot = lazy(() => import('../pages/admin/ConsultationAndScheduling/AddSlot/AddSlot'))
 const TherapyDetails = lazy(() => import('../pages/admin/TreatmentAndTherapy/TherapyDetails'))
 const PharmacyInventory = lazy(() => import('../pages/admin/PharmacyAndInventory/PharmacyInventoryPage'))
-
-const TherapistProfile = lazy(()=> import ('../pages/admin/UserManagement/Therapists/TherapistProfile'))
+const AssignDoctors = lazy(() => import('../pages/admin/ConsultationAndScheduling/AssignDoctor/AssignDoctor'))
+const TherapistProfile = lazy(() => import('../pages/admin/UserManagement/Therapists/TherapistProfile'))
 const NextVisit = lazy(() => import('../pages/Doctor/ScheduleAppointment'))
 const Prescriptions = lazy(() => import('../pages/Pharmacist/Prescriptions'))
 const Invoice = lazy(() => import('../components/invoice/Preview'))
@@ -66,8 +65,8 @@ const UserManagementWrapper = () => {
 
     // const UserTableComponent = routeComponents[userTypeKey.toLowerCase()] || AdminUserManagementDoctor;
     const UserTableComponent =
-  routeComponents[userTypeKey.toLowerCase() as keyof typeof routeComponents] ||
-  AdminUserManagementDoctor;
+        routeComponents[userTypeKey.toLowerCase() as keyof typeof routeComponents] ||
+        AdminUserManagementDoctor;
 
     return (
         <UserManagementLayout key={userTypeKey}>
@@ -80,42 +79,42 @@ const PatientExamination = lazy(() => import('../pages/Doctor/Patients/PatientEx
 const role = 'admin';
 const routes = [
     // admin-dashboard
-  
-  role === 'admin'
-    ? {
-        path: '/',
-        element: <AdminDashboard />,
-        layout: 'default',
-      }
-    : role === 'doctor'
-    ? {
-        path: '/',
-        element: <DoctorDashboard />,
-        layout: 'default',
-      }
-    : role === 'pharmacist'
-    ? {
-        path: '/',
-        element: <PharmaDashboard />,
-        layout: 'default',
-      }
-    : role === 'nurse'
-    ? {
-        path: '/',
-        element: <NurseDashboard />,
-        layout: 'default',
-      }
-    : role === 'receptionist'
-    ? {
-        path: '/',
-        element: <ReceptionistDashboard />,
-        layout: 'default',
-    }
-    : { // Default to patient
-        path: '/',
-        element: <PatientDashboard />,
-        layout: 'default',
-    },
+
+    role === 'admin'
+        ? {
+            path: '/',
+            element: <AdminDashboard />,
+            layout: 'default',
+        }
+        : role === 'doctor'
+            ? {
+                path: '/',
+                element: <DoctorDashboard />,
+                layout: 'default',
+            }
+            : role === 'pharmacist'
+                ? {
+                    path: '/',
+                    element: <PharmaDashboard />,
+                    layout: 'default',
+                }
+                : role === 'nurse'
+                    ? {
+                        path: '/',
+                        element: <NurseDashboard />,
+                        layout: 'default',
+                    }
+                    : role === 'receptionist'
+                        ? {
+                            path: '/',
+                            element: <ReceptionistDashboard />,
+                            layout: 'default',
+                        }
+                        : { // Default to patient
+                            path: '/',
+                            element: <PatientDashboard />,
+                            layout: 'default',
+                        },
     {
         path: 'user-management/:userType',
         element: <UserManagementWrapper />,
@@ -167,13 +166,18 @@ const routes = [
         layout: 'default',
     },
     {
-        path: 'consultation-scheduling',
-        element: <ConsultationScheduling />,
+        path: 'consultation-scheduling/slot',
+        element: <AddSlot />,
         layout: 'default',
     },
-        {
+    {
+        path: 'consultation-scheduling/doctors',
+        element: <AssignDoctors />,
+        layout: 'default',
+    },
+    {
         path: 'pharmacy-inventory',
-        element: <PharmacyInventory/>,
+        element: <PharmacyInventory />,
         layout: 'default',
     },
 
@@ -204,15 +208,15 @@ const routes = [
         layout: 'default',
     },
     {
-        path : 'treatments',
-        element: <TreatmentSessions/>,
+        path: 'treatments',
+        element: <TreatmentSessions />,
         layout: 'default',
-       },
+    },
     {
-        path : 'next-visit',
-        element : <NextVisit />,
-        layout : 'default'
-    
+        path: 'next-visit',
+        element: <NextVisit />,
+        layout: 'default'
+
     },
     // Pharamacist routes
 
@@ -222,86 +226,86 @@ const routes = [
         layout: 'default',
     },
     {
-        path:'invoice',
+        path: 'invoice',
         element: <Invoice />,
         layout: 'default',
     },
     {
-        path:'inventory',
+        path: 'inventory',
         element: <PharmacistInventory />,
         layout: 'default',
     },
 
     // Patients Routes
-{
-    path: 'patient/family',
-    element: <PatientFamily />,
-    layout: 'default',
-},
-{
-    path: 'patient/consultations',
-    element: <PatientConsultations />,
-    layout: 'default',
-},
-{
-    path: 'patient/prescriptions',
-    element: <PatientPrescriptions />,
-    layout: 'default',
-},
-{
-    path: 'patient/therapies',
-    element: <PatientTherapies />,
-    layout: 'default',
-},
-{
-    path: 'patient/reports',
-    element: <PatientReports />,
-    layout: 'default',
-},
-// Nurse Routes
-{
-    path: 'admissions',
-    element: <NurseAdmissions />,
-    layout: 'default',
-},
-{
-    path: 'monitoring',
-    element: <NurseMonitoring />,
-    layout: 'default',
-},
-{
-    path: 'discharge',
-    element: <NurseDischarge />,
-    layout: 'default',
-},
-// Receptionist Routes
-{
-    path: 'receptionist/appointments',
-    element: <ReceptionistAppointments />,
-    layout: 'default',
-},
-{
-    path: 'receptionist/payments',
-    element: <ReceptionistPayments />,
-    layout: 'default',
-},
-{
-    path: 'receptionist/reports',
-    element: <ReceptionistReports />,
-    layout: 'default',
-},
-// Public Form Route
-{
-    path: '/patient-registration-form',
-    element: <PatientRegistrationForm />,
-    layout: 'blank',
-},
-// Shared Routes
-{
-    path: '/discharge-summary',
-    element: <DischargeSummaryPage />,
-    layout: 'default',
-}
+    {
+        path: 'patient/family',
+        element: <PatientFamily />,
+        layout: 'default',
+    },
+    {
+        path: 'patient/consultations',
+        element: <PatientConsultations />,
+        layout: 'default',
+    },
+    {
+        path: 'patient/prescriptions',
+        element: <PatientPrescriptions />,
+        layout: 'default',
+    },
+    {
+        path: 'patient/therapies',
+        element: <PatientTherapies />,
+        layout: 'default',
+    },
+    {
+        path: 'patient/reports',
+        element: <PatientReports />,
+        layout: 'default',
+    },
+    // Nurse Routes
+    {
+        path: 'admissions',
+        element: <NurseAdmissions />,
+        layout: 'default',
+    },
+    {
+        path: 'monitoring',
+        element: <NurseMonitoring />,
+        layout: 'default',
+    },
+    {
+        path: 'discharge',
+        element: <NurseDischarge />,
+        layout: 'default',
+    },
+    // Receptionist Routes
+    {
+        path: 'receptionist/appointments',
+        element: <ReceptionistAppointments />,
+        layout: 'default',
+    },
+    {
+        path: 'receptionist/payments',
+        element: <ReceptionistPayments />,
+        layout: 'default',
+    },
+    {
+        path: 'receptionist/reports',
+        element: <ReceptionistReports />,
+        layout: 'default',
+    },
+    // Public Form Route
+    {
+        path: '/patient-registration-form',
+        element: <PatientRegistrationForm />,
+        layout: 'blank',
+    },
+    // Shared Routes
+    {
+        path: '/discharge-summary',
+        element: <DischargeSummaryPage />,
+        layout: 'default',
+    }
 
 ];
 

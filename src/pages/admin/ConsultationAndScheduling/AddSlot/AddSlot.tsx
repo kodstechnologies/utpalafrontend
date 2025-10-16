@@ -1,22 +1,20 @@
 import React, { useState, useMemo, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import Table, { Column } from "../../../components/Table/Table";
-import IconEye from "../../../components/Icon/IconEye";
-import IconEdit from "../../../components/Icon/IconEdit";
-import IconTrash from "../../../components/Icon/IconTrash";
-import IconDownload from "../../../components/Icon/IconDownload";
-import IconSearch from "../../../components/Icon/IconSearch";
+import Table, { Column } from "../../../../components/Table/Table";
+import IconEye from "../../../../components/Icon/IconEye";
+import IconEdit from "../../../../components/Icon/IconEdit";
+import IconTrash from "../../../../components/Icon/IconTrash";
+import IconDownload from "../../../../components/Icon/IconDownload";
+import IconSearch from "../../../../components/Icon/IconSearch";
 import FileSaver from "file-saver";
 import * as XLSX from "xlsx";
-import DeleteModal from "../../../components/DeleteModal";
-import IconPlus from "../../../components/Icon/IconPlus";
-import GlobalModal, { FieldConfig } from "../../../components/Modal/GlobalModal";
+import DeleteModal from "../../../../components/DeleteModal";
+import IconPlus from "../../../../components/Icon/IconPlus";
+import GlobalModal, { FieldConfig } from "../../../../components/Modal/GlobalModal";
 
 interface Consultation {
   id: number;
   doctorName: string;
-  ward?: string;
-  patientName?: string;
   day: string;
   startTime: string;
   endTime: string;
@@ -30,8 +28,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
     {
       id: 1,
       doctorName: "Dr. Priya Sharma",
-      ward: "ICU",
-      patientName: "John Doe",
       day: "Monday",
       startTime: "10:00 AM",
       endTime: "11:00 AM",
@@ -40,8 +36,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
     {
       id: 2,
       doctorName: "Dr. Ramesh Kumar",
-      ward: "General",
-      patientName: "Soumyan",
       day: "Tuesday",
       startTime: "12:00 PM",
       endTime: "01:00 PM",
@@ -57,8 +51,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
 
   const consultationFields: FieldConfig[] = [
     { name: "doctorName", label: "Doctor Name", type: "text", required: true },
-    { name: "ward", label: "Ward", type: "text" },
-    { name: "patientName", label: "Patient Name", type: "text" },
     {
       name: "day",
       label: "Day",
@@ -86,8 +78,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
 
   const columns: Column<Consultation>[] = [
     { Header: "Doctor", accessor: "doctorName" },
-    { Header: "Ward", accessor: "ward" },
-    { Header: "Patient", accessor: "patientName" },
     { Header: "Day", accessor: "day" },
     {
       Header: "Time",
@@ -99,9 +89,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
 
   const renderActions = (row: Consultation) => (
     <div className="flex items-center space-x-3">
-      <button title="View Doctor" onClick={() => navigate(`/doctor/${row.id}`)}>
-        <IconEye className="w-5 h-5 text-blue-500 hover:text-blue-700" />
-      </button>
       <button
         title="Edit"
         onClick={() => {
@@ -126,8 +113,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
   const handleExportData = useCallback(() => {
     const dataToExport = filteredConsultations.map((c) => ({
       "Doctor Name": c.doctorName,
-      Ward: c.ward || "Not assigned",
-      Patient: c.patientName || "Not assigned",
       Day: c.day,
       Time: `${c.startTime} - ${c.endTime}`,
       "Available Slots": c.availableSlots,
@@ -174,12 +159,15 @@ const ConsultationSchedulingManagement: React.FC = () => {
 
   return (
     <>
-      <div className="flex pb-10 flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
+      <div className="flex  pb-10 flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <ul className="flex space-x-2 rtl:space-x-reverse">
           <li>
             <Link to="#" className="text-green-600 hover:underline">
               Consultation & Scheduling
             </Link>
+          </li>
+          <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+            <span>Slots</span>
           </li>
         </ul>
 
