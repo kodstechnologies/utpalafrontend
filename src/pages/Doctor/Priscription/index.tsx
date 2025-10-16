@@ -42,13 +42,16 @@ const prescriptionFields: FieldConfig[] = [
         name: 'medicineType',
         label: 'Medicine Type',
         type: 'select',
-        required: true,
-        options: [
-            { value: 'vati', label: 'Vati (Tablet)' },
-            { value: 'churna', label: 'Churna (Powder)' },
-            { value: 'kwatha', label: 'Kwatha (Decoction)' },
-            { value: 'taila', label: 'Taila (Oil)' },
-            { value: 'leha', label: 'Leha (Paste)' },
+        required: true, // This is correct for a select field
+        options: [ // This is correct for a select field
+            'Select Type','Vati (Tablet)', 'Churna (Powder)', 'Kwatha (Decoction)', 'Taila (Oil)', 'Leha (Paste)'
+            // '', 'kwatha', 'taila', 'leha'
+            // { value: '', label: 'Select Type',type },
+            // { value: 'vati', label: 'Vati (Tablet)' },
+            // { value: 'churna', label: 'Churna (Powder)' },
+            // { value: 'kwatha', label: 'Kwatha (Decoction)' },
+            // { value: 'taila', label: 'Taila (Oil)' },
+            // { value: 'leha', label: 'Leha (Paste)' },
         ],
     },
     { name: 'medicineName', label: 'Medicine Name', type: 'text', required: true },
@@ -63,11 +66,13 @@ const prescriptionFields: FieldConfig[] = [
         label: 'Intake Time',
         type: 'select',
         required: true,
-        options: [ 
-            { value: 'before_food', label: 'Before Food' },
-            { value: 'after_food', label: 'After Food' },
-            { value: 'with_honey', label: 'With Honey' },
-            { value: 'with_ghee', label: 'With Ghee' },
+        options: [
+            'Select Intake Time','Before Food', 'After Food', 'With Honey', 'With Ghee'
+            // { value: '', label: 'Select Intake Time' },
+            // { value: 'before_food', label: 'Before Food' },
+            // { value: 'after_food', label: 'After Food' },
+            // { value: 'with_honey', label: 'With Honey' },
+            // { value: 'with_ghee', label: 'With Ghee' },
         ],
     },
     { 
@@ -81,7 +86,7 @@ const prescriptionFields: FieldConfig[] = [
             { value: 'evening', label: 'Sayankal (Evening)' },
         ],
     },
-    { name: 'specialInstructions', label: 'Special Instructions', type: 'textarea' },
+    { name: 'specialInstructions', label: 'Special Instructions', type: 'textarea',textareaSize:7 },
 ];
 
 const Prescription = () => {
