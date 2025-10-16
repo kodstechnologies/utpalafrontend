@@ -385,8 +385,8 @@ const TreatmentSessions = () => {
                 isOpen={isModalOpen}
                 onClose={handleCloseModal}
                 mode={selectedSession ? "edit" : "create"}
-                title={selectedSession ? "Edit Treatment Session" : "Create New Treatment Session"}
-                fields={treatmentFields as FieldConfig[]}
+                title={selectedSession ? "Edit Treatment Session" : "Create New Treatment Session"} // This line is causing the error
+                fields={treatmentFields}
                 initialData={getInitialTreatmentData(selectedSession)}
                 onSave={handleSaveTreatment}
             />
