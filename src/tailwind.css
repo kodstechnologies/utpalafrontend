@@ -229,10 +229,10 @@
     }
 
     .btn-primary {
-        @apply border-primary bg-primary text-white shadow-primary/60;
+        @apply border-green-500 bg-green-500 text-white shadow-green-500/60;
     }
     .btn-outline-primary {
-        @apply border-primary text-primary shadow-none hover:bg-primary hover:text-white;
+        @apply border-green-500 text-green-500 shadow-none hover:bg-green-600 hover:text-white;
     }
 
     .btn-secondary {

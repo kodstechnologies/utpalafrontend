@@ -259,6 +259,37 @@ const Sidebar = () => {
                                         </button>
                                     </NavLink>
                                 </li>
+
+                                <li className="menu nav-item">
+                                    <button
+                                        type="button"
+                                        className={`${currentMenu === 'Reports & Analytics' ? 'active' : ''} nav-link group w-full`}
+                                        onClick={() => toggleMenu('Reports & Analytics')}
+                                    >
+                                        <div className="flex items-center">
+                                            <CalendarClock
+                                                className={`${currentMenu === 'Reports & Analytics' || isUserManagementActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                            />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Reports & Analytics')}</span>
+                                        </div>
+
+                                        <div className={currentMenu === 'Reports & Analytics' ? '' : 'rtl:rotate-90 -rotate-90'}>
+                                            <IconCaretDown />
+                                        </div>
+                                    </button>
+
+                                    <AnimateHeight duration={300}
+                                        height={currentMenu === 'Reports & Analytics' ? 'auto' : 0}>
+                                        <ul className="sub-menu text-gray-500">
+                                            <li>
+                                                <NavLink to="/reports-analytics/admissions">{t('Admissions Report')}</NavLink>
+                                            </li>
+                                            <li>
+                                                <NavLink to="/reports-analytics/discharges">{t('Discharges Report')}</NavLink>
+                                            </li>
+                                        </ul>
+                                    </AnimateHeight>
+                                </li>
                             </ul>
                         )}
                         {userrole === 'doctor' && (

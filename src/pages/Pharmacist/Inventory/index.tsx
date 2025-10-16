@@ -124,7 +124,7 @@ const PharmacistInventory: React.FC = () => {
                 <button type="button" className="btn btn-outline-primary">
                     Generate Report
                 </button>
-                <button type="button" onClick={() => setIsAddModalOpen(true)} className="btn btn-primary flex items-center gap-2">
+                <button type="button" onClick={() => setIsAddModalOpen(true)} className="flex items-center justify-center px-4 py-2 bg-green-700 text-white font-semibold rounded-lg shadow-md hover:bg-green-800 transition-colors duration-150 w-full md:w-auto">
                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" /></svg>
                     Add New
                 </button>
@@ -132,15 +132,15 @@ const PharmacistInventory: React.FC = () => {
         </div>
     );
 
-    const tabActiveClasses = 'border-b-2 border-primary text-primary dark:border-primary dark:text-primary';
-    const tabInactiveClasses = 'border-b-2 border-transparent text-gray-500 hover:text-primary dark:text-gray-400 dark:hover:text-primary';
+    const tabActiveClasses = 'border-b-2 border-green-500 text-green-500 dark:border-primary dark:text-primary';
+    const tabInactiveClasses = 'border-b-2 border-transparent text-gray-500 hover:text-green-500 dark:text-gray-400 dark:hover:text-primary';
 
     const TabButton: React.FC<{ tabId: typeof activeTab; label: string; icon: ReactNode }> = ({ tabId, label, icon }) => {
         const isActive = activeTab === tabId;
         return (
             <button
                 onClick={() => setActiveTab(tabId)}
-                className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
+                className={`py-4 px-1  text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
                     isActive ? tabActiveClasses : tabInactiveClasses
                 }`}
             >
