@@ -48,6 +48,9 @@ const ReceptionistPayments = lazy(() => import('../pages/Receptionist/Payments')
 const ReceptionistReports = lazy(() => import('../pages/Receptionist/Reports'));
 const PatientRegistrationForm = lazy(() => import('../pages/Receptionist/WhatsupForm'));
 const DischargeSummaryPage = lazy(() => import('../pages/Shared/index'));
+const AdmissionReport = lazy(() => import('../pages/admin/ReportAndAnalytics/AdmissionReport'))
+const DischargeReport = lazy(() => import('../pages/admin/ReportAndAnalytics/DischargeReport'))
+const BillingDischarge = lazy(() => import('../pages/admin/BillingAndDischarge/BillingDischargePage'))
 
 
 const routeComponents = {
@@ -178,6 +181,21 @@ const routes = [
     {
         path: 'pharmacy-inventory',
         element: <PharmacyInventory />,
+        layout: 'default',
+    },
+    {
+        path: 'Reports-analytics/admissions',
+        element: <AdmissionReport />,
+        layout: 'default',
+    },
+    {
+        path: 'Reports-analytics/discharges',
+        element: <DischargeReport />,
+        layout: 'default',
+    },
+    {
+        path: 'billing-discharge',
+        element: <BillingDischarge />,
         layout: 'default',
     },
 

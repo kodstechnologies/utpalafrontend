@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState, ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { setPageTitle } from '../../../store/themeConfigSlice';
-import { Dialog, Transition } from '@headlessui/react';
 import IconListCheck from '../../../components/Icon/IconListCheck';
 import Table, { Column } from '../../../components/Table/Table';
 import { DashboardCard } from '../../../components/DashboardCard';
+import GlobalModal, { FieldConfig } from '../../../components/Modal/GlobalModal';
+import InventoryBatchLog from './InventoryBatchLog';
 
 // --- ICONS (Assuming these are available or defined elsewhere) ---
 const IconBox: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -18,6 +19,9 @@ const IconAlertTriangle: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 );
 const IconEdit: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 20h9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+);
+const IconEye: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+    <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 );
 const IconPill: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.1213 2.87868C16.8854 5.64279 16.8854 10.1146 14.1213 12.8787C11.3572 15.6428 6.88543 15.6428 4.12132 12.8787C1.35721 10.1146 1.35721 5.64279 4.12132 2.87868C6.88543 0.114571 11.3572 0.114571 14.1213 2.87868Z" stroke="currentColor" strokeWidth="1.5" /><path opacity="0.5" d="M12.8787 14.1213C15.6428 16.8854 15.6428 21.3572 12.8787 24.1213C10.1146 26.8854 5.64279 26.8854 2.87868 24.1213" stroke="currentColor" strokeWidth="1.5" /></svg>
@@ -67,6 +71,31 @@ const getStatusBadge = (status: ItemStatus) => {
     return <span className={`px-2 py-1 text-xs font-semibold rounded-full Rs.{statusClasses[status]}`}>{status}</span>;
 };
 
+const inventoryFields: FieldConfig[] = [
+    { name: 'itemName', label: 'Item Name', type: 'text', required: true },
+    { name: 'id', label: 'Stock ID', type: 'text', required: true, disabledInEdit: true },
+    { name: 'category', label: 'Category', type: 'text', required: true },
+    {
+        name: 'type', label: 'Type', type: 'select', required: true,
+        options: [
+            { value: 'Internal', label: 'Internal' },
+            { value: 'External', label: 'External' },
+        ]
+    },
+    { name: 'quantity', label: 'Quantity', type: 'number', required: true },
+    {
+        name: 'unit', label: 'Unit', type: 'select', required: true,
+        options: [
+            { value: 'g', label: 'g' },
+            { value: 'ml', label: 'ml' },
+            { value: 'units', label: 'units' },
+        ]
+    },
+    { name: 'expiryDate', label: 'Expiry Date', type: 'date', required: true }
+];
+
+const getInitialInventoryData = (item?: InventoryItem) => item ? { ...item } : { id: '', itemName: '', type: 'Internal', category: '', quantity: '', unit: 'g', expiryDate: '', status: 'In Stock' };
+
 const PharmacistInventory: React.FC = () => {
     const dispatch = useDispatch();
     useEffect(() => {
@@ -74,9 +103,9 @@ const PharmacistInventory: React.FC = () => {
     }, [dispatch]);
 
     const [activeTab, setActiveTab] = useState<'all' | 'internal' | 'external'>('all');
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedItem, setSelectedItem] = useState<InventoryItem | null>(null);
+    const [viewMode, setViewMode] = useState<'table' | 'log'>('table');
 
     const statsData = [
         { title: 'Total Items', count: mockInventory.length, icon: IconBox },
@@ -89,9 +118,26 @@ const PharmacistInventory: React.FC = () => {
         return mockInventory.filter(item => item.type.toLowerCase() === activeTab);
     }, [activeTab]);
 
-    const handleEditClick = (item: InventoryItem) => {
+    const handleOpenModal = (item?: InventoryItem) => {
+        setSelectedItem(item || null);
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedItem(null);
+    };
+
+    const handleSaveItem = (data: InventoryItem) => {
+        // Here you would typically call an API to save the data
+        console.log('Saving item:', data);
+        // For now, we'll just close the modal
+        handleCloseModal();
+    };
+
+    const handleViewLog = (item: InventoryItem) => {
         setSelectedItem(item);
-        setIsEditModalOpen(true);
+        setViewMode('log');
     };
 
     const columns: Column<InventoryItem>[] = useMemo(() => [
@@ -105,11 +151,19 @@ const PharmacistInventory: React.FC = () => {
     ], []);
 
     const renderActions = (item: InventoryItem): ReactNode => (
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-2">
+            <button
+                type="button"
+                className="p-1.5 text-gray-500 hover:text-secondary dark:text-gray-400 dark:hover:text-secondary"
+                onClick={() => handleViewLog(item)}
+                title="View Batch Log"
+            >
+                <IconEye className="w-5 h-5" />
+            </button>
             <button 
                 type="button" 
                 className="p-1.5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400"
-                onClick={() => handleEditClick(item)}
+                onClick={() => handleOpenModal(item)}
                 title="Edit Item"
             >
                 <IconEdit className="w-5 h-5" />
@@ -124,7 +178,7 @@ const PharmacistInventory: React.FC = () => {
                 <button type="button" className="btn btn-outline-primary">
                     Generate Report
                 </button>
-                <button type="button" onClick={() => setIsAddModalOpen(true)} className="flex items-center justify-center px-4 py-2 bg-green-700 text-white font-semibold rounded-lg shadow-md hover:bg-green-800 transition-colors duration-150 w-full md:w-auto">
+                <button type="button" onClick={() => handleOpenModal()} className="flex items-center justify-center px-4 py-2 bg-green-700 text-white font-semibold rounded-lg shadow-md hover:bg-green-800 transition-colors duration-150 w-full md:w-auto">
                     <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" /></svg>
                     Add New
                 </button>
@@ -150,236 +204,67 @@ const PharmacistInventory: React.FC = () => {
         );
     };
 
+    if (viewMode === 'log' && selectedItem) {
+        return (
+            <InventoryBatchLog
+                item={selectedItem}
+                onBack={() => setViewMode('table')}
+            />
+        );
+    }
+
     return (
         <div className="space-y-6">
-            {/* 1. Stat Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {statsData.map((stat) => (
-                    <DashboardCard
-                        key={stat.title}
-                        title={stat.title}
-                        count={stat.count}
-                        icon={stat.icon}
-                    />
-                ))}
-            </div>
-
-            {/* 2. Table Section */}
-            <div className="panel p-0">
-                {/* Header with Buttons */}
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                    {renderTopContent()}
+            <>
+                {/* 1. Stat Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {statsData.map((stat) => (
+                        <DashboardCard
+                            key={stat.title}
+                            title={stat.title}
+                            count={stat.count}
+                            icon={stat.icon}
+                        />
+                    ))}
                 </div>
 
-                {/* Tabs */}
-                <div className="border-b border-gray-200 dark:border-gray-700 px-6 sm:px-8">
-                    <div className="flex space-x-6 -mb-px">
-                        <TabButton tabId="all" label="All Items" icon={<IconListCheck />} />
-                        <TabButton tabId="internal" label="Internal Medicine" icon={<IconPill />} />
-                        <TabButton tabId="external" label="External Medicine" icon={<IconBottle />} />
+                {/* 2. Table Section */}
+                <div className="panel p-0">
+                    {/* Header with Buttons */}
+                    <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                        {renderTopContent()}
                     </div>
-                </div>
 
-                {/* Table */}
-                <div className="p-4">
-                    <Table<InventoryItem>
-                        columns={columns}
-                        data={filteredData}
-                        actions={renderActions}
-                        itemsPerPage={5}
-                    />
-                </div>
-            </div>
-
-            {/* Add Inventory Modal */}
-            <Transition appear show={isAddModalOpen} as={React.Fragment}>
-                <Dialog as="div" open={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} className="relative z-50">
-                    <Transition.Child
-                        as={React.Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-[black]/60" />
-                    </Transition.Child>
-
-                    <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                                as={React.Fragment}
-                                enter="ease-out duration-300"
-                                enterFrom="opacity-0 scale-95"
-                                enterTo="opacity-100 scale-100"
-                                leave="ease-in duration-200"
-                                leaveFrom="opacity-100 scale-100"
-                                leaveTo="opacity-0 scale-95"
-                            >
-                                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
-                                        Add New Inventory Item
-                                    </Dialog.Title>
-                                    <div className="mt-4 space-y-4">
-                                        <form onSubmit={(e) => e.preventDefault()}>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label htmlFor="itemName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Name</label>
-                                                    <input type="text" name="itemName" id="itemName" className="form-input mt-1 block w-full" />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="stockId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock ID</label>
-                                                    <input type="text" name="stockId" id="stockId" className="form-input mt-1 block w-full" />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                                                    <input type="text" name="category" id="category" className="form-input mt-1 block w-full" />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
-                                                    <select id="type" name="type" className="form-select mt-1 block w-full">
-                                                        <option>Internal</option>
-                                                        <option>External</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="quantity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
-                                                    <input type="number" name="quantity" id="quantity" className="form-input mt-1 block w-full" />
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="unit" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit</label>
-                                                    <select id="unit" name="unit" className="form-select mt-1 block w-full">
-                                                        <option>g</option>
-                                                        <option>ml</option>
-                                                        <option>units</option>
-                                                    </select>
-                                                </div>
-                                                <div>
-                                                    <label htmlFor="expiryDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Expiry Date</label>
-                                                    <input type="date" name="expiryDate" id="expiryDate" className="form-input mt-1 block w-full" />
-                                                </div>
-                                            </div>
-                                            <div className="mt-6 flex justify-end gap-4">
-                                                <button
-                                                    type="button"
-                                                    className="btn btn-outline-danger"
-                                                    onClick={() => setIsAddModalOpen(false)}
-                                                >
-                                                    Cancel
-                                                </button>
-                                                <button
-                                                    type="submit"
-                                                    className="btn btn-primary"
-                                                    onClick={() => setIsAddModalOpen(false)} // Replace with actual submit logic
-                                                >
-                                                    Add Item
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </Dialog.Panel>
-                            </Transition.Child>
+                    {/* Tabs */}
+                    <div className="border-b border-gray-200 dark:border-gray-700 px-6 sm:px-8">
+                        <div className="flex space-x-6 -mb-px">
+                            <TabButton tabId="all" label="All Items" icon={<IconListCheck />} />
+                            <TabButton tabId="internal" label="Internal Medicine" icon={<IconPill />} />
+                            <TabButton tabId="external" label="External Medicine" icon={<IconBottle />} />
                         </div>
                     </div>
-                </Dialog>
-            </Transition>
 
-            {/* Edit Inventory Modal */}
-            <Transition appear show={isEditModalOpen} as={React.Fragment}>
-                <Dialog as="div" open={isEditModalOpen} onClose={() => setIsEditModalOpen(false)} className="relative z-50">
-                    <Transition.Child
-                        as={React.Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0"
-                        enterTo="opacity-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100"
-                        leaveTo="opacity-0"
-                    >
-                        <div className="fixed inset-0 bg-[black]/60" />
-                    </Transition.Child>
-
-                    <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                                as={React.Fragment}
-                                enter="ease-out duration-300"
-                                enterFrom="opacity-0 scale-95"
-                                enterTo="opacity-100 scale-100"
-                                leave="ease-in duration-200"
-                                leaveFrom="opacity-100 scale-100"
-                                leaveTo="opacity-0 scale-95"
-                            >
-                                <Dialog.Panel className="w-full max-w-lg transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
-                                    <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
-                                        Edit Inventory Item
-                                    </Dialog.Title>
-                                    {selectedItem && (
-                                        <div className="mt-4 space-y-4">
-                                            <form onSubmit={(e) => e.preventDefault()}>
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                    <div>
-                                                        <label htmlFor="edit-itemName" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Item Name</label>
-                                                        <input type="text" name="itemName" id="edit-itemName" className="form-input mt-1 block w-full" defaultValue={selectedItem.itemName} />
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor="edit-stockId" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Stock ID</label>
-                                                        <input type="text" name="stockId" id="edit-stockId" className="form-input mt-1 block w-full" defaultValue={selectedItem.id} readOnly />
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor="edit-category" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
-                                                        <input type="text" name="category" id="edit-category" className="form-input mt-1 block w-full" defaultValue={selectedItem.category} />
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor="edit-type" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Type</label>
-                                                        <select id="edit-type" name="type" className="form-select mt-1 block w-full" defaultValue={selectedItem.type}>
-                                                            <option>Internal</option>
-                                                            <option>External</option>
-                                                        </select>
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor="edit-quantity" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Quantity</label>
-                                                        <input type="number" name="quantity" id="edit-quantity" className="form-input mt-1 block w-full" defaultValue={selectedItem.quantity} />
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor="edit-unit" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Unit</label>
-                                                        <select id="edit-unit" name="unit" className="form-select mt-1 block w-full" defaultValue={selectedItem.unit}>
-                                                            <option>g</option>
-                                                            <option>ml</option>
-                                                            <option>units</option>
-                                                        </select>
-                                                    </div>
-                                                    <div>
-                                                        <label htmlFor="edit-expiryDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Expiry Date</label>
-                                                        <input type="date" name="expiryDate" id="edit-expiryDate" className="form-input mt-1 block w-full" defaultValue={selectedItem.expiryDate} />
-                                                    </div>
-                                                </div>
-                                                <div className="mt-6 flex justify-end gap-4">
-                                                    <button
-                                                        type="button"
-                                                        className="btn btn-outline-danger"
-                                                        onClick={() => setIsEditModalOpen(false)}
-                                                    >
-                                                        Cancel
-                                                    </button>
-                                                    <button
-                                                        type="submit"
-                                                        className="btn btn-primary"
-                                                        onClick={() => setIsEditModalOpen(false)} // Replace with actual submit logic
-                                                    >
-                                                        Save Changes
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    )}
-                                </Dialog.Panel>
-                            </Transition.Child>
-                        </div>
+                    {/* Table */}
+                    <div className="p-4">
+                        <Table<InventoryItem>
+                            columns={columns}
+                            data={filteredData}
+                            actions={renderActions}
+                            itemsPerPage={5}
+                        />
                     </div>
-                </Dialog>
-            </Transition>
+                </div>
+
+                <GlobalModal<InventoryItem>
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    mode={selectedItem ? 'edit' : 'create'}
+                    title="Inventory Item"
+                    fields={inventoryFields}
+                    initialData={getInitialInventoryData(selectedItem || undefined)}
+                    onSave={handleSaveItem}
+                />
+            </>
         </div>
     );
 };
