@@ -1,9 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, ReactNode } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { Dialog, Transition } from '@headlessui/react';
 import { setPageTitle } from '../../../store/themeConfigSlice';
+import Table, { Column } from '../../../components/Table/Table';
 
 // --- Internal Icon Components (for visual flair) ---
+const IconEye: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (<svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>);
 const IconUser: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -141,9 +144,9 @@ const PrescriptionCard: React.FC<{ prescription: Prescription }> = ({ prescripti
                 <Link to="/invoice" className="btn btn-outline-primary">
                     Generate Invoice
                 </Link>
-                <button type="button" className="btn btn-primary">
+                {/* <button type="button" className="btn btn-primary">
                     Dispense
-                </button>
+                </button> */}
             </div>
         </div>
     );
@@ -151,27 +154,131 @@ const PrescriptionCard: React.FC<{ prescription: Prescription }> = ({ prescripti
 
 const PrescriptionPage: React.FC = () => {
     const dispatch = useDispatch();
-    const [prescriptions] = useState<Prescription[]>(mockPrescriptions);
+    const [prescriptions, setPrescriptions] = useState<Prescription[]>(mockPrescriptions);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewingPrescription, setViewingPrescription] = useState<Prescription | null>(null);
+    const [search, setSearch] = useState('');
 
     useEffect(() => {
         dispatch(setPageTitle('Prescriptions'));
     }, [dispatch]);
 
+    const filteredData = useMemo(() => {
+        return prescriptions.filter(p =>
+            p.patientName.toLowerCase().includes(search.toLowerCase()) ||
+            p.doctorName.toLowerCase().includes(search.toLowerCase()) ||
+            p.items.some(item => item.name.toLowerCase().includes(search.toLowerCase()))
+        );
+    }, [prescriptions, search]);
+
+    const handleOpenViewModal = (prescription: Prescription) => {
+        setViewingPrescription(prescription);
+        setIsViewModalOpen(true);
+    };
+
+    const handleCloseViewModal = () => {
+        setIsViewModalOpen(false);
+        setViewingPrescription(null);
+    };
+
+    const columns: Column<Prescription>[] = useMemo(() => [
+        { Header: 'Patient Name', accessor: 'patientName', Cell: ({ value }) => <div className="font-semibold">{value}</div> },
+        { Header: 'Doctor', accessor: 'doctorName' },
+        { Header: 'Date', accessor: 'date' },
+        { Header: 'Items', accessor: 'items', Cell: ({ value }) => `${value.length} item(s)` },
+    ], []);
+
+    const renderActions = (prescription: Prescription): ReactNode => (
+        <div className="flex items-center justify-center gap-2">
+            <button
+                type="button"
+                className="btn btn-sm btn-outline-primary flex items-center gap-1"
+                onClick={() => handleOpenViewModal(prescription)}
+            >
+                <IconEye className="w-4 h-4" />
+                View
+            </button>
+            {/* <button type="button" className="btn btn-sm btn-primary">
+                Dispense
+            </button> */}
+        </div>
+    );
+
+    const renderTopContent = (): ReactNode => (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-white">Incoming Prescriptions</h2>
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+                <input
+                    type="text"
+                    placeholder="Search by Patient, Doctor, or Medicine..."
+                    className="form-input w-full sm:w-64"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                />
+                {/* <button type="button" className="btn btn-success flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" /></svg>
+                    Add
+                </button> */}
+            </div>
+        </div>
+    );
+
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Incoming Prescription</h2>
-                <button type="button" className="btn btn-success flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" /></svg>
-                    Add Prescription
-                </button>
+            <div className="panel p-0">
+                <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+                    {renderTopContent()}
+                </div>
+                <div className="p-4">
+                    <Table<Prescription>
+                        columns={columns}
+                        data={filteredData}
+                        actions={renderActions}
+                        itemsPerPage={5}
+                    />
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {prescriptions.map((p) => (
-                    <PrescriptionCard key={p.id} prescription={p} />
-                ))}
-            </div>
+            {/* View Prescription Modal */}
+            <Transition appear show={isViewModalOpen} as={React.Fragment}>
+                <Dialog as="div" open={isViewModalOpen} onClose={handleCloseViewModal} className="relative z-50">
+                    <Transition.Child
+                        as={React.Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 bg-[black]/60" />
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                            <Transition.Child
+                                as={React.Fragment}
+                                enter="ease-out duration-300"
+                                enterFrom="opacity-0 scale-95"
+                                enterTo="opacity-100 scale-100"
+                                leave="ease-in duration-200"
+                                leaveFrom="opacity-100 scale-100"
+                                leaveTo="opacity-0 scale-95"
+                            >
+                                <Dialog.Panel className="w-full max-w-3xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 text-left align-middle shadow-xl transition-all">
+                                    {viewingPrescription && <PrescriptionCard prescription={viewingPrescription} />}
+                                    {/* Modal Footer with Close Button */}
+                                    <div className="p-6 pt-4 flex justify-end bg-white dark:bg-gray-800 rounded-b-2xl">
+                                        <button type="button" className="btn btn-outline-danger" onClick={handleCloseViewModal}>
+                                            Close
+                                        </button>
+                                    </div>
+                                </Dialog.Panel>
+                            </Transition.Child>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
         </div>
     );
 };
