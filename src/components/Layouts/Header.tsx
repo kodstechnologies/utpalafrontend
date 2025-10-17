@@ -434,7 +434,7 @@ const Header = () => {
                                             Profile
                                         </Link>
                                     </li>
-                                    <li>
+                                    {/* <li>
                                         <Link to="/apps/mailbox" className="dark:hover:text-white">
                                             <IconMail className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
                                             Inbox
@@ -445,7 +445,7 @@ const Header = () => {
                                             <IconLockDots className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 shrink-0" />
                                             Lock Screen
                                         </Link>
-                                    </li>
+                                    </li> */}
                                     <li className="border-t border-white-light dark:border-white-light/10">
                                         <Link to="/auth/boxed-signin" className="text-danger !py-3">
                                             <IconLogout className="w-4.5 h-4.5 ltr:mr-2 rtl:ml-2 rotate-90 shrink-0" />
