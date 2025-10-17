@@ -125,7 +125,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                 name: field.name,
                                 onChange: handleChange,
                                 required: field.required,
-                                size:field.textareaSize, // Property 'size' does not exist on type
+                                size: field.textareaSize, // Property 'size' does not exist on type
                                 placeholder: field.label,
                                 disabled: field.disabledInEdit && mode === "edit",
                             };
@@ -157,7 +157,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                                 className="w-full rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-100 px-3 py-2 focus:ring-2 focus:ring-green-500"
                                             >
                                                 {field.options?.map((opt) => (
-                                                    typeof opt === 'string' 
+                                                    typeof opt === 'string'
                                                         ? <option key={opt} value={opt}>{opt}</option>
                                                         : <option key={opt.value} value={opt.value}>{opt.label}</option>
                                                 ))}
@@ -220,56 +220,56 @@ const GlobalModal = <T extends Record<string, any>>({
                                             </label>
                                         </div>
                                     );
-                                    case 'checkbox-group':
-        // Renders the checkboxes side-by-side
-        return (
-            <div key={field.name} className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    {field.label}
-                </label>
-                
-                {/* Side-by-side layout using flex and gap */}
-                <div className="flex flex-wrap gap-6 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border dark:border-gray-600">
-                    {/* Iterate over the options array defined in Prescription.tsx */}
-                    {field.options?.map((option) => {
-                        if (typeof option === 'string') return null; // Or handle string options if needed
-                        return (
-                        <div key={option.value} className="flex items-center">
-                            <input
-                                id={`${field.name}-${option.value}`}
-                                type="checkbox"
-                                // Access the nested value (e.g., formData.dosage.morning)
-                                checked={value && value[option.value as keyof typeof value] || false} 
-                                
-                                onChange={(e) => {
-                                    // 1. Create a temporary, updated dosage object
-                                    const newDosageState = {
-                                        ...value,
-                                        [option.value]: e.target.checked, // This line is causing the error
-                                    };
-                                    // 2. Call the main handler with the parent name ('dosage')
-                                    //    and the new nested object value
-                                    handleChange({
-                                        target: { name: field.name, value: newDosageState } as HTMLInputElement,
-                                    } as React.ChangeEvent<HTMLInputElement>);
-                                }}
-                                className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
-                            />
-                            <label 
-                                htmlFor={`${field.name}-${option.value}`} 
-                                className="ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
-                            >
-                                {option.label}
-                            </label>
-                        </div>
-                    )
-                    })}
-                </div>
-            </div>
-        );
-    
-    // ... default case or other field types ...
-                                    
+                                case 'checkbox-group':
+                                    // Renders the checkboxes side-by-side
+                                    return (
+                                        <div key={field.name} className="mb-4">
+                                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                                {field.label}
+                                            </label>
+
+                                            {/* Side-by-side layout using flex and gap */}
+                                            <div className="flex flex-wrap gap-6 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg border dark:border-gray-600">
+                                                {/* Iterate over the options array defined in Prescription.tsx */}
+                                                {field.options?.map((option) => {
+                                                    if (typeof option === 'string') return null; // Or handle string options if needed
+                                                    return (
+                                                        <div key={option.value} className="flex items-center">
+                                                            <input
+                                                                id={`${field.name}-${option.value}`}
+                                                                type="checkbox"
+                                                                // Access the nested value (e.g., formData.dosage.morning)
+                                                                checked={value && value[option.value as keyof typeof value] || false}
+
+                                                                onChange={(e) => {
+                                                                    // 1. Create a temporary, updated dosage object
+                                                                    const newDosageState = {
+                                                                        ...value,
+                                                                        [option.value]: e.target.checked, // This line is causing the error
+                                                                    };
+                                                                    // 2. Call the main handler with the parent name ('dosage')
+                                                                    //    and the new nested object value
+                                                                    handleChange({
+                                                                        target: { name: field.name, value: newDosageState } as HTMLInputElement,
+                                                                    } as React.ChangeEvent<HTMLInputElement>);
+                                                                }}
+                                                                className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary cursor-pointer"
+                                                            />
+                                                            <label
+                                                                htmlFor={`${field.name}-${option.value}`}
+                                                                className="ml-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer"
+                                                            >
+                                                                {option.label}
+                                                            </label>
+                                                        </div>
+                                                    )
+                                                })}
+                                            </div>
+                                        </div>
+                                    );
+
+                                // ... default case or other field types ...
+
 
                                 default:
                                     return (

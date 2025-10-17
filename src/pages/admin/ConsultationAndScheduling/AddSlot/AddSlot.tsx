@@ -18,7 +18,6 @@ interface Consultation {
   day: string;
   startTime: string;
   endTime: string;
-  availableSlots: number;
 }
 
 const ConsultationSchedulingManagement: React.FC = () => {
@@ -31,7 +30,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
       day: "Monday",
       startTime: "10:00 AM",
       endTime: "11:00 AM",
-      availableSlots: 5,
     },
     {
       id: 2,
@@ -39,7 +37,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
       day: "Tuesday",
       startTime: "12:00 PM",
       endTime: "01:00 PM",
-      availableSlots: 2,
     },
   ]);
 
@@ -68,7 +65,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
     },
     { name: "startTime", label: "Start Time", type: "time", required: true },
     { name: "endTime", label: "End Time", type: "time", required: true },
-    { name: "availableSlots", label: "Available Slots", type: "number", required: true },
   ];
 
   const filteredConsultations = useMemo(
@@ -84,7 +80,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
       accessor: "startTime",
       Cell: ({ row }) => `${row.startTime} - ${row.endTime}`,
     },
-    { Header: "Available Slots", accessor: "availableSlots" },
   ];
 
   const renderActions = (row: Consultation) => (
@@ -115,7 +110,6 @@ const ConsultationSchedulingManagement: React.FC = () => {
       "Doctor Name": c.doctorName,
       Day: c.day,
       Time: `${c.startTime} - ${c.endTime}`,
-      "Available Slots": c.availableSlots,
     }));
     const ws = XLSX.utils.json_to_sheet(dataToExport);
     const wb = { Sheets: { Consultation_Data: ws }, SheetNames: ["Consultation_Data"] };

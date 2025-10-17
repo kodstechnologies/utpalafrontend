@@ -79,7 +79,7 @@ const Sidebar = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-    const userrole: string = 'doctor'; // This should be fetched from user state or context
+    const userrole: string = 'therapist'; // This should be fetched from user state or context
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
@@ -234,7 +234,7 @@ const Sidebar = () => {
                                     </AnimateHeight>
                                 </li>
 
-                                <li className="menu nav-item">
+                                {/* <li className="menu nav-item">
                                     <NavLink to="/billing-discharge">
                                         <button
                                             type="button"
@@ -251,7 +251,7 @@ const Sidebar = () => {
                                             </div>
                                         </button>
                                     </NavLink>
-                                </li>
+                                </li> */}
 
                                 <li className="menu nav-item">
                                     <NavLink to="/pharmacy-inventory">
@@ -530,6 +530,28 @@ const Sidebar = () => {
                                         </div>
                                     </NavLink>
                                 </li> */}
+                            </ul>
+                        )}
+                        {userrole === 'therapist' && (
+                            <ul className="relative font-semibold space-y-0.5 p-4 py-0">
+                                <li className="menu nav-item">
+                                    <NavLink to="/">
+                                        <button type="button" className={`${currentMenu === 'dashboard' ? 'active' : ''} nav-link group w-full`} onClick={() => toggleMenu('dashboard')}>
+                                            <div className="flex items-center">
+                                                <IconMenuDashboard className="group-hover:!text-green-500 shrink-0" />
+                                                <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('dashboard')}</span>
+                                            </div>
+                                        </button>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/therapist/patient-details" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <IconMenuUsers className="group-hover:!text-green-500 shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Patients Details')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
                             </ul>
                         )}
                     </PerfectScrollbar>

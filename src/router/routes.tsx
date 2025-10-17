@@ -51,6 +51,7 @@ const DischargeSummaryPage = lazy(() => import('../pages/Shared/index'));
 const AdmissionReport = lazy(() => import('../pages/admin/ReportAndAnalytics/AdmissionReport'))
 const DischargeReport = lazy(() => import('../pages/admin/ReportAndAnalytics/DischargeReport'))
 const BillingDischarge = lazy(() => import('../pages/admin/BillingAndDischarge/BillingDischargePage'))
+import PatientTherapyDetails from '../pages/Therapist/PatientTherapyDetails/PatientTherapyDetails';
 
 
 const routeComponents = {
@@ -79,7 +80,7 @@ const UserManagementWrapper = () => {
 };
 
 const PatientExamination = lazy(() => import('../pages/Doctor/Patients/PatientExamination'));
-const role = 'doctor';
+const role = 'admin';
 const routes = [
     // admin-dashboard
 
@@ -113,11 +114,17 @@ const routes = [
                             element: <ReceptionistDashboard />,
                             layout: 'default',
                         }
-                        : { // Default to patient
-                            path: '/',
-                            element: <PatientDashboard />,
-                            layout: 'default',
-                        },
+                        : role === 'therapist'
+                            ? {
+                                path: '/',
+                                element: <ReceptionistDashboard />,
+                                layout: 'default',
+                            }
+                            : { // Default to patient
+                                path: '/',
+                                element: <PatientDashboard />,
+                                layout: 'default',
+                            },
     {
         path: 'user-management/:userType',
         element: <UserManagementWrapper />,
@@ -322,6 +329,12 @@ const routes = [
     {
         path: '/discharge-summary',
         element: <DischargeSummaryPage />,
+        layout: 'default',
+    },
+    //Therapist Routes
+    {
+        path: '/therapist/patient-details',
+        element: <PatientTherapyDetails />,
         layout: 'default',
     }
 
