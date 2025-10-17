@@ -4,6 +4,8 @@ import { Dialog, Transition } from '@headlessui/react';
 import { setPageTitle } from '../../../store/themeConfigSlice';
 import Table, { Column } from '../../../components/Table/Table';
 import IconMessage from '../../../components/Icon/IconMessage';
+import GlobalModal, { FieldConfig } from '../../../components/Modal/GlobalModal';
+import IconEye from '../../../components/Icon/IconEye';
 import IconPlus from '../../../components/Icon/IconPlus';
 
 // --- Type Definitions ---
@@ -13,6 +15,7 @@ interface AppointmentPatient {
     appointmentDateTime: string;
     doctor: string;
     contact: string;
+    disease: string;
     status: 'Pending' | 'Confirmed' | 'Cancelled';
 }
 
@@ -22,6 +25,11 @@ interface RegisteredPatient {
     registeredDate: string;
     contact: string;
     gender: 'Male' | 'Female' | 'Other';
+    age: number;
+    address: string;
+    email: string;
+    preferredDate?: string;
+    preferredTime?: string;
     lastConsultedBy: string;
     disease: string;
     lastTreatment: string;
@@ -38,15 +46,15 @@ interface TherapySession {
 
 // --- Mock Data ---
 const mockAppointments: AppointmentPatient[] = [
-    { id: 'P001', name: 'Ravi Kumar', appointmentDateTime: '2024-07-28 10:00 AM', doctor: 'Dr. Priya Singh', contact: '+919876543210', status: 'Confirmed' },
-    { id: 'P002', name: 'Sunita Sharma', appointmentDateTime: '2024-07-28 11:30 AM', doctor: 'Dr. Anjali Verma', contact: '+919123456789', status: 'Pending' },
-    { id: 'P004', name: 'Vijay Singh', appointmentDateTime: '2024-07-28 12:00 PM', doctor: 'Dr. Priya Singh', contact: '+919876543211', status: 'Pending' },
+    { id: 'P001', name: 'Ravi Kumar', appointmentDateTime: '2024-07-28 10:00 AM', doctor: 'Dr. Priya Singh', contact: '+919876543210', disease: 'Arthritis', status: 'Confirmed' },
+    { id: 'P002', name: 'Sunita Sharma', appointmentDateTime: '2024-07-28 11:30 AM', doctor: 'Dr. Anjali Verma', contact: '+919123456789', disease: 'Migraine', status: 'Pending' },
+    { id: 'P004', name: 'Vijay Singh', appointmentDateTime: '2024-07-28 12:00 PM', doctor: 'Dr. Priya Singh', contact: '+919876543211', disease: 'Hypertension', status: 'Pending' },
 ];
 
 const mockAllPatients: RegisteredPatient[] = [
-    { id: 'P001', name: 'Ravi Kumar', registeredDate: '2024-07-20', contact: '+919876543210', gender: 'Male', lastConsultedBy: 'Dr. Priya Singh', disease: 'Arthritis', lastTreatment: 'Physiotherapy' },
-    { id: 'P002', name: 'Sunita Sharma', registeredDate: '2024-07-21', contact: '+919123456789', gender: 'Female', lastConsultedBy: 'Dr. Anjali Verma', disease: 'Migraine', lastTreatment: 'Panchakarma' },
-    { id: 'P003', name: 'Amit Patel', registeredDate: '2024-07-22', contact: '+919988776655', gender: 'Male', lastConsultedBy: 'Dr. Priya Singh', disease: 'Diabetes', lastTreatment: 'Diet Plan' },
+    { id: 'P001', name: 'Ravi Kumar', registeredDate: '2024-07-20', contact: '+919876543210', gender: 'Male', age: 45, address: '123 MG Road, Bangalore', email: 'ravi.k@example.com', lastConsultedBy: 'Dr. Priya Singh', disease: 'Arthritis', lastTreatment: 'Physiotherapy' },
+    { id: 'P002', name: 'Sunita Sharma', registeredDate: '2024-07-21', contact: '+919123456789', gender: 'Female', age: 38, address: '456 Koramangala, Bangalore', email: 'sunita.s@example.com', lastConsultedBy: 'Dr. Anjali Verma', disease: 'Migraine', lastTreatment: 'Panchakarma' },
+    { id: 'P003', name: 'Amit Patel', registeredDate: '2024-07-22', contact: '+919988776655', gender: 'Male', age: 52, address: '789 Indiranagar, Bangalore', email: 'amit.p@example.com', lastConsultedBy: 'Dr. Priya Singh', disease: 'Diabetes', lastTreatment: 'Diet Plan' },
 ];
 
 const mockTherapySessions: TherapySession[] = [
@@ -61,18 +69,40 @@ const mockDiseases = ['Arthritis', 'Migraine', 'Diabetes', 'Hypertension'];
 const mockTreatments = ['Physiotherapy', 'Panchakarma', 'Diet Plan', 'Yoga'];
 
 
+// --- Modal Field Configuration for New Patient ---
+const newPatientFields: FieldConfig[] = [
+    { name: 'name', label: 'Patient Name', type: 'text', required: true },
+    { name: 'contact', label: 'Contact Number', type: 'text', required: true },
+    { name: 'gender', label: 'Gender', type: 'select', required: true, options: ['Male', 'Female', 'Other'] },
+    { name: 'age', label: 'Age', type: 'number', required: true },
+    { name: 'address', label: 'Address', type: 'text', required: true },
+    { name: 'email', label: 'Email', type: 'email', required: true },
+    { name: 'preferredDate', label: 'Preferred Date', type: 'date', required: true },
+    { name: 'preferredTime', label: 'Preferred Time', type: 'time', required: true },
+    { name: 'disease', label: 'Initial Diagnosis/Disease', type: 'text' },
+];
+
 const ReceptionistAppointments = () => {
     const dispatch = useDispatch();
     const [appointments, setAppointments] = useState<AppointmentPatient[]>(mockAppointments);
     const [therapySessions, setTherapySessions] = useState<TherapySession[]>(mockTherapySessions);
-    const [activeTab, setActiveTab] = useState<'appointments' | 'allPatients' | 'therapists'>('appointments');
+    const [activeTab, setActiveTab] = useState<'appointments' | 'allPatients' | 'therapists'>('allPatients');
+    const [allPatients, setAllPatients] = useState<RegisteredPatient[]>(mockAllPatients);
 
     // Modal States
     const [isWhatsAppModalOpen, setIsWhatsAppModalOpen] = useState(false);
     const [isScheduleAppointmentModalOpen, setIsScheduleAppointmentModalOpen] = useState(false);
     const [isScheduleTherapyModalOpen, setIsScheduleTherapyModalOpen] = useState(false);
+    // --- MODIFICATION: State for Reschedule Modal ---
+    const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+    const [appointmentToReschedule, setAppointmentToReschedule] = useState<AppointmentPatient | null>(null);
+    // --- MODIFICATION: State for View Patient Modal ---
+    const [isViewPatientModalOpen, setIsViewPatientModalOpen] = useState(false);
+    const [patientToView, setPatientToView] = useState<RegisteredPatient | null>(null);
+
 
     // State for forms
+    const [isAddPatientModalOpen, setIsAddPatientModalOpen] = useState(false);
     const [filters, setFilters] = useState({
         search: '',
         gender: '',
@@ -83,6 +113,7 @@ const ReceptionistAppointments = () => {
     const [patientToSchedule, setPatientToSchedule] = useState<RegisteredPatient | null>(null);
     const [newAppointment, setNewAppointment] = useState({ doctor: '', date: '', time: '' });
     const [newTherapySession, setNewTherapySession] = useState({ patientId: '', therapistName: '', treatment: '', date: '', time: '' });
+    const [rescheduleData, setRescheduleData] = useState({ date: '', time: '' });
 
 
     useEffect(() => {
@@ -94,10 +125,21 @@ const ReceptionistAppointments = () => {
         setIsWhatsAppModalOpen(true);
     };
 
-    const handleSendWhatsApp = () => {
-        // In a real app, this would trigger a backend API call
-        console.log(`Sending form link to ${selectedPatient?.name} at ${selectedPatient?.contact}`);
-        alert(`WhatsApp message simulation: Form link sent to ${selectedPatient?.contact}`);
+    const handleSendWhatsApp = (type: 'form' | 'reminder') => {
+        if (!selectedPatient) return;
+
+        const phoneNumber = selectedPatient.contact.replace(/\D/g, ''); // Remove non-digit characters
+        let message = '';
+
+        if (type === 'form') {
+            const formUrl = `${window.location.origin}/patient-registration-form`;
+            message = `Hello ${selectedPatient.name}, please fill out your registration form here: ${formUrl}`;
+        } else {
+            message = `Hello ${selectedPatient.name}, this is a reminder for your upcoming appointment.`;
+        }
+
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
         setIsWhatsAppModalOpen(false);
     };
 
@@ -124,6 +166,36 @@ const ReceptionistAppointments = () => {
         setIsScheduleAppointmentModalOpen(true);
     };
 
+    // --- MODIFICATION: Handler for View Patient Modal ---
+    const handleViewPatientClick = (patient: RegisteredPatient) => {
+        setPatientToView(patient);
+        setIsViewPatientModalOpen(true);
+    };
+
+    // --- MODIFICATION: Handlers for Reschedule Modal ---
+    const handleRescheduleClick = (appointment: AppointmentPatient) => {
+        setAppointmentToReschedule(appointment);
+        const [date, time, ampm] = appointment.appointmentDateTime.split(' ');
+        setRescheduleData({ date, time: `${time} ${ampm}` });
+        setIsRescheduleModalOpen(true);
+    };
+
+    const handleRescheduleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!appointmentToReschedule || !rescheduleData.date || !rescheduleData.time) {
+            alert('Please select a new date and time.');
+            return;
+        }
+        setAppointments(prev =>
+            prev.map(apt =>
+                apt.id === appointmentToReschedule.id
+                    ? { ...apt, appointmentDateTime: `${rescheduleData.date} ${rescheduleData.time}` }
+                    : apt
+            )
+        );
+        setIsRescheduleModalOpen(false);
+        alert(`Appointment for ${appointmentToReschedule.name} has been rescheduled.`);
+    };
     const handleScheduleAppointmentSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!patientToSchedule || !newAppointment.doctor || !newAppointment.date || !newAppointment.time) {
@@ -134,6 +206,7 @@ const ReceptionistAppointments = () => {
             id: patientToSchedule.id,
             name: patientToSchedule.name,
             contact: patientToSchedule.contact,
+            disease: patientToSchedule.disease,
             appointmentDateTime: `${newAppointment.date} ${newAppointment.time}`,
             doctor: newAppointment.doctor,
             status: 'Pending',
@@ -165,17 +238,44 @@ const ReceptionistAppointments = () => {
         alert(`Therapy session scheduled for ${patient.name}.`);
     };
 
+    const handleSaveNewPatient = (formData: any) => {
+        const newPatient: RegisteredPatient = {
+            id: `P${String(allPatients.length + 1).padStart(3, '0')}`,
+            name: formData.name,
+            contact: formData.contact,
+            age: parseInt(formData.age, 10),
+            address: formData.address,
+            email: formData.email,
+            preferredDate: formData.preferredDate,
+            preferredTime: formData.preferredTime,
+            gender: formData.gender,
+            disease: formData.disease || 'N/A',
+            registeredDate: new Date().toISOString().slice(0, 10),
+            lastConsultedBy: 'N/A',
+            lastTreatment: 'N/A',
+        };
+
+        setAllPatients(prev => [newPatient, ...prev]);
+        setIsAddPatientModalOpen(false);
+        alert(`Patient ${newPatient.name} has been registered successfully!`);
+    };
+
+
     const appointmentColumns: Column<AppointmentPatient>[] = useMemo(() => [
         { Header: 'Patient Name', accessor: 'name', Cell: ({ value }) => <div className="font-semibold">{value}</div> },
         { Header: 'Appointment', accessor: 'appointmentDateTime' },
-        { Header: 'Doctor', accessor: 'doctor' }
+        { Header: 'Doctor', accessor: 'doctor' },
+        { Header: 'Contact', accessor: 'contact' },
+        { Header: 'Disease', accessor: 'disease' },
     ], []);
 
     const allPatientsColumns: Column<RegisteredPatient>[] = useMemo(() => [
         { Header: 'Patient Name', accessor: 'name', Cell: ({ value }) => <div className="font-semibold">{value}</div> },
         { Header: 'Gender', accessor: 'gender' },
         { Header: 'Contact', accessor: 'contact' },
-        { Header: 'Last Consulted By', accessor: 'lastConsultedBy' },
+        { Header: 'Age', accessor: 'age' },
+        { Header: 'Email', accessor: 'email' },
+        { Header: 'Address', accessor: 'address' },
         { Header: 'Registered On', accessor: 'registeredDate' },
     ], []);
 
@@ -192,7 +292,7 @@ const ReceptionistAppointments = () => {
     };
 
     const filteredPatients = useMemo(() => {
-        return mockAllPatients.filter(patient => {
+        return allPatients.filter(patient => {
             return (
                 (filters.search === '' || patient.name.toLowerCase().includes(filters.search.toLowerCase()) || patient.id.toLowerCase().includes(filters.search.toLowerCase())) &&
                 (filters.gender === '' || patient.gender === filters.gender) &&
@@ -200,7 +300,7 @@ const ReceptionistAppointments = () => {
                 (filters.treatment === '' || patient.lastTreatment === filters.treatment)
             );
         });
-    }, [filters]);
+    }, [filters, allPatients]);
     const renderAppointmentActions = (appointment: AppointmentPatient) => (
         <div className="flex items-center gap-2">
             {appointment.status === 'Pending' && (
@@ -213,6 +313,9 @@ const ReceptionistAppointments = () => {
                     Cancel
                 </button>
             )}
+            {appointment.status !== 'Cancelled' && (
+                <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => handleRescheduleClick(appointment)}>Reschedule</button>
+            )}
             <button type="button" className="btn btn-outline-success btn-sm" onClick={() => handleSendMessageClick(appointment)}>
                 <IconMessage className="w-4 h-4" />
             </button>
@@ -221,6 +324,9 @@ const ReceptionistAppointments = () => {
 
     const renderAllPatientsActions = (patient: RegisteredPatient) => (
         <div className="flex items-center gap-2">
+            <button type="button" className="btn btn-outline-info btn-sm" onClick={() => handleViewPatientClick(patient)}>
+                <IconEye className="w-4 h-4" />
+            </button>
             {/* Add actions specific to the "All Patients" table here, e.g., schedule new appointment */}
             <button type="button" className="btn btn-outline-success btn-sm" onClick={() => handleSendMessageClick(patient)}>
                 <IconMessage className="w-4 h-4" />
@@ -239,11 +345,11 @@ const ReceptionistAppointments = () => {
                 </div>
                 <div className="mb-5">
                     <div className="flex border-b border-gray-200 dark:border-gray-700">
-                        <button type="button" className={`px-4 py-2 -mb-px ${activeTab === 'appointments' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`} onClick={() => setActiveTab('appointments')}>
-                            Upcoming Appointments
-                        </button>
                         <button type="button" className={`px-4 py-2 -mb-px ${activeTab === 'allPatients' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`} onClick={() => setActiveTab('allPatients')}>
                             All Registered Patients
+                        </button>
+                        <button type="button" className={`px-4 py-2 -mb-px ${activeTab === 'appointments' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`} onClick={() => setActiveTab('appointments')}>
+                            Upcoming Appointments
                         </button>
                         <button type="button" className={`px-4 py-2 -mb-px ${activeTab === 'therapists' ? 'border-b-2 border-blue-500 text-blue-500' : 'text-gray-500'}`} onClick={() => setActiveTab('therapists')}>
                             Therapist Sessions
@@ -257,7 +363,13 @@ const ReceptionistAppointments = () => {
 
                 {activeTab === 'allPatients' && (
                     <>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+                        <div className="flex justify-end gap-4 mb-5">
+                            <button type="button" className="btn btn-primary w-full sm:w-auto" onClick={() => setIsAddPatientModalOpen(true)}>
+                                <IconPlus className="w-5 h-5 ltr:mr-2 rtl:ml-2" />
+                                Register New Patient
+                            </button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-5 border-t border-gray-200 dark:border-gray-700 pt-5">
                             <input type="text" name="search" placeholder="Search by Name/ID..." className="form-input" value={filters.search} onChange={handleFilterChange} />
                             <select name="gender" className="form-select" value={filters.gender} onChange={handleFilterChange}>
                                 <option value="">All Genders</option>
@@ -311,8 +423,8 @@ const ReceptionistAppointments = () => {
                                 </div>
                                 <div className="mt-6 flex justify-end gap-4">
                                     <button type="button" className="btn btn-outline-danger" onClick={() => setIsWhatsAppModalOpen(false)}>Cancel</button>
-                                    <button type="button" className="btn btn-success" onClick={handleSendWhatsApp}>Send Form Link</button>
-                                    <button type="button" className="btn btn-info" onClick={handleSendWhatsApp}>Send Reminder</button>
+                                    <button type="button" className="btn btn-success" onClick={() => handleSendWhatsApp('form')}>Send Form Link</button>
+                                    <button type="button" className="btn btn-info" onClick={() => handleSendWhatsApp('reminder')}>Send Reminder</button>
                                 </div>
                             </Dialog.Panel>
                         </div>
@@ -347,6 +459,34 @@ const ReceptionistAppointments = () => {
                                     <div className="mt-6 flex justify-end gap-4">
                                         <button type="button" className="btn btn-outline-danger" onClick={() => setIsScheduleAppointmentModalOpen(false)}>Cancel</button>
                                         <button type="submit" className="btn btn-primary">Schedule</button>
+                                    </div>
+                                </form>
+                            </Dialog.Panel>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
+
+            {/* --- MODIFICATION: Reschedule Appointment Modal --- */}
+            <Transition appear show={isRescheduleModalOpen} as={Fragment}>
+                <Dialog as="div" open={isRescheduleModalOpen} onClose={() => setIsRescheduleModalOpen(false)} className="relative z-50">
+                    <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+                        <div className="fixed inset-0 bg-[black]/60" />
+                    </Transition.Child>
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4">
+                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900 dark:text-white">
+                                    Reschedule for {appointmentToReschedule?.name}
+                                </Dialog.Title>
+                                <form onSubmit={handleRescheduleSubmit} className="mt-6 space-y-5">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div><label htmlFor="rescheduleDate">New Date</label><input id="rescheduleDate" type="date" value={rescheduleData.date} onChange={(e) => setRescheduleData(p => ({ ...p, date: e.target.value }))} className="form-input mt-1" required /></div>
+                                        <div><label htmlFor="rescheduleTime">New Time</label><input id="rescheduleTime" type="time" value={rescheduleData.time} onChange={(e) => setRescheduleData(p => ({ ...p, time: e.target.value }))} className="form-input mt-1" required /></div>
+                                    </div>
+                                    <div className="mt-6 flex justify-end gap-4">
+                                        <button type="button" className="btn btn-outline-danger" onClick={() => setIsRescheduleModalOpen(false)}>Cancel</button>
+                                        <button type="submit" className="btn btn-primary">Reschedule</button>
                                     </div>
                                 </form>
                             </Dialog.Panel>
@@ -391,6 +531,29 @@ const ReceptionistAppointments = () => {
                     </div>
                 </Dialog>
             </Transition>
+
+            {/* Add New Patient Modal */}
+            <GlobalModal
+                isOpen={isAddPatientModalOpen}
+                onClose={() => setIsAddPatientModalOpen(false)}
+                mode="create"
+                title="New Patient Registration"
+                fields={newPatientFields}
+                onSave={handleSaveNewPatient}
+            />
+
+            {/* --- MODIFICATION: View Patient Details Modal --- */}
+            {patientToView && (
+                <GlobalModal
+                    isOpen={isViewPatientModalOpen}
+                    onClose={() => setIsViewPatientModalOpen(false)}
+                    mode="edit" // 'edit' mode makes fields read-only by default in your GlobalModal
+                    title="Patient Details"
+                    fields={newPatientFields}
+                    initialData={patientToView}
+                    onSave={() => setIsViewPatientModalOpen(false)} // No-op save, just closes modal
+                />
+            )}
         </>
     );
 };

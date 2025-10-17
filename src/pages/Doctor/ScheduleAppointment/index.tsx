@@ -45,6 +45,12 @@ const App: React.FC = () => {
   // State for the status message (e.g., success/error)
   const [statusMessage, setStatusMessage] = useState<StatusMessage>({ text: '', type: '' });
 
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+      // dispatch(setPageTitle());
+  }, [dispatch]);
+
   const currentYear: number = currentDate.getFullYear();
   const currentMonth: number = currentDate.getMonth();
 
@@ -60,11 +66,6 @@ const App: React.FC = () => {
     const daysInMonth: number = getDaysInMonth(currentYear, currentMonth);
     const startDay: number = getStartDayOfMonth(currentYear, currentMonth);
     const daysArray: CalendarDay[] = [];
-     const dispatch = useDispatch();
-    
-        useEffect(() => {
-            dispatch(setPageTitle('Schedule Appointment'));
-        }, [dispatch]);
 
     // Calculate days from previous month to fill the first row
     const prevMonthDays: number = getDaysInMonth(currentYear, currentMonth - 1);
@@ -130,8 +131,8 @@ const App: React.FC = () => {
 
   // Handle form submission
   const handleScheduleAppointment = () => {
-    if (!selectedDate || !selectedTime) {
-      setStatusMessage({ text: 'Please select both a date and a time.', type: 'error' });
+    if (!selectedDate ) {
+      setStatusMessage({ text: 'Please select a date.', type: 'error' });
       return;
     }
 
@@ -270,10 +271,10 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-8 font-[Inter]">
       <div className="max-w-6xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 flex items-center">
+        {/* <h1 className="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-8 flex items-center">
           <CalendarDays className="mr-3 text-green-600" size={30} />
           Schedule Appointment
-        </h1>
+        </h1> */}
 
         {/* Status Message Area */}
         {statusMessage.text && (
@@ -301,100 +302,49 @@ const App: React.FC = () => {
 
           {/* 2. Appointment Details Form */}
           <div className="bg-white p-4 sm:p-6 rounded-xl shadow-lg border border-gray-100">
-            <h2 className="text-xl font-semibold text-gray-800 mb-6">Appointment Details</h2>
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Appointment Details</h2>
 
-            {/* Patient/User Search */}
-            <div className="mb-6">
-              <label htmlFor="userSearch" className="block text-sm font-medium text-gray-700 mb-2">
-                Patient/User Name or ID
-              </label>
-              <div className="relative">
-                <input
-                  id="userSearch"
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    setSearchQuery(e.target.value);
-                    setStatusMessage({ text: '', type: '' });
-                  }}
-                  placeholder="e.g., Jane Doe or P1001"
-                  className="w-full p-3 pl-10 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 transition"
-                />
-                <User size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              </div>
-            </div>
+           
 
             {/* Selected Date Display/Input */}
-            <div className="mb-6">
+            <div className="mb-4 hidden">
               <label htmlFor="selectedDateInput" className="block text-sm font-medium text-gray-700 mb-2">
                 Selected Date
               </label>
-              <div className={`flex items-center w-full p-3 border ${isDateSelected ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-gray-50'} rounded-lg transition`}>
+              <div className={`flex items-center w-full p-2 border ${isDateSelected ? 'border-green-500 bg-green-50' : 'border-gray-300 bg-gray-50'} rounded-lg transition`}>
                 <CalendarDays className={`mr-2 ${isDateSelected ? 'text-green-600' : 'text-gray-500'}`} size={20} />
                 <span className={`font-medium ${isDateSelected ? 'text-green-800' : 'text-gray-500'}`}>
                   {selectedDateString}
                 </span>
               </div>
             </div>
-
-            {/* Time Slot Selector */}
-            <div className="mb-6">
-              <label htmlFor="selectTime" className="block text-sm font-medium text-gray-700 mb-2">
-                Select Time Slot
-              </label>
-              <select
-                id="selectTime"
-                value={selectedTime}
-                onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                  setSelectedTime(e.target.value);
-                  setStatusMessage({ text: '', type: '' });
-                }}
-                disabled={!isDateSelected}
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 transition disabled:bg-gray-100 disabled:text-gray-500 appearance-none bg-white pr-8"
-                style={{ backgroundImage: `url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%234B5563"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>')`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.5em 1.5em' }}
-              >
-                <option value="" disabled>
-                  {isDateSelected ? 'Choose an available time...' : 'Select a date first'}
-                </option>
-                {MOCK_TIME_SLOTS.map((time: string) => (
-                  <option key={time} value={time}>
-                    {time}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-xs text-gray-500 flex items-center">
-                <Clock size={14} className="mr-1" />
-                Time slots are mock data for demonstration.
-              </p>
-            </div>
-
             {/* Notes Textarea */}
-            <div className="mb-8">
+            <div className="mb-6">
               <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-2">
                 Notes / Purpose of Visit
               </label>
               <textarea
                 id="notes"
-                rows={4}
+                rows={2}
                 value={notes}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotes(e.target.value)}
                 placeholder="Any specific instructions or reminders for the provider..."
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 transition resize-none"
+                className="w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-green-500 focus:border-green-500 transition resize-none"
               ></textarea>
             </div>
 
             {/* Action Buttons */}
             <div className="flex justify-end space-x-4">
-              <button
+              {/* <button
                 onClick={handleClearForm}
-                className="px-6 py-3 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold transition shadow-sm"
+                className="px-5 py-2 text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 font-semibold transition shadow-sm"
               >
-                Clear Form
-              </button>
+                Cancel
+              </button> */}
               <button
                 onClick={handleScheduleAppointment}
-                disabled={!isDateSelected || !selectedTime}
-                className="px-6 py-3 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-green-300 font-semibold transition shadow-md"
+                // disabled={!isDateSelected || !selectedTime}
+                className="px-5 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:bg-green-300 font-semibold transition shadow-md"
               >
                 Schedule Appointment
               </button>

@@ -127,7 +127,7 @@ const GlobalModal = <T extends Record<string, any>>({
                                 required: field.required,
                                 size: field.textareaSize, // Property 'size' does not exist on type
                                 placeholder: field.label,
-                                disabled: field.disabledInEdit && mode === "edit",
+                                disabled: field.disabledInEdit || mode === "edit",
                             };
 
                             // ✅ Custom render (for special fields)

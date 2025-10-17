@@ -8,6 +8,9 @@ import IconX from '../../../components/Icon/IconX';
 import IconHeart from '../../../components/Icon/IconHeart';
 import Prescription from '../Priscription';
 import TreatmentSessions from '../Treatment';
+import IconBookmark from '../../../components/Icon/IconBookmark';
+import ScheduleAppointment from '../ScheduleAppointment';
+
 
 // Placeholder icons for tabs
 const IconExamination = IconUser;
@@ -50,7 +53,7 @@ const PatientExamination: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const dispatch = useDispatch();
     const [patient, setPatient] = useState<Patient | null>(null);
-    const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'treatment'>('examination');
+    const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'treatment'|'followup'>('examination');
 
     const tabActiveClasses = 'text-green-600 border-b-2 border-green-600 font-semibold';
     const tabInactiveClasses = 'text-gray-500 hover:text-green-600 border-b-2 border-transparent hover:border-green-300 transition';
@@ -220,6 +223,9 @@ const PatientExamination: React.FC = () => {
                 <button onClick={() => setActiveTab('treatment')} className={`py-3 ${activeTab === 'treatment' ? tabActiveClasses : tabInactiveClasses}`}>
                     <IconTreatment className="w-5 h-5 inline mr-2" /> Treatment
                 </button>
+                <button onClick={() => setActiveTab('followup')} className={`py-3 ${activeTab === 'followup' ? tabActiveClasses : tabInactiveClasses}`}>
+                    <IconBookmark className="w-5 h-5 inline mr-2" /> Follow Up
+                </button>
             </div>
 
             {/* Tab Content */}
@@ -381,6 +387,7 @@ const PatientExamination: React.FC = () => {
 
                 {activeTab === 'prescription' && <Prescription />}
                 {activeTab === 'treatment' && <TreatmentSessions />}
+                {activeTab === 'followup' && <ScheduleAppointment />}
             </div>
         </div>
     );
