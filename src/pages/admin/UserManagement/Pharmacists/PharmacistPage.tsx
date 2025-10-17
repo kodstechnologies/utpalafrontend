@@ -26,11 +26,11 @@ type StatusBadgeProps = { status: Pharmacist['status'] };
 const StatusBadge = ({ status }: StatusBadgeProps) => {
   let colorClass = '';
   switch (status) {
-    case 'Active': colorClass = 'bg-green-600 text-white dark:bg-green-800 dark:text-green-100'; break;
-    case 'Inactive': colorClass = 'bg-red-400 text-white dark:bg-red-700 dark:text-red-100'; break;
-    case 'Pending': colorClass = 'bg-amber-400 text-amber-900 dark:bg-amber-600 dark:text-amber-100'; break;
-    case 'On Leave': colorClass = 'bg-blue-500 text-white dark:bg-blue-700 dark:text-blue-100'; break;
-    default: colorClass = 'bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100';
+    case 'Active': colorClass = 'bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100'; break;
+    case 'Inactive': colorClass = 'bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100'; break;
+    case 'Pending': colorClass = 'bg-amber-100 text-amber-700 dark:bg-amber-600 dark:text-amber-100'; break;
+    case 'On Leave': colorClass = 'bg-blue-100 text-blue-700 dark:bg-blue-700 dark:text-blue-100'; break;
+    default: colorClass = 'bg-gray-100 text-gray-7 dark:bg-gray-700 dark:text-gray-100';
   }
   return <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full shadow-sm ${colorClass}`}>{status}</span>;
 };

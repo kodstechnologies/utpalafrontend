@@ -28,9 +28,9 @@ interface Nurse {
 
 const StatusBadge = ({ status }: { status: Nurse["status"] }) => {
     const colorClasses = {
-        Active: "bg-green-600 text-white dark:bg-green-800 dark:text-green-100",
-        Inactive: "bg-red-400 text-white dark:bg-red-700 dark:text-red-100",
-        Pending: "bg-amber-400 text-amber-900 dark:bg-amber-600 dark:text-amber-100",
+        Active: "bg-green-100 text-green-700 dark:bg-green-800 dark:text-green-100",
+        Inactive: "bg-red-100 text-red-700 dark:bg-red-700 dark:text-red-100",
+        Pending: "bg-amber-100 text-amber-700 dark:bg-amber-600 dark:text-amber-100",
         "On Leave": "bg-blue-500 text-white dark:bg-blue-700 dark:text-blue-100",
     };
     return <span className={`px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full shadow-sm ${colorClasses[status] || "bg-gray-400 text-gray-900 dark:bg-gray-700 dark:text-gray-100"}`}>{status}</span>;

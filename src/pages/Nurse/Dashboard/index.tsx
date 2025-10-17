@@ -35,8 +35,8 @@ const NurseDashboard: React.FC = () => {
     return (
         <div className="space-y-6">
             {/* Welcome Header */}
-            <div className="panel">
-                <h1 className="text-2xl font-bold">Welcome, Nurse!</h1>
+            <div className="panel ">
+                <h1 className="text-2xl font-bold ">Welcome, Nurse!</h1>
                 <p className="text-gray-500 dark:text-gray-400">Here is a summary of your current workload.</p>
             </div>
 

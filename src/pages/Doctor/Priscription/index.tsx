@@ -216,7 +216,7 @@ const Prescription = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="">
             {/* Header with Add Button */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <h5 className="font-semibold text-lg dark:text-white-light">Prescriptions</h5>
@@ -234,7 +234,7 @@ const Prescription = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="panel">
+            <div className="panel mt-6">
                 {filteredData.length > 0 ? (
                     <Table<PrescriptionData>
                         columns={columns}

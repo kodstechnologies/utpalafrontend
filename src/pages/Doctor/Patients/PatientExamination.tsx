@@ -3,16 +3,16 @@ import { useParams, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import AnimateHeight from 'react-animate-height';
 import { setPageTitle } from '../../../store/themeConfigSlice';
-import IconUser from '../../../components/Icon/IconUser'; // Icon for 'Examination' (Placeholder for IconHome/IconListCheck)
+import IconUser from '../../../components/Icon/IconUser';
 import IconX from '../../../components/Icon/IconX';
+import IconHeart from '../../../components/Icon/IconHeart';
 import Prescription from '../Priscription';
 import TreatmentSessions from '../Treatment';
-import IconHeart from '../../../components/Icon/IconHeart';
 
-// Define placeholder icons for the tabs (you should replace these with your actual icon imports)
+// Placeholder icons for tabs
 const IconExamination = IconUser;
 const IconPrescription = IconHeart;
-const IconTreatment = IconX; // Placeholder for a third icon
+const IconTreatment = IconX;
 
 interface Patient {
     id: string | undefined;
@@ -37,7 +37,7 @@ interface DynamicField {
     value: string;
 }
 
-// Custom hook for managing accordion state for multiple sections
+// Accordion hook
 const useAccordionState = (initialState: Record<string, boolean>) => {
     const [openStates, setOpenStates] = useState(initialState);
     const toggle = (key: string) => {
@@ -50,36 +50,43 @@ const PatientExamination: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const dispatch = useDispatch();
     const [patient, setPatient] = useState<Patient | null>(null);
-    // Updated tab state to include all three tabs
     const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'treatment'>('examination');
 
-    // --- START: Tab Specific Classes (Based on your first code block) ---
-    const tabActiveClasses = 'text-primary border-b-2 border-primary dark:text-primary dark:border-primary';
-    const tabInactiveClasses = 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 border-b-2 border-transparent hover:border-gray-300 dark:hover:border-gray-600';
-    // --- END: Tab Specific Classes ---
+    const tabActiveClasses = 'text-green-600 border-b-2 border-green-600 font-semibold';
+    const tabInactiveClasses = 'text-gray-500 hover:text-green-600 border-b-2 border-transparent hover:border-green-300 transition';
 
-    // Accordion states for the new and existing sections
+    // --- MODIFICATION: Reusable style for inputs and textareas ---
+    const formInputStyles = "w-full text-sm rounded-md border border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-100 bg-transparent transition-all duration-300 placeholder-gray-400 px-3 py-2";
+
+
     const { openStates, toggle } = useAccordionState({
         isProfileOpen: true,
-        isPrakritAssessmentOpen: true, 
-        isComplaintsOpen: true, 
-        isHistoryOfPatientIllnessOpen: true, 
-        isOnGoingMedicationsOpen: true, 
-        isPreviousInvestigationsOpen: true, 
-        isPresentInvestigationsOpen: true, 
-        isMedicalSurgicalHistoryOpen: true, 
-        isExamAccordionOpen: true, 
-        isDiagnosisAccordionOpen: true, 
+        isPrakritAssessmentOpen: true,
+        isComplaintsOpen: true,
+        isHistoryOfPatientIllnessOpen: true,
+        isOnGoingMedicationsOpen: true,
+        isPreviousInvestigationsOpen: true,
+        isPresentInvestigationsOpen: true,
+        isMedicalSurgicalHistoryOpen: true,
+        isExamAccordionOpen: true,
+        isDiagnosisAccordionOpen: true,
     });
 
-    const [recommendations, setRecommendations] = useState<Recommendation[]>([{ id: 1, label: 'Diet Recommendation', value: '' }]);
+    const [recommendations, setRecommendations] = useState<Recommendation[]>([{ id: 1, label: 'Diagnosis', value: '' }]);
     const [examinationValues, setExaminationValues] = useState<Record<string, string>>({});
     const [additionalExamFields, setAdditionalExamFields] = useState<DynamicField[]>([]);
 
-    // Mock patient data - in a real app, this would be fetched
     const patientData: Patient[] = [
-        { id: '1', name: 'Jay Sharma', age: 30, gender: 'Male', image: '/assets/images/user-profile.jpeg', condition: 'Diabetes', prakruti: 'Vata-Pitta', vikruti: 'Vata Imbalance' },
-        // ... other patients
+        {
+            id: '1',
+            name: 'Jay Sharma',
+            age: 30,
+            gender: 'Male',
+            image: '/assets/images/user-profile.jpeg',
+            condition: 'Diabetes',
+            prakruti: 'Vata-Pitta',
+            vikruti: 'Vata Imbalance',
+        },
     ];
 
     useEffect(() => {
@@ -88,59 +95,62 @@ const PatientExamination: React.FC = () => {
         setPatient(selectedPatient || null);
     }, [id, dispatch]);
 
-    const handleAddRecommendation = () => {
+    const handleAddRecommendation = () =>
         setRecommendations([...recommendations, { id: Date.now(), label: '', value: '' }]);
-    };
 
-    const handleRecommendationChange = (id: number, field: 'label' | 'value', text: string) => {
+    const handleRecommendationChange = (id: number, field: 'label' | 'value', text: string) =>
         setRecommendations(recommendations.map((rec) => (rec.id === id ? { ...rec, [field]: text } : rec)));
-    };
 
-    const handleRemoveRecommendation = (id: number) => {
+    const handleRemoveRecommendation = (id: number) =>
         setRecommendations((prev) => prev.filter((rec) => rec.id !== id));
-    };
 
-    const handleStaticExamChange = (label: string, value: string) => {
+    const handleStaticExamChange = (label: string, value: string) =>
         setExaminationValues((prev) => ({ ...prev, [label]: value }));
-    };
 
-    const handleAddAdditionalExamField = () => {
+    const handleAddAdditionalExamField = () =>
         setAdditionalExamFields((prev) => [...prev, { id: Date.now(), label: '', value: '' }]);
-    };
 
-    const handleAdditionalExamChange = (id: number, field: 'label' | 'value', text: string) => {
-        setAdditionalExamFields((prev) => prev.map((item) => (item.id === id ? { ...item, [field]: text } : item)));
-    };
+    const handleAdditionalExamChange = (id: number, field: 'label' | 'value', text: string) =>
+        setAdditionalExamFields((prev) =>
+            prev.map((item) => (item.id === id ? { ...item, [field]: text } : item))
+        );
 
-    const handleRemoveAdditionalExamField = (id: number) => {
+    const handleRemoveAdditionalExamField = (id: number) =>
         setAdditionalExamFields((prev) => prev.filter((item) => item.id !== id));
-    };
 
-    // Helper component for the new sections to maintain UI consistency
-    const SectionAccordion: React.FC<{ title: string; stateKey: string; required?: boolean }> = ({ title, stateKey, required = false }) => (
-        <div className="panel p-0 shadow-none">
+    // Generic Accordion Component
+    const SectionAccordion: React.FC<{ title: string; stateKey: string; required?: boolean }> = ({
+        title,
+        stateKey,
+        required = false,
+    }) => (
+        <div className="border border-green-400 rounded-xl transition-all duration-300 bg-white dark:bg-gray-900">
             <div
-                className="flex justify-between items-center cursor-pointer p-4 border-b dark:border-gray-700"
+                className="flex justify-between items-center cursor-pointer p-4 rounded-t-xl border-b border-green-300 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 transition"
                 onClick={() => toggle(stateKey)}
             >
-                <h5 className={`font-semibold text-lg text-primary`}>
+                <h5 className="font-semibold text-green-600">
                     {title} {required && <span className="text-red-500">*</span>}
                 </h5>
-                <span className="text-sm">{openStates[stateKey] ? 'Close' : 'Open'}</span>
+                <span className="text-sm text-green-600 font-medium">
+                    {openStates[stateKey] ? 'Close' : 'Open'}
+                </span>
             </div>
             <AnimateHeight duration={300} height={openStates[stateKey] ? 'auto' : 0}>
                 <div className="p-4">
                     <textarea
-                        className="form-input text-sm w-full min-h-[100px]"
-                        placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin felis a eget eget urna. Ultricies sit pharetra maecenas neque, vel hendrerit viverra consectetur adipiscing dolor sit."
+                        // --- MODIFICATION: Applied new styles ---
+                        className={`${formInputStyles} resize-none`}
+                        placeholder={`Enter ${title}...`}
                         rows={4}
-                        // In a real application, you would add state management here for the textarea value
-                        readOnly={true} // Set to true for placeholder example
+                        readOnly // Kept as readOnly as in original code, remove if editing is needed
                     />
                     {title.includes('Investigations') && (
                         <div className="mt-2">
-                            <button type="button" className="btn btn-outline-primary btn-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24"><path fill="currentColor" d="M11 19v-6H5v-2h6V5h2v6h6v2h-6v6Z" /></svg>
+                            <button
+                                type="button"
+                                className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm"
+                            >
                                 Upload file
                             </button>
                         </div>
@@ -155,182 +165,222 @@ const PatientExamination: React.FC = () => {
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             {/* Breadcrumb */}
-            <ul className="flex space-x-2 rtl:space-x-reverse mb-5">
-                <li><Link to="/" className="text-primary hover:underline">Dashboard</Link></li>
+            <ul className="flex space-x-2 mb-5">
+                <li>
+                    <Link to="/" className="text-green-600 hover:underline">
+                        Dashboard
+                    </Link>
+                </li>
                 <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <Link to="/my-patients" className="text-primary hover:underline">My Patients</Link>
+                    <Link to="/my-patients" className="text-green-600 hover:underline">
+                        My Patients
+                    </Link>
                 </li>
                 <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
                     <span>Patient Examination</span>
                 </li>
             </ul>
 
-            {/* Main Content Panel */}
-            <div className="panel p-0 mb-5">
-                {/* Profile Section (Kept outside the tab logic as it appears to be a header) */}
-                <div className="p-6 sm:p-8">
-                    <div className="flex justify-between items-center cursor-pointer" onClick={() => toggle('isProfileOpen')}>
-                        <h5 className="font-semibold text-lg dark:text-white-light">Profile - {patient.name}</h5>
-                        <span className="text-sm">{openStates.isProfileOpen ? 'Close' : 'Open'}</span>
-                    </div>
-                    <AnimateHeight duration={300} height={openStates.isProfileOpen ? 'auto' : 0}>
-                        <div className="flex flex-col sm:flex-row items-center gap-5 mt-3">
-                            <img src={patient.image} alt={patient.name} className="w-24 h-24 rounded-full object-cover" />
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-primary text-xl mb-2">{patient.name}</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
-                                    <div className="flex items-center gap-2"><IconUser /> <strong>{patient.age} years, {patient.gender}</strong></div>
-                                    <div className="flex items-center gap-2"><IconHeart /> <span><strong>Condition:</strong> {patient.condition}</span></div>
-                                    {patient.prakruti && <div><strong>Prakruti:</strong> {patient.prakruti}</div>}
-                                    {patient.vikruti && <div><strong>Vikruti:</strong> {patient.vikruti}</div>}
+            {/* Profile Section */}
+            <div className="panel p-6 mb-5 rounded-xl border border-green-400 bg-white dark:bg-gray-900 shadow-md">
+                <div className="flex justify-between items-center cursor-pointer" onClick={() => toggle('isProfileOpen')}>
+                    <h5 className="font-semibold text-lg text-green-600">Profile - {patient.name}</h5>
+                    <span className="text-sm text-green-600 font-medium">
+                        {openStates.isProfileOpen ? 'Close' : 'Open'}
+                    </span>
+                </div>
+                <AnimateHeight duration={300} height={openStates.isProfileOpen ? 'auto' : 0}>
+                    <div className="flex flex-col sm:flex-row items-center gap-5 mt-3">
+                        <img src={patient.image} alt={patient.name} className="w-24 h-24 rounded-full object-cover" />
+                        <div className="flex-1">
+                            <h3 className="font-semibold text-green-600 text-xl mb-2">{patient.name}</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <IconUser /> <strong>{patient.age} years, {patient.gender}</strong>
                                 </div>
+                                <div className="flex items-center gap-2">
+                                    <IconHeart /> <span><strong>Condition:</strong> {patient.condition}</span>
+                                </div>
+                                {patient.prakruti && <div><strong>Prakruti:</strong> {patient.prakruti}</div>}
+                                {patient.vikruti && <div><strong>Vikruti:</strong> {patient.vikruti}</div>}
                             </div>
                         </div>
-                    </AnimateHeight>
-                </div>
-                
-                {/* Tabs for Navigation (NEW STYLING APPLIED HERE) */}
-                <div className="border-b border-gray-200 dark:border-gray-700 px-6 sm:px-8">
-                    <div className="flex space-x-6 -mb-px">
-                        {/* Doctor Examination Tab */}
-                        <button
-                            onClick={() => setActiveTab('examination')}
-                            className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
-                                activeTab === 'examination' ? tabActiveClasses : tabInactiveClasses
-                            }`}
-                        >
-                            <IconExamination className="w-5 h-5 inline ltr:mr-2 rtl:ml-2 align-text-bottom" />
-                            Doctor Examination
-                        </button>
-                        
-                        {/* Prescription Tab */}
-                        <button
-                            onClick={() => setActiveTab('prescription')}
-                            className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
-                                activeTab === 'prescription' ? tabActiveClasses : tabInactiveClasses
-                            }`}
-                        >
-                            <IconPrescription className="w-5 h-5 inline ltr:mr-2 rtl:ml-2 align-text-bottom" />
-                            Prescription
-                        </button>
-
-                        {/* Treatment Tab */}
-                        <button
-                            onClick={() => setActiveTab('treatment')}
-                            className={`py-4 px-1 text-sm font-medium focus:outline-none transition duration-150 ease-in-out flex items-center ${
-                                activeTab === 'treatment' ? tabActiveClasses : tabInactiveClasses
-                            }`}
-                        >
-                            <IconTreatment className="w-5 h-5 inline ltr:mr-2 rtl:ml-2 align-text-bottom" />
-                            Treatment
-                        </button>
                     </div>
-                </div>
+                </AnimateHeight>
+            </div>
 
-                {/* Tab Content */}
-                <div className="p-6 sm:p-8 min-h-[400px]">
-                    {activeTab === 'examination' && (
-                        <div className="space-y-5">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                                <div className="space-y-5">
-                                    <SectionAccordion title="Prakriti Assessment" stateKey="isPrakritAssessmentOpen" />
-                                    <SectionAccordion title="Complaints" stateKey="isComplaintsOpen" required={true} />
-                                    <SectionAccordion title="History of Patient Illness" stateKey="isHistoryOfPatientIllnessOpen" />
-                                    <SectionAccordion title="Ongoing Medications" stateKey="isOnGoingMedicationsOpen" />
-                                    <SectionAccordion title="Previous Investigations" stateKey="isPreviousInvestigationsOpen" />
-                                    <SectionAccordion title="Present Investigations" stateKey="isPresentInvestigationsOpen" />
-                                    <SectionAccordion title="Medical History / Surgical History" stateKey="isMedicalSurgicalHistoryOpen" />
-                                </div>
-                                <div className="space-y-5">
-                                    {/* Add Examination Accordion */}
-                                    <div className="panel p-0 shadow-none">
-                                        <div className="flex justify-between items-center cursor-pointer p-4 border-b dark:border-gray-700" onClick={() => toggle('isExamAccordionOpen')}>
-                                            <h5 className="font-semibold text-lg text-primary">Add Examination</h5>
-                                            <span className="text-sm">{openStates.isExamAccordionOpen ? 'Close' : 'Open'}</span>
-                                        </div>
-                                        <AnimateHeight duration={300} height={openStates.isExamAccordionOpen ? 'auto' : 0}>
-                                            <div className="p-4 space-y-3">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                                    {['Height (cm)', 'Weight (kg)', 'Blood Pressure (BP)', 'Temperature', 'BMI', 'SPO2', 'Heart Rate', 'Pulse Rate'].map((label) => (
-                                                        <div key={label} className="flex flex-col">
-                                                            <label className="text-sm font-medium mb-1">{label}</label>
-                                                            <input type="text" className="form-input text-sm" placeholder="Input value" value={examinationValues[label] || ''} onChange={(e) => handleStaticExamChange(label, e.target.value)} />
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                {additionalExamFields.map((field) => (
-                                                    <div key={field.id} className="pt-2 border-t border-dashed dark:border-gray-700">
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                                                            <div>
-                                                                <label className="text-sm font-medium mb-1">Additional Parameter</label>
-                                                                <input type="text" className="form-input text-sm" placeholder="Enter parameter name" value={field.label} onChange={(e) => handleAdditionalExamChange(field.id, 'label', e.target.value)} />
-                                                            </div>
-                                                            <div className="flex items-end gap-2">
-                                                                <div className="flex-grow">
-                                                                    <label className="text-sm font-medium mb-1">Value</label>
-                                                                    <input type="text" className="form-input text-sm" placeholder="Enter value" value={field.value} onChange={(e) => handleAdditionalExamChange(field.id, 'value', e.target.value)} />
-                                                                </div>
-                                                                <button type="button" onClick={() => handleRemoveAdditionalExamField(field.id)} className="btn btn-outline-danger p-2"> <IconX className="w-4 h-4" /> </button>
-                                                            </div>
-                                                        </div>
+            {/* Tabs */}
+            <div className="border-b border-green-200 mb-4 flex space-x-6">
+                <button onClick={() => setActiveTab('examination')} className={`py-3 ${activeTab === 'examination' ? tabActiveClasses : tabInactiveClasses}`}>
+                    <IconExamination className="w-5 h-5 inline mr-2" /> Doctor Examination
+                </button>
+                <button onClick={() => setActiveTab('prescription')} className={`py-3 ${activeTab === 'prescription' ? tabActiveClasses : tabInactiveClasses}`}>
+                    <IconPrescription className="w-5 h-5 inline mr-2" /> Prescription
+                </button>
+                <button onClick={() => setActiveTab('treatment')} className={`py-3 ${activeTab === 'treatment' ? tabActiveClasses : tabInactiveClasses}`}>
+                    <IconTreatment className="w-5 h-5 inline mr-2" /> Treatment
+                </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="p-4 sm:p-6 bg-green-50/40 dark:bg-green-900/10 rounded-xl">
+                {activeTab === 'examination' && (
+                    <div className="space-y-5">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                            {/* Left side accordions */}
+                            <div className="space-y-5">
+                                <SectionAccordion title="Prakriti Assessment" stateKey="isPrakritAssessmentOpen" />
+                                <SectionAccordion title="Complaints" stateKey="isComplaintsOpen" required />
+                                <SectionAccordion title="History of Patient Illness" stateKey="isHistoryOfPatientIllnessOpen" />
+                                <SectionAccordion title="Ongoing Medications" stateKey="isOnGoingMedicationsOpen" />
+                                <SectionAccordion title="Previous Investigations" stateKey="isPreviousInvestigationsOpen" />
+                                <SectionAccordion title="Present Investigations" stateKey="isPresentInvestigationsOpen" />
+                                <SectionAccordion title="Medical / Surgical History" stateKey="isMedicalSurgicalHistoryOpen" />
+                            </div>
+
+                            {/* Right side accordions */}
+                            <div className="space-y-5">
+                                {/* Add Examination */}
+                                <div className="border border-green-400 rounded-xl bg-white dark:bg-gray-900 shadow-md hover:shadow-lg transition-all duration-300">
+                                    <div
+                                        className="flex justify-between items-center cursor-pointer p-4 border-b border-green-300 bg-green-50 dark:bg-green-900/20 rounded-t-xl"
+                                        onClick={() => toggle('isExamAccordionOpen')}
+                                    >
+                                        <h5 className="font-semibold text-lg text-green-600 flex items-center gap-2">
+                                            <IconHeart className="w-5 h-5" /> Add Examination
+                                        </h5>
+                                        <span className="text-sm text-green-600 font-medium">
+                                            {openStates.isExamAccordionOpen ? 'Close' : 'Open'}
+                                        </span>
+                                    </div>
+                                    <AnimateHeight duration={300} height={openStates.isExamAccordionOpen ? 'auto' : 0}>
+                                        <div className="p-4 space-y-3">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                {['Height (cm)', 'Weight (kg)', 'Blood Pressure', 'Temperature', 'BMI', 'SPO2', 'Heart Rate', 'Pulse Rate'].map((label) => (
+                                                    <div key={label} className="flex flex-col">
+                                                        <label className="text-sm font-medium mb-1 text-green-700">{label}</label>
+                                                        <input
+                                                            type="text"
+                                                            // --- MODIFICATION: Applied new styles and dynamic placeholder ---
+                                                            className={formInputStyles}
+                                                            placeholder={`Enter ${label}...`}
+                                                            value={examinationValues[label] || ''}
+                                                            onChange={(e) => handleStaticExamChange(label, e.target.value)}
+                                                        />
                                                     </div>
                                                 ))}
-                                                <button type="button" onClick={handleAddAdditionalExamField} className="btn btn-sm btn-outline-primary mt-4">+ Add More</button>
                                             </div>
-                                        </AnimateHeight>
-                                    </div>
 
-                                    {/* Diagnosis & Recommendations Accordion */}
-                                    <div className="panel p-0 shadow-none">
-                                        <div className="flex justify-between items-center cursor-pointer p-4 border-b dark:border-gray-700" onClick={() => toggle('isDiagnosisAccordionOpen')}>
-                                            <h5 className="font-semibold text-lg text-primary">Diagnosis & Recommendations</h5>
-                                            <span className="text-sm">{openStates.isDiagnosisAccordionOpen ? 'Close' : 'Open'}</span>
-                                        </div>
-                                        <AnimateHeight duration={300} height={openStates.isDiagnosisAccordionOpen ? 'auto' : 0}>
-                                            <div className="p-4 space-y-3">
-                                                {recommendations.map((rec, index) => (
-                                                    <div key={rec.id} className="flex items-start gap-2">
-                                                        <div className="flex-grow">
-                                                            <textarea
-                                                                className="form-input text-sm w-full"
-                                                                placeholder={index === 0 ? 'Enter diagnosis/recommendation...' : 'Enter details...'}
-                                                                rows={2}
-                                                                value={rec.value}
-                                                                onChange={(e) => handleRecommendationChange(rec.id, 'value', e.target.value)}
+                                            {additionalExamFields.map((field) => (
+                                                <div key={field.id} className="pt-2 border-t border-dashed border-green-300">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+                                                        <div>
+                                                            <label className="text-sm font-medium mb-1 text-green-700">Additional Parameter</label>
+                                                            <input
+                                                                type="text"
+                                                                // --- MODIFICATION: Applied new styles ---
+                                                                className={formInputStyles}
+                                                                placeholder="Enter name"
+                                                                value={field.label}
+                                                                onChange={(e) => handleAdditionalExamChange(field.id, 'label', e.target.value)}
                                                             />
                                                         </div>
-                                                        {index > 0 && (
-                                                            <button type="button" onClick={() => handleRemoveRecommendation(rec.id)} className="btn btn-outline-danger p-2 mt-1"> <IconX className="w-4 h-4" /> </button>
-                                                        )}
+                                                        <div className="flex items-end gap-2">
+                                                            <div className="flex-grow">
+                                                                <label className="text-sm font-medium mb-1 text-green-700">Value</label>
+                                                                <input
+                                                                    type="text"
+                                                                    // --- MODIFICATION: Applied new styles ---
+                                                                    className={formInputStyles}
+                                                                    placeholder="Enter value"
+                                                                    value={field.value}
+                                                                    onChange={(e) => handleAdditionalExamChange(field.id, 'value', e.target.value)}
+                                                                />
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleRemoveAdditionalExamField(field.id)}
+                                                                className="btn border border-red-400 text-red-500 hover:bg-red-50 p-2 rounded-lg"
+                                                            >
+                                                                <IconX className="w-4 h-4" />
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                ))}
-                                                <button type="button" onClick={handleAddRecommendation} className="btn btn-sm btn-outline-primary mt-3">+ Add Diagnosis/Recommendation</button>
-                                            </div>
-                                        </AnimateHeight>
+                                                </div>
+                                            ))}
+
+                                            <button
+                                                type="button"
+                                                onClick={handleAddAdditionalExamField}
+                                                className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm mt-3"
+                                            >
+                                                + Add More
+                                            </button>
+                                        </div>
+                                    </AnimateHeight>
+                                </div>
+
+                                {/* Diagnosis & Recommendations */}
+                                <div className="border border-green-400 rounded-xl bg-white dark:bg-gray-900 shadow-md">
+                                    <div
+                                        className="flex justify-between items-center cursor-pointer p-4 border-b border-green-300 bg-green-50 dark:bg-green-900/20 rounded-t-xl"
+                                        onClick={() => toggle('isDiagnosisAccordionOpen')}
+                                    >
+                                        <h5 className="font-semibold text-lg text-green-600">Diagnosis & Recommendations</h5>
+                                        <span className="text-sm text-green-600 font-medium">
+                                            {openStates.isDiagnosisAccordionOpen ? 'Close' : 'Open'}
+                                        </span>
                                     </div>
+                                    <AnimateHeight duration={300} height={openStates.isDiagnosisAccordionOpen ? 'auto' : 0}>
+                                        <div className="p-4 space-y-3">
+                                            {recommendations.map((rec, index) => (
+                                                <div key={rec.id} className="flex items-start gap-2">
+                                                    <textarea
+                                                        // --- MODIFICATION: Applied new styles ---
+                                                        className={`${formInputStyles} resize-none`}
+                                                        placeholder={index === 0 ? 'Enter diagnosis...' : 'Enter recommendation...'}
+                                                        rows={2}
+                                                        value={rec.value}
+                                                        onChange={(e) => handleRecommendationChange(rec.id, 'value', e.target.value)}
+                                                    />
+                                                    {index > 0 && (
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleRemoveRecommendation(rec.id)}
+                                                            className="btn border border-red-400 text-red-500 hover:bg-red-50 p-2 rounded-lg mt-1"
+                                                        >
+                                                            <IconX className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <button
+                                                type="button"
+                                                onClick={handleAddRecommendation}
+                                                className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm mt-3"
+                                            >
+                                                + Add Diagnosis/Recommendation
+                                            </button>
+                                        </div>
+                                    </AnimateHeight>
                                 </div>
                             </div>
-                            <div className="flex justify-end gap-4 mt-5">
-                                <button type="button" className="btn btn-outline-danger">Cancel</button>
-                                <button type="button" className="btn btn-success">Confirm</button>
-                            </div>
                         </div>
-                    )}
-                    
-                    {/* Prescription Tab Content */}
-                    {activeTab === 'prescription' && (
-                        <div>
-                            <Prescription />
+
+                        {/* Footer Buttons */}
+                        <div className="flex justify-end gap-4 mt-6">
+                            <button className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20">
+                                Cancel
+                            </button>
+                            <button className="btn bg-green-600 text-white hover:bg-green-700">
+                                Confirm
+                            </button>
                         </div>
-                    )}
-                    
-                    {/* Treatment Tab Content */}
-                    {activeTab === 'treatment' && (
-                        <div>
-                            <TreatmentSessions />
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
+
+                {activeTab === 'prescription' && <Prescription />}
+                {activeTab === 'treatment' && <TreatmentSessions />}
             </div>
         </div>
     );

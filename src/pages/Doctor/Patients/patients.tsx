@@ -232,7 +232,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
                 Header: 'Patient Name',
                 accessor: 'name',
                 Cell: ({ row }) => (
-                    <Link to={`/patients/${row.id}`} className="text-primary hover:underline font-semibold">
+                    <Link to={`/patients/${row.id}`} className="text-green-500 hover:underline font-semibold">
                         {row.name}
                     </Link>
                 ),
@@ -322,7 +322,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         <div>
             <ul className="flex space-x-2 rtl:space-x-reverse">
                 <li>
-                    <Link to="/" className="text-primary hover:underline">
+                    <Link to="/" className="text-green-500 hover:underline">
                         Dashboard
                     </Link>
                 </li>

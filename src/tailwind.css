@@ -53,10 +53,20 @@
         @apply dark:!text-white-dark;
     }
 
+    textarea {
+        @apply bg-transparent border border-transparent rounded-lg text-sm transition-all duration-300 resize-none;
+    }
+    textarea:hover {
+        @apply border-gray-300;
+    }
+    textarea:focus {
+        @apply border-green-500 ring-2 ring-green-100 outline-none;
+    }
+
     .sidebar ul.sub-menu li button,
     .sidebar ul.sub-menu li a {
         @apply flex items-center px-9 py-2.5 before:h-0.5 before:w-2 before:rounded before:bg-gray-300 hover:bg-gray-100
-      hover:text-green-500 hover:before:!bg-green-500 ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-primary;
+      hover:text-green-500 hover:before:!bg-green-500 ltr:before:mr-2 rtl:before:ml-2 dark:before:bg-gray-500 dark:hover:bg-gray-900 dark:hover:text-green-500;
     }
     .sidebar ul.sub-menu li button.active,
     .sidebar ul.sub-menu li a.active {
@@ -113,12 +123,12 @@
 
     .horizontal-menu ul.sub-menu a,
     .horizontal-menu ul.sub-menu button {
-        @apply flex items-center justify-between px-4 py-2 hover:bg-gray-100 hover:text-primary dark:hover:bg-primary/10 w-full;
+        @apply flex items-center justify-between px-4 py-2 hover:bg-gray-100 hover:text-green-500 dark:hover:bg-primary/10 w-full;
     }
 
     .horizontal-menu ul.sub-menu a.active,
     .horizontal-menu ul.sub-menu button.active {
-        @apply bg-gray-100 text-primary dark:bg-primary/10;
+        @apply bg-gray-100 text-green-500 dark:bg-primary/10;
     }
 
     .horizontal-menu > li.nav-item:hover > ul.sub-menu,
@@ -283,7 +293,7 @@
         @apply relative my-1 rounded border border-transparent px-2 py-0.5 text-xs font-semibold text-white;
     }
     .badge-outline-primary {
-        @apply border-primary text-primary hover:bg-primary-light dark:hover:bg-primary dark:hover:text-white-light;
+        @apply border-green-500 text-green-500 hover:bg-primary-light dark:hover:bg-primary dark:hover:text-white-light;
     }
     .badge-outline-secondary {
         @apply border-secondary text-secondary hover:bg-secondary-light dark:hover:bg-secondary dark:hover:text-white-light;
@@ -309,7 +319,7 @@
     .form-textarea,
     .form-select,
     .form-multiselect {
-        @apply w-full rounded-md border border-white-light bg-white px-4 py-2 text-sm font-semibold text-black !outline-none focus:border-primary focus:ring-transparent dark:border-[#17263c] dark:bg-[#121e32] dark:text-white-dark dark:focus:border-primary;
+        @apply w-full rounded-md border border-white-light bg-white px-4 py-2 text-sm font-semibold text-black !outline-none focus:border-green-500 focus:ring-green-500 dark:border-[#17263c] dark:bg-[#121e32] dark:text-white-dark dark:focus:border-primary;
     }
 
     .form-input-lg,
@@ -375,7 +385,7 @@
     /* checkbox & radio */
     .form-radio,
     .form-checkbox {
-        @apply h-5 w-5 cursor-pointer rounded border-2 border-white-light bg-transparent text-primary !shadow-none !outline-none !ring-0 !ring-offset-0 checked:bg-[length:90%_90%] disabled:cursor-not-allowed disabled:bg-[#eee] ltr:mr-1.5 rtl:ml-1.5
+        @apply h-5 w-5 cursor-pointer rounded border-2 border-white-light bg-transparent text-green-500 !shadow-none !outline-none !ring-0 !ring-offset-0 checked:bg-[length:90%_90%] disabled:cursor-not-allowed disabled:bg-[#eee] ltr:mr-1.5 rtl:ml-1.5
       dark:border-[#253b5c] dark:checked:border-transparent dark:disabled:bg-[#1b2e4b];
     }
 
@@ -446,7 +456,7 @@
     }
     .dropdown ul li > a,
     .dropdown ul li > button {
-        @apply flex items-center px-4 py-2 hover:bg-primary/10 hover:text-primary;
+        @apply flex items-center px-4 py-2 hover:bg-primary/10 hover:text-green-500;
     }
     .dropdown ul li > button {
         @apply w-full;

@@ -84,12 +84,12 @@ const AdminDashboard = () => {
                                 </thead>
                                 <tbody>
                                     {[
-                                        { id: '#01', date: 'Oct 08, 2021', name: 'Eric Page', amount: '$1,358.75', status: 'Completed', statusColor: 'bg-gradient-to-r from-green-400 to-green-600 text-white' },
-                                        { id: '#02', date: 'Dec 18, 2021', name: 'Nita Parr', amount: '-$1,042.82', status: 'In Process', statusColor: 'bg-gradient-to-r from-blue-400 to-blue-600 text-white' },
-                                        { id: '#03', date: 'Dec 25, 2021', name: 'Carl Bell', amount: '$1,828.16', status: 'Pending', statusColor: 'bg-gradient-to-r from-red-400 to-red-600 text-white' },
-                                        { id: '#04', date: 'Nov 29, 2021', name: 'Dan Hart', amount: '$1,647.55', status: 'Completed', statusColor: 'bg-gradient-to-r from-green-400 to-green-600 text-white' },
-                                        { id: '#05', date: 'Nov 24, 2021', name: 'Jake Ross', amount: '$927.43', status: 'Completed', statusColor: 'bg-gradient-to-r from-green-400 to-green-600 text-white' },
-                                        { id: '#06', date: 'Jan 26, 2022', name: 'Anna Bell', amount: '$250.00', status: 'In Process', statusColor: 'bg-gradient-to-r from-blue-400 to-blue-600 text-white' },
+                                        { id: '#01', date: 'Oct 08, 2021', name: 'Eric Page', amount: '$1,358.75', status: 'Completed', statusColor: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
+                                        { id: '#02', date: 'Dec 18, 2021', name: 'Nita Parr', amount: '-$1,042.82', status: 'In Process', statusColor: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400' },
+                                        { id: '#03', date: 'Dec 25, 2021', name: 'Carl Bell', amount: '$1,828.16', status: 'Pending', statusColor: 'bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-400' },
+                                        { id: '#04', date: 'Nov 29, 2021', name: 'Dan Hart', amount: '$1,647.55', status: 'Completed', statusColor: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
+                                        { id: '#05', date: 'Nov 24, 2021', name: 'Jake Ross', amount: '$927.43', status: 'Completed', statusColor: 'bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300' },
+                                        { id: '#06', date: 'Jan 26, 2022', name: 'Anna Bell', amount: '$250.00', status: 'In Process', statusColor: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400' },
                                     ].map((row) => (
                                         <tr key={row.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition duration-200">
                                             <td className="px-4 py-3 font-semibold">{row.id}</td>

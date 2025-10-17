@@ -110,7 +110,7 @@ const TreatmentSessions: React.FC = () => {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space">
       <Table<TreatmentSession>
         columns={columns as Column<TreatmentSession>[]}
         data={mockSessions}
@@ -122,7 +122,7 @@ const TreatmentSessions: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         mode="create"
-        title="Add Treatment"
+        title="Treatment"
         fields={treatmentFields}
         initialData={getInitialTreatmentData()}
         onSave={handleSaveTreatment}
