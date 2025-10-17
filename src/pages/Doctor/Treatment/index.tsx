@@ -18,9 +18,10 @@ interface TreatmentSession {
 
 // Corrected type for the new treatment form state
 interface NewTreatmentState {
-  patientName: string;
+  // patientName: string;
   treatmentType: string;
   days: string;
+  treatementFollowup: string;
   instructions: string;
 }
 
@@ -35,7 +36,7 @@ const mockSessions: TreatmentSession[] = [
 
 // Define dynamic form fields for treatment modal
 const treatmentFields: FieldConfig[] = [
-  { name: "patientName", label: "Patient Name", type: "text", required: true },
+  // { name: "patientName", label: "Patient Name", type: "text", required: true },
   {
     name: "treatmentType", label: "Treatment Name", type: "select", required: true,
     options: [
@@ -47,14 +48,23 @@ const treatmentFields: FieldConfig[] = [
     ]
   },
   { name: "days", label: "Days of Treatment", type: "number", required: true },
+  {
+    name: "treatementFollowup", label: "Treatment Followup", type: "select", required: true,
+    options: [
+      { value: "", label: "Select Treatment" },
+      { value: "alternateday", label: "Alternateday" },
+      { value: "weekly", label: "Weekly" },
+    ]
+  },
   { name: "instructions", label: "Special Instructions", type: "textarea", required: true }
 ];
 
 // Utility function to get initial data for new treatment form
 const getInitialTreatmentData = (): NewTreatmentState => ({
-  patientName: "",
+  // patientName: "",
   treatmentType: "",
   days: "",
+  treatementFollowup: "",
   instructions: ""
 });
 
@@ -79,19 +89,27 @@ const TreatmentSessions: React.FC = () => {
 
   // 1. Define Columns for the Table component.
   const columns = useMemo(() => [
-    {
-      Header: 'Name',
-      accessor: 'name',
-      Cell: ({ row }: { row: TreatmentSession }) => (
-        <div className="font-semibold whitespace-nowrap">
-          {row.name}
-        </div>
-      )
-    },
+    // {
+    //   Header: 'Name',
+    //   accessor: 'name',
+    //   Cell: ({ row }: { row: TreatmentSession }) => (
+    //     <div className="font-semibold whitespace-nowrap">
+    //       {row.name}
+    //     </div>
+    //   )
+    // },
     { Header: 'Date', accessor: 'date' },
     { Header: 'Therapy Type', accessor: 'type' },
     { Header: 'Days', accessor: 'days' },
-    { Header: 'Special Instructions', accessor: 'instructions' },
+    {
+      Header: 'Special Instructions',
+      accessor: 'instructions',
+      Cell: ({ value }: { value: string }) => (
+        <p className="line-clamp-2 max-w-xs" title={value}>
+          {value}
+        </p>
+      ),
+    },
   ], []);
 
   // 2. Define Top Content (Title and Add Button).

@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Dialog, Transition } from '@headlessui/react'; // Used for better modal management
 import { setPageTitle } from '../../../store/themeConfigSlice';
 // '../../../store/themeSlice'; // Adjusted path if necessary
-import GlobalModal, { FieldConfig as GlobalFieldConfig, ModalMode } from '../../../components/Modal/GlobalModal';
+import GlobalModal, { FieldConfig as GlobalFieldConfig } from '../../../components/Modal/GlobalModal';
+import PatientPrescriptionsModal, { Prescription, Patient } from './PatientPrescriptionsModal';
 import Table, { Column } from '../../../components/Table/Table';
 
 // --- Icons ---
@@ -39,26 +40,6 @@ const IconClipboardText: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
 
 
 // --- Data Structures & Mock Data (Unchanged) ---
-interface PrescribedItem {
-    name: string;
-    dosage: string;
-}
-interface Prescription {
-    id: number;
-    patientName: string;
-    doctorName: string;
-    date: string;
-    items: PrescribedItem[];
-    internalNote: string;
-}
-interface Patient {
-    id: number;
-    name: string;
-    age: number;
-    gender: string;
-    diagnosis: string;
-}
-
 const mockPrescriptions: Prescription[] = [
     { id: 1, patientName: 'Sumitra Devi', doctorName: 'Dr. Sharma', date: '2024-10-01', items: [{ name: 'Zolpidem', dosage: '5mg nightly' }, { name: 'Meditation Advice', dosage: '30 mins daily' }], internalNote: 'Follow-up in 2 weeks.' },
     { id: 2, patientName: 'Rajesh Kumar', doctorName: 'Dr. Khan', date: '2024-09-15', items: [{ name: 'Lisinopril', dosage: '10mg daily' }], internalNote: 'Lifestyle changes critical.' },
@@ -70,6 +51,11 @@ const mockPatients: Patient[] = [
     { id: 2, name: 'Rajesh Kumar', age: 48, gender: 'Male', diagnosis: 'Hypertension' },
     { id: 3, name: 'Anil Gupta', age: 62, gender: 'Male', diagnosis: 'Digestive Issues' },
 ];
+
+interface PrescribedItem {
+    name: string;
+    dosage: string;
+}
 
 // --- Modal Fields + Utils (Unchanged) ---
 const prescriptionFields: GlobalFieldConfig[] = [
@@ -183,57 +169,6 @@ const PrescriptionCard: React.FC<{
     </div>
 );
 
-// --- Component: Patient Prescriptions Modal Content (Used Headless UI Dialog) ---
-const PatientPrescriptionsModal: React.FC<{
-    isOpen: boolean;
-    onClose: () => void;
-    patientName: string;
-    prescriptions: Prescription[];
-    onViewClick: (prescription: Prescription) => void;
-}> = ({ isOpen, onClose, patientName, prescriptions, onViewClick }) => {
-    
-    const patientPrescriptions = useMemo(() => {
-        return prescriptions.filter(p => p.patientName === patientName).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    }, [prescriptions, patientName]);
-
-    return (
-        <Transition appear show={isOpen} as={React.Fragment}>
-            <Dialog as="div" open={isOpen} onClose={onClose} className="relative z-50">
-                <Transition.Child as={React.Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
-                    <div className="fixed inset-0 bg-[black]/60" />
-                </Transition.Child>
-                <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
-                        <Transition.Child as={React.Fragment} enter="ease-out duration-300" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
-                            <Dialog.Panel className="w-full max-w-4xl transform overflow-hidden rounded-2xl bg-white dark:bg-gray-900 p-6 text-left align-middle shadow-xl transition-all">
-                                <Dialog.Title as="h3" className="text-xl font-bold leading-6 text-gray-900 dark:text-white border-b pb-4 mb-4">
-                                    Prescription History for {patientName}
-                                </Dialog.Title>
-                                <div className="max-h-[70vh] overflow-y-auto space-y-6 -mr-4 pr-4">
-                                    {patientPrescriptions.length > 0 ? (
-                                        patientPrescriptions.map(p => (
-                                            <PrescriptionCard 
-                                                key={p.id} 
-                                                prescription={p} 
-                                                showActions={true} // Show actions inside history
-                                                // onViewClick={onViewClick} // Pass the view handler
-                                            />
-                                        ))
-                                    ) : (
-                                        <p className="text-center text-gray-500 dark:text-gray-400">No prescriptions found for this patient.</p>
-                                    )}
-                                </div>
-                                <div className="mt-6 flex justify-end">
-                                    <button type="button" className="btn btn-outline-danger" onClick={onClose}>Close</button>
-                                </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
-                    </div>
-                </div>
-            </Dialog>
-        </Transition>
-    );
-};
 
 // --- Component: View Prescription Modal (Dedicated Modal for single card view) ---
 const ViewPrescriptionModal: React.FC<{
@@ -281,9 +216,6 @@ const PrescriptionPage: React.FC = () => {
     const [viewingPrescription, setViewingPrescription] = useState<Prescription | null>(null);
 
     // --- Patient History Modal State (For viewing ALL prescriptions for a patient) ---
-    const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
-    const [historyPatientName, setHistoryPatientName] = useState<string>('');
-
     const [filteredData] = useState<Patient[]>(mockPatients);
 
     useEffect(() => {
@@ -335,26 +267,15 @@ const PrescriptionPage: React.FC = () => {
         setViewingPrescription(null);
     };
 
-    // History modal handlers
-    const handleOpenHistoryModal = (patientName: string) => {
-        setHistoryPatientName(patientName);
-        setIsHistoryModalOpen(true);
-    };
-    const handleCloseHistoryModal = () => {
-        setIsHistoryModalOpen(false);
-        setHistoryPatientName('');
-    };
-
     // --- Table Actions ---
     const renderActions = (row: Patient) => (
         <div className="flex gap-2">
-            <button
-                type="button"
+            <Link
+                to={`/prescriptions/${row.name}`}
                 className="btn btn-outline-info btn-sm"
-                onClick={() => handleOpenHistoryModal(row.name)}
             >
                 <IconClipboardText className="w-4 h-4 mr-1" /> 
-            </button>
+            </Link>
             {/* <button
                 type="button"
                 className="btn btn-primary btn-sm"
@@ -438,15 +359,6 @@ const PrescriptionPage: React.FC = () => {
                 fields={prescriptionFields}
                 initialData={getInitialPrescriptionData(selectedPrescription || undefined)}
                 onSave={handleSavePrescription}
-            />
-
-            {/* 2. CUSTOM MODAL FOR VIEWING PATIENT HISTORY */}
-            <PatientPrescriptionsModal
-                isOpen={isHistoryModalOpen}
-                onClose={handleCloseHistoryModal}
-                patientName={historyPatientName}
-                prescriptions={prescriptions}
-                onViewClick={handleOpenViewModal}
             />
 
             {/* 3. MODAL FOR VIEWING A SINGLE PRESCRIPTION (Called from history or recent list) */}

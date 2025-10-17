@@ -79,7 +79,7 @@ const Sidebar = () => {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location]);
-    const userrole: string = 'doctor'; // This should be fetched from user state or context
+    const userrole: string = 'receptionist'; // This should be fetched from user state or context
     return (
         <div className={semidark ? 'dark' : ''}>
             <nav
@@ -211,7 +211,7 @@ const Sidebar = () => {
                                     >
                                         <div className="flex items-center">
                                             <CalendarClock
-                                                className={`${currentMenu === 'Consultation & Scheduling' || isConsultationActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                className={`${currentMenu === 'Consultation & Scheduling' || isUserManagementActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
                                             />
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Consultation & Scheduling')}</span>
                                         </div>
@@ -238,7 +238,7 @@ const Sidebar = () => {
                                     <NavLink to="/billing-discharge">
                                         <button
                                             type="button"
-                                            className={`${currentMenu === 'Billing & Discharge' || location.pathname === '/billing-discharge' ? 'active' : ''} nav-link group w-full`}
+                                            className={`${currentMenu === 'Pharmacy & Inventory' || location.pathname === '/billing-discharge' ? 'active' : ''} nav-link group w-full`}
                                             onClick={() => toggleMenu('Billing & Discharge')}
                                         >
                                             <div className="flex items-center">
@@ -280,7 +280,7 @@ const Sidebar = () => {
                                     >
                                         <div className="flex items-center">
                                             <CalendarClock
-                                                className={`${currentMenu === 'Reports & Analytics' || isReportsActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
+                                                className={`${currentMenu === 'Reports & Analytics' || isUserManagementActive ? '!text-green-600' : 'group-hover:!text-green-600'} shrink-0`}
                                             />
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Reports & Analytics')}</span>
                                         </div>
@@ -324,7 +324,7 @@ const Sidebar = () => {
                                         </div>
                                     </NavLink>
                                 </li>
-                                <li className="menu nav-item">
+                                {/* <li className="menu nav-item">
                                     <NavLink to="/prescription" className="nav-link group">
                                         <div className="flex items-center">
                                             <IconMenuForms className="group-hover:!text-green-500 shrink-0" />
@@ -347,7 +347,7 @@ const Sidebar = () => {
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Schedule next visit')}</span>
                                         </div>
                                     </NavLink>
-                                </li>
+                                </li> */}
                                 {/* <li className="menu nav-item">
                                     <NavLink to="/discharge-summary" className="nav-link group">
                                         <div className="flex items-center">

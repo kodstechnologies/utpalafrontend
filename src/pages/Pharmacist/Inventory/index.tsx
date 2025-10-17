@@ -9,7 +9,7 @@ import GlobalModal from '../../../components/Modal/GlobalModal';
 import IconDollarSign from '../../../components/Icon/IconDollarSign';
 
 // --- NEW COMPONENT IMPORT ---
-import InventoryBatchLog, { type InventoryItem as InventoryBatchLogItem } from './InventoryBatchLog';
+import InventoryBatchLog, { InventoryItem as InventoryBatchLogItem } from './InventoryBatchLog';
 
 // --- ICONS (Existing) ---
 const IconBox: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -42,6 +42,8 @@ interface InventoryItem {
     quantity: number;
     unit: ItemUnit;
     expiryDate: string;
+    costprice: number;
+    sellprice: number;
     status: ItemStatus;
 }
 
@@ -55,14 +57,14 @@ interface InventoryBatch {
 // ... mockInventory and mockBatches (No Change) ...
 const mockInventory: InventoryItem[] = [
     { id: 'MED-001', itemName: 'Ashwagandha Churna', type: 'Internal', category: 'Powder', quantity: 150, unit: 'g', expiryDate: '2025-12-31', status: 'In Stock' },
-    { id: 'MED-002', itemName: 'Brahmi Vati', type: 'Internal', category: 'Tablet', quantity: 45, unit: 'units', expiryDate: '2024-11-30', status: 'Low Stock' },
-    { id: 'OIL-001', itemName: 'Mahanarayan Oil', type: 'External', category: 'Oil', quantity: 80, unit: 'ml', expiryDate: '2026-01-15', status: 'In Stock' },
-    { id: 'MED-003', itemName: 'Triphala Guggulu', type: 'Internal', category: 'Tablet', quantity: 0, unit: 'units', expiryDate: '2024-09-30', status: 'Out of Stock' },
-    { id: 'EXT-001', itemName: 'Neem Soap', type: 'External', category: 'Powder', quantity: 200, unit: 'units', expiryDate: '2025-08-20', status: 'In Stock' },
-    { id: 'MED-004', itemName: 'Arjuna Ksheera Paka', type: 'Internal', category: 'Powder', quantity: 25, unit: 'ml', expiryDate: '2024-10-05', status: 'Low Stock' },
+    { id: 'MED-002', itemName: 'Brahmi Vati', type: 'Internal', category: 'Tablet', quantity: 45, unit: 'units', expiryDate: '2024-11-30', status: 'Low Stock', costprice: 20, sellprice: 25 },
+    { id: 'OIL-001', itemName: 'Mahanarayan Oil', type: 'External', category: 'Oil', quantity: 80, unit: 'ml', expiryDate: '2026-01-15', status: 'In Stock', costprice: 15, sellprice: 22 },
+    { id: 'MED-003', itemName: 'Triphala Guggulu', type: 'Internal', category: 'Tablet', quantity: 0, unit: 'units', expiryDate: '2024-09-30', status: 'Out of Stock' }, // Added missing properties
+    { id: 'EXT-001', itemName: 'Neem Soap', type: 'External', category: 'Powder', quantity: 200, unit: 'units', expiryDate: '2025-08-20', status: 'In Stock', costprice: 5, sellprice: 10 },
+    { id: 'MED-004', itemName: 'Arjuna Ksheera Paka', type: 'Internal', category: 'Powder', quantity: 25, unit: 'ml', expiryDate: '2024-10-05', status: 'Low Stock' }, // Added missing properties
     { id: 'OIL-002', itemName: 'Kottamchukkadi Thailam', type: 'External', category: 'Oil', quantity: 60, unit: 'ml', expiryDate: '2025-07-22', status: 'In Stock' },
     { id: 'MED-005', itemName: 'Dashamoola Kwath', type: 'Internal', category: 'Powder', quantity: 70, unit: 'g', expiryDate: '2026-06-10', status: 'In Stock' },
-    { id: 'MED-006', itemName: 'Guduchi Tablets', type: 'Internal', category: 'Tablet', quantity: 30, unit: 'units', expiryDate: '2024-08-15', status: 'Low Stock' },
+    { id: 'MED-006', itemName: 'Guduchi Tablets', type: 'Internal', category: 'Tablet', quantity: 30, unit: 'units', expiryDate: '2024-08-15', status: 'Low Stock' }, // Added missing properties
     { id: 'OIL-003', itemName: 'Bala Oil', type: 'External', category: 'Oil', quantity: 0, unit: 'ml', expiryDate: '2024-12-31', status: 'Out of Stock' },
     { id: 'EXT-002', itemName: 'Turmeric Soap', type: 'External', category: 'Powder', quantity: 110, unit: 'units', expiryDate: '2025-10-05', status: 'In Stock' },
 ];
@@ -109,6 +111,8 @@ const inventoryFields: FieldConfig[] = [
             { value: 'units', label: 'units' },
         ]
     },
+    { name: 'costprice', label: 'Cost Price', type: 'number', required: true },
+    { name: 'sellprice', label: 'Sell Price', type: 'number', required: true },
     { name: 'expiryDate', label: 'Initial Expiry Date', type: 'date', required: true }
 ];
 
@@ -127,7 +131,9 @@ const getInitialInventoryData = (item?: InventoryItem) => ({
     type: item?.type || 'Internal',
     quantity: item?.quantity?.toString() || '',
     unit: item?.unit || 'g',
-    expiryDate: item?.expiryDate || ''
+    expiryDate: item?.expiryDate || '',
+    sellprice: item?.sellprice || 0, // Default to 0 for numbers
+    costprice: item?.costprice || 0, // Default to 0 for numbers
 });
 
 const getInitialBatchData = (itemId: string, itemUnit: ItemUnit) => ({
@@ -166,7 +172,7 @@ const PharmacistInventory: React.FC = () => {
 
     const statsData = useMemo(() => [
         { title: 'Total Items', count: inventory.length, icon: IconBox },
-        { title: 'Total Stock Value', count: 'Rs.12,450', icon: IconDollarSign },
+        // { title: 'Total Stock Value', count: 'Rs.12,450', icon: IconDollarSign },
         { title: 'Items in Low Stock', count: inventory.filter(i => i.status === 'Low Stock').length, icon: IconAlertTriangle },
     ], [inventory]);
 
@@ -381,7 +387,7 @@ const PharmacistInventory: React.FC = () => {
                     isOpen={isModalOpen}
                     onClose={handleCloseModal}
                     mode={selectedItem ? 'edit' : 'create'}
-                    title={selectedItem ? 'Edit Inventory Item Details' : 'Add New Inventory Item'}
+                    title={selectedItem ? 'Edit Inventory Item Details' : 'New Inventory Item'}
                     fields={inventoryFields as FieldConfig[]}
                     initialData={getInitialInventoryData(selectedItem || undefined)}
                     onSave={handleSaveInventory}

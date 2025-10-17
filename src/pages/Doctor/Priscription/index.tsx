@@ -21,7 +21,7 @@ interface PrescriptionFormData {
 // Interface for the table data
 interface PrescriptionData {
     id: number;
-    patientName: string;
+    // patientName: string;
     medicineName: string;
     medicineType: string;
     dosage: string;
@@ -30,14 +30,14 @@ interface PrescriptionData {
 }
 
 const prescriptionFields: FieldConfig[] = [
-    {
-        name: 'patientId', label: 'Patient Name', type: 'select', required: true,
-        options: [ // This would typically be fetched from an API
-            { value: 'Rohit Sharma', label: 'Rohit Sharma' },
-            { value: 'Sneha Patil', label: 'Sneha Patil' },
-            { value: 'Aarav Deshmukh', label: 'Aarav Deshmukh' },
-        ]
-    },
+    // {
+    //     name: 'patientId', label: 'Patient Name', type: 'select', required: true, disabledInEdit: true,
+    //     options: [ // This would typically be fetched from an API
+    //         { value: 'Rohit Sharma', label: 'Rohit Sharma' },
+    //         { value: 'Sneha Patil', label: 'Sneha Patil' },
+    //         { value: 'Aarav Deshmukh', label: 'Aarav Deshmukh' },
+    //     ]
+    // },
     {
         name: 'medicineType',
         label: 'Medicine Type',
@@ -81,12 +81,22 @@ const prescriptionFields: FieldConfig[] = [
         type: 'checkbox-group', // Custom type for the GlobalModal
         options: [
             // The value here must match the key used in the Dosage object
-            { value: 'morning', label: 'Pratahkal (Morning)' },
-            { value: 'afternoon', label: 'Madhyahn (Afternoon)' },
-            { value: 'evening', label: 'Sayankal (Evening)' },
+            { value: 'morning', label: 'Morning' },
+            { value: 'afternoon', label: 'Afternoon' },
+            { value: 'evening', label: 'Evening' },
         ],
     },
-    { name: 'specialInstructions', label: 'Special Instructions', type: 'textarea',textareaSize:7 },
+    { 
+        name: 'Internal / External', // This name will correspond to the object key in FormData
+        label: 'Internal / External', 
+        type: 'checkbox-group', // Custom type for the GlobalModal
+        options: [
+            // The value here must match the key used in the Dosage object
+            { value: 'internal', label: 'Internal' },
+            { value: 'Externla', label: 'External' },
+        ],
+    },
+    { name: 'specialInstructions', label: 'Special Instructions', type: 'textarea',textareaSize:2 },
 ];
 
 const Prescription = () => {
@@ -104,17 +114,17 @@ const Prescription = () => {
 
     // 🌿 Ayurvedic-style sample prescriptions
     const [recentPrescriptions, setRecentPrescriptions] = useState<PrescriptionData[]>([
-        { id: 1, patientName: 'Rohit Sharma', medicineName: 'Triphala Churna', medicineType: 'churna', dosage: 'Morning, Evening', intakeTime: 'before_food', specialInstructions: 'Take with warm water for better digestion.' },
-        { id: 2, patientName: 'Sneha Patil', medicineName: 'Ashwagandha Vati', medicineType: 'vati', dosage: 'Morning, Night', intakeTime: 'after_food', specialInstructions: 'Helps in improving strength and immunity.' },
-        { id: 3, patientName: 'Aarav Deshmukh', medicineName: 'Brahmi Ghrita', medicineType: 'taila', dosage: 'Morning', intakeTime: 'with_ghee', specialInstructions: 'Improves focus and memory power.' },
-        { id: 4, patientName: 'Priya Nair', medicineName: 'Amla Rasayana', medicineType: 'leha', dosage: 'Morning', intakeTime: 'after_food', specialInstructions: 'Rich in Vitamin C, boosts immunity.' },
-        { id: 5, patientName: 'Vikas Kumar', medicineName: 'Guduchi Kwatha', medicineType: 'kwatha', dosage: 'Morning, Evening', intakeTime: 'before_food', specialInstructions: 'Effective in fever and detoxification.' },
-        { id: 6, patientName: 'Rina Joshi', medicineName: 'Shatavari Churna', medicineType: 'churna', dosage: 'Morning, Evening', intakeTime: 'after_food', specialInstructions: 'Helps in hormonal balance and vitality.' },
+        { id: 1,  medicineName: 'Triphala Churna', medicineType: 'churna', dosage: 'Morning, Evening', intakeTime: 'before_food', specialInstructions: 'Take with warm water for better digestion.' },
+        { id: 2,  medicineName: 'Ashwagandha Vati', medicineType: 'vati', dosage: 'Morning, Night', intakeTime: 'after_food', specialInstructions: 'Helps in improving strength and immunity.' },
+        { id: 3,  medicineName: 'Brahmi Ghrita', medicineType: 'taila', dosage: 'Morning', intakeTime: 'with_ghee', specialInstructions: 'Improves focus and memory power.' },
+        { id: 4,  medicineName: 'Amla Rasayana', medicineType: 'leha', dosage: 'Morning', intakeTime: 'after_food', specialInstructions: 'Rich in Vitamin C, boosts immunity.' },
+        { id: 5,  medicineName: 'Guduchi Kwatha', medicineType: 'kwatha', dosage: 'Morning, Evening', intakeTime: 'before_food', specialInstructions: 'Effective in fever and detoxification.' },
+        { id: 6,  medicineName: 'Shatavari Churna', medicineType: 'churna', dosage: 'Morning, Evening', intakeTime: 'after_food', specialInstructions: 'Helps in hormonal balance and vitality.' },
     ]);
 
     const filteredData = useMemo(() => {
         return recentPrescriptions.filter(p =>
-            p.patientName.toLowerCase().includes(search.toLowerCase()) ||
+            // p.patientName.toLowerCase().includes(search.toLowerCase()) ||
             p.medicineName.toLowerCase().includes(search.toLowerCase())
         );
     }, [recentPrescriptions, search]);
@@ -138,7 +148,7 @@ const Prescription = () => {
         
         const newPrescription: PrescriptionData = {
             id: selectedPrescription ? selectedPrescription.id : Date.now(),
-            patientName: formData.patientId, // Use patientId which holds the name
+            // patientName: formData.patientId, // Use patientId which holds the name
             medicineName: formData.medicineName,
             medicineType: formData.medicineType,
             dosage: selectedDosages.join(', '),
@@ -160,7 +170,7 @@ const Prescription = () => {
     };
 
     const columns: Column<PrescriptionData>[] = useMemo(() => [
-        { Header: 'Patient', accessor: 'patientName' },
+        // { Header: 'Patient', accessor: 'patientName' },
         { Header: 'Medicine', accessor: 'medicineName' },
         { Header: 'Type', accessor: 'medicineType', Cell: ({ value }) => <span className="capitalize">{value}</span> },
         { Header: 'Dosage', accessor: 'dosage', Cell: ({ value }) => <span className="capitalize">{value}</span> },
@@ -186,7 +196,7 @@ const Prescription = () => {
 
     const renderTopContent = (): ReactNode => (
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4">
-            <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>                
+            {/* <h5 className="font-semibold text-lg dark:text-white-light">Recent Prescriptions</h5>                 */}
             {/* Search Input */}
             <div className="relative w-full sm:w-auto">
                 <input type="text" placeholder="Search by Patient or Medicine..." className="form-input ltr:pr-10 rtl:pl-10 w-full" value={search} onChange={(e) => setSearch(e.target.value)} />
@@ -202,7 +212,7 @@ const Prescription = () => {
         const dosageArray = prescription.dosage.split(',').map(d => d.trim().toLowerCase());
     
         return {
-            patientId: prescription.patientName,
+            patientId: '',
             medicineName: prescription.medicineName,
             medicineType: prescription.medicineType,
             dosage: {

@@ -30,6 +30,7 @@ const AssignDoctors = lazy(() => import('../pages/admin/ConsultationAndSchedulin
 const TherapistProfile = lazy(() => import('../pages/admin/UserManagement/Therapists/TherapistProfile'))
 const NextVisit = lazy(() => import('../pages/Doctor/ScheduleAppointment'))
 const Prescriptions = lazy(() => import('../pages/Pharmacist/Prescriptions'))
+const PatientHistoryPage = lazy(() => import('../pages/Pharmacist/Prescriptions/PatientHistoryPage'))
 const Invoice = lazy(() => import('../components/invoice/Preview'))
 const PatientFamily = lazy(() => import('../pages/Patient/Family'))
 const PatientConsultations = lazy(() => import('../pages/Patient/Consultant'))
@@ -79,7 +80,7 @@ const UserManagementWrapper = () => {
 };
 
 const PatientExamination = lazy(() => import('../pages/Doctor/Patients/PatientExamination'));
-const role = 'doctor';
+const role = 'receptionist';
 const routes = [
     // admin-dashboard
 
@@ -241,6 +242,11 @@ const routes = [
     {
         path: 'prescriptions',
         element: <Prescriptions />,
+        layout: 'default',
+    },
+    {
+        path: 'prescriptions/:patientName',
+        element: <PatientHistoryPage />,
         layout: 'default',
     },
     {
