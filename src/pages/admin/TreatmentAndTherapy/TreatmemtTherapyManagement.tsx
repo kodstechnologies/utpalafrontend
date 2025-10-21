@@ -135,7 +135,7 @@ const TherapyManagementPage: React.FC = () => {
                         className="flex items-center justify-center px-4 py-2 bg-green-700 text-white font-semibold rounded-lg shadow-md hover:bg-green-800 transition-colors duration-150"
                     >
                         <IconPlus />
-                        <span className="ml-2">Add Therapy</span>
+                        <span className="ml-2">Add New Therapy</span>
                     </button>
                     <button
                         type="button"

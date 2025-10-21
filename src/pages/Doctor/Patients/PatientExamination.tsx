@@ -10,6 +10,7 @@ import Prescription from '../Priscription';
 import TreatmentSessions from '../Treatment';
 import IconBookmark from '../../../components/Icon/IconBookmark';
 import ScheduleAppointment from '../ScheduleAppointment';
+import { ChevronDown,  ChevronUp, FileText } from 'lucide-react';
 
 
 // Placeholder icons for tabs
@@ -135,9 +136,12 @@ const PatientExamination: React.FC = () => {
                 <h5 className="font-semibold text-green-600">
                     {title} {required && <span className="text-red-500">*</span>}
                 </h5>
-                <span className="text-sm text-green-600 font-medium">
-                    {openStates[stateKey] ? 'Close' : 'Open'}
-                </span>
+                {/* MODIFICATION START: Updated Toggle Button UI */}
+                <div className="flex items-center gap-2 border border-green-300 rounded-lg px-2 py-1 bg-white dark:bg-gray-800 text-sm text-green-600 font-medium hover:bg-green-50 dark:hover:bg-green-700/20 transition-colors">
+                    <span>{openStates[stateKey] ? 'Close' : 'Open'}</span>
+                    {openStates[stateKey] ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />} {/* Using Heart for Up/Open and Bookmark for Down/Close */}
+                </div>
+                {/* MODIFICATION END */}
             </div>
             <AnimateHeight duration={300} height={openStates[stateKey] ? 'auto' : 0}>
                 <div className="p-4">
@@ -188,9 +192,12 @@ const PatientExamination: React.FC = () => {
             <div className="panel p-6 mb-5 rounded-xl border border-green-400 bg-white dark:bg-gray-900 shadow-md">
                 <div className="flex justify-between items-center cursor-pointer" onClick={() => toggle('isProfileOpen')}>
                     <h5 className="font-semibold text-lg text-green-600">Profile - {patient.name}</h5>
-                    <span className="text-sm text-green-600 font-medium">
-                        {openStates.isProfileOpen ? 'Close' : 'Open'}
-                    </span>
+                    {/* MODIFICATION START: Updated Profile Toggle Button UI */}
+                    <div className="flex items-center gap-2 border border-green-300 rounded-lg px-2 py-1 bg-white dark:bg-gray-800 text-sm text-green-600 font-medium hover:bg-green-50 dark:hover:bg-green-700/20 transition-colors">
+                        <span>{openStates.isProfileOpen ? 'Close' : 'Open'}</span>
+                        {openStates.isProfileOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </div>
+                    {/* MODIFICATION END */}
                 </div>
                 <AnimateHeight duration={300} height={openStates.isProfileOpen ? 'auto' : 0}>
                     <div className="flex flex-col sm:flex-row items-center gap-5 mt-3">
@@ -218,10 +225,10 @@ const PatientExamination: React.FC = () => {
                     <IconExamination className="w-5 h-5 inline mr-2" /> Doctor Examination
                 </button>
                 <button onClick={() => setActiveTab('prescription')} className={`py-3 ${activeTab === 'prescription' ? tabActiveClasses : tabInactiveClasses}`}>
-                    <IconPrescription className="w-5 h-5 inline mr-2" /> Prescription
+                    <FileText className="w-5 h-5 inline mr-2" /> Prescription
                 </button>
                 <button onClick={() => setActiveTab('treatment')} className={`py-3 ${activeTab === 'treatment' ? tabActiveClasses : tabInactiveClasses}`}>
-                    <IconTreatment className="w-5 h-5 inline mr-2" /> Treatment
+                    <IconPrescription className="w-5 h-5 inline mr-2" /> Treatment
                 </button>
                 <button onClick={() => setActiveTab('followup')} className={`py-3 ${activeTab === 'followup' ? tabActiveClasses : tabInactiveClasses}`}>
                     <IconBookmark className="w-5 h-5 inline mr-2" /> Follow Up
@@ -255,9 +262,12 @@ const PatientExamination: React.FC = () => {
                                         <h5 className="font-semibold text-lg text-green-600 flex items-center gap-2">
                                             <IconHeart className="w-5 h-5" /> Add Examination
                                         </h5>
-                                        <span className="text-sm text-green-600 font-medium">
-                                            {openStates.isExamAccordionOpen ? 'Close' : 'Open'}
-                                        </span>
+                                        {/* MODIFICATION START: Updated Exam Toggle Button UI */}
+                                        <div className="flex items-center gap-2 border border-green-300 rounded-lg px-2 py-1 bg-white dark:bg-gray-800 text-sm text-green-600 font-medium hover:bg-green-50 dark:hover:bg-green-700/20 transition-colors">
+                                            <span>{openStates.isExamAccordionOpen ? 'Close' : 'Open'}</span>
+                                            {openStates.isExamAccordionOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                        </div>
+                                        {/* MODIFICATION END */}
                                     </div>
                                     <AnimateHeight duration={300} height={openStates.isExamAccordionOpen ? 'auto' : 0}>
                                         <div className="p-4 space-y-3">
@@ -333,9 +343,12 @@ const PatientExamination: React.FC = () => {
                                         onClick={() => toggle('isDiagnosisAccordionOpen')}
                                     >
                                         <h5 className="font-semibold text-lg text-green-600">Diagnosis & Recommendations</h5>
-                                        <span className="text-sm text-green-600 font-medium">
-                                            {openStates.isDiagnosisAccordionOpen ? 'Close' : 'Open'}
-                                        </span>
+                                        {/* MODIFICATION START: Updated Diagnosis Toggle Button UI */}
+                                        <div className="flex items-center gap-2 border border-green-300 rounded-lg px-2 py-1 bg-white dark:bg-gray-800 text-sm text-green-600 font-medium hover:bg-green-50 dark:hover:bg-green-700/20 transition-colors">
+                                            <span>{openStates.isDiagnosisAccordionOpen ? 'Close' : 'Open'}</span>
+                                            {openStates.isDiagnosisAccordionOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                                        </div>
+                                        {/* MODIFICATION END */}
                                     </div>
                                     <AnimateHeight duration={300} height={openStates.isDiagnosisAccordionOpen ? 'auto' : 0}>
                                         <div className="p-4 space-y-3">
