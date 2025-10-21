@@ -25,7 +25,9 @@ import IconReport from '../Icon/IconFile';
 import IconHeart from '../Icon/IconHeart';
 import IconLogout from '../Icon/IconLogout';
 import IconNotes from '../Icon/IconNotes';
+import { Repeat } from "lucide-react";
 import IconFile from '../Icon/IconFile';
+import { GanttChartSquare } from 'lucide-react';
 
 
 const Sidebar = () => {
@@ -549,6 +551,31 @@ const Sidebar = () => {
                                         <div className="flex items-center">
                                             <IconMenuUsers className="group-hover:!text-green-500 shrink-0" />
                                             <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Patients Details')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+
+                                <li className="menu nav-item">
+                                    <NavLink to="/therapist/treatment-details" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <Stethoscope className="group-hover:!text-green-500 shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Treatment Details')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/therapist/entry-exit" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <Repeat className="group-hover:!text-green-500 shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Entry & Exit')}</span>
+                                        </div>
+                                    </NavLink>
+                                </li>
+                                <li className="menu nav-item">
+                                    <NavLink to="/therapist/therapy-progress" className="nav-link group">
+                                        <div className="flex items-center">
+                                            <GanttChartSquare className="group-hover:!text-green-500 shrink-0" />
+                                            <span className="ltr:pl-3 rtl:pr-3 text-black dark:text-[#506690] dark:group-hover:text-white-dark">{t('Therapy Progress')}</span>
                                         </div>
                                     </NavLink>
                                 </li>

@@ -53,6 +53,9 @@ const AdmissionReport = lazy(() => import('../pages/admin/ReportAndAnalytics/Adm
 const DischargeReport = lazy(() => import('../pages/admin/ReportAndAnalytics/DischargeReport'))
 const BillingDischarge = lazy(() => import('../pages/admin/BillingAndDischarge/BillingDischargePage'))
 import PatientTherapyDetails from '../pages/Therapist/PatientTherapyDetails/PatientTherapyDetails';
+import TreatmentDetails from '../pages/Therapist/TreatmentDetails/TreatmentDetails';
+const EntryExit = lazy(() => import('../pages/Therapist/EntryExit/EntryExit'));
+const TherapyProgress = lazy(() => import('../pages/Therapist/TherapySessions/TherapyProgress'));
 
 
 const routeComponents = {
@@ -341,6 +344,21 @@ const routes = [
     {
         path: '/therapist/patient-details',
         element: <PatientTherapyDetails />,
+        layout: 'default',
+    },
+    {
+        path: '/therapist/treatment-details',
+        element: <TreatmentDetails />,
+        layout: 'default',
+    },
+    {
+        path: '/therapist/entry-exit',
+        element: <EntryExit />,
+        layout: 'default',
+    },
+    {
+        path: '/therapist/therapy-progress',
+        element: <TherapyProgress />,
         layout: 'default',
     }
 
