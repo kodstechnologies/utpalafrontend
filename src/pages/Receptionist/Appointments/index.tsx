@@ -1,12 +1,14 @@
 import { useEffect, useState, useMemo, Fragment } from 'react';
 import { useDispatch } from 'react-redux';
 import { Dialog, Transition } from '@headlessui/react';
+import { Link } from 'react-router-dom';
 import { setPageTitle } from '../../../store/themeConfigSlice';
 import Table, { Column } from '../../../components/Table/Table';
 import IconMessage from '../../../components/Icon/IconMessage';
 import GlobalModal, { FieldConfig } from '../../../components/Modal/GlobalModal';
 import IconEye from '../../../components/Icon/IconEye';
 import IconPlus from '../../../components/Icon/IconPlus';
+import ProgressModal from '../../Doctor/Patients/ProgressModal';
 
 // --- Type Definitions ---
 interface AppointmentPatient {
@@ -79,7 +81,7 @@ const newPatientFields: FieldConfig[] = [
     { name: 'email', label: 'Email', type: 'email', required: true },
     { name: 'preferredDate', label: 'Preferred Date', type: 'date', required: true },
     { name: 'preferredTime', label: 'Preferred Time', type: 'time', required: true },
-    { name: 'disease', label: 'Initial Diagnosis/Disease', type: 'text' },
+    { name: 'disease', label: 'Complaints', type: 'text' },
 ];
 
 const ReceptionistAppointments = () => {
@@ -99,6 +101,10 @@ const ReceptionistAppointments = () => {
     // --- MODIFICATION: State for View Patient Modal ---
     const [isViewPatientModalOpen, setIsViewPatientModalOpen] = useState(false);
     const [patientToView, setPatientToView] = useState<RegisteredPatient | null>(null);
+
+    // Progress Modal State
+    const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+    const [selectedPatientForProgress, setSelectedPatientForProgress] = useState<{ id: string; name: string } | null>(null);
 
 
     // State for forms
@@ -142,6 +148,17 @@ const ReceptionistAppointments = () => {
         window.open(whatsappUrl, '_blank');
         setIsWhatsAppModalOpen(false);
     };
+
+    const handleViewProgress = (patient: { id: string; name: string }) => {
+        const fullPatient = allPatients.find(p => p.id === patient.id);
+        if (fullPatient) {
+            setSelectedPatientForProgress(fullPatient);
+            setIsProgressModalOpen(true);
+        }
+    };
+
+    const handleCloseProgressModal = () => setIsProgressModalOpen(false);
+
 
     const handleConfirmAppointment = (patientId: string) => {
         // In a real app, this would be an API call to update the status
@@ -266,7 +283,7 @@ const ReceptionistAppointments = () => {
         { Header: 'Appointment', accessor: 'appointmentDateTime' },
         { Header: 'Doctor', accessor: 'doctor' },
         { Header: 'Contact', accessor: 'contact' },
-        { Header: 'Disease', accessor: 'disease' },
+        { Header: 'Complaints', accessor: 'disease' },
     ], []);
 
     const allPatientsColumns: Column<RegisteredPatient>[] = useMemo(() => [
@@ -337,6 +354,20 @@ const ReceptionistAppointments = () => {
         </div>
     );
 
+    const renderTherapyActions = (session: TherapySession) => {
+        const patient = allPatients.find(p => p.name === session.patientName);
+        if (!patient) return null;
+
+        return (
+            <div className="flex items-center gap-2">
+                <button type="button" className="btn btn-outline-info btn-sm" onClick={() => handleViewProgress(patient)}>View Progress</button>
+                <Link to={`/patient-history/${patient.id}`} className="btn btn-outline-dark btn-sm">
+                    Full History
+                </Link>
+            </div>
+        );
+    };
+
     return (
         <>
             <div className="panel">
@@ -397,7 +428,7 @@ const ReceptionistAppointments = () => {
                                 <IconPlus className="w-5 h-5 ltr:mr-2 rtl:ml-2" /> Schedule Therapy
                             </button>
                         </div>
-                        <Table<TherapySession> columns={therapySessionColumns} data={therapySessions} itemsPerPage={10} />
+                        <Table<TherapySession> columns={therapySessionColumns} data={therapySessions} actions={renderTherapyActions} itemsPerPage={10} />
                     </div>
                 )}
             </div>
@@ -547,11 +578,20 @@ const ReceptionistAppointments = () => {
                 <GlobalModal
                     isOpen={isViewPatientModalOpen}
                     onClose={() => setIsViewPatientModalOpen(false)}
-                    mode="edit" // 'edit' mode makes fields read-only by default in your GlobalModal
+                    mode="view" // 'edit' mode makes fields read-only by default in your GlobalModal
                     title="Patient Details"
                     fields={newPatientFields}
                     initialData={patientToView}
                     onSave={() => setIsViewPatientModalOpen(false)} // No-op save, just closes modal
+                />
+            )}
+
+            {/* Progress Modal */}
+            {selectedPatientForProgress && (
+                <ProgressModal
+                    isOpen={isProgressModalOpen}
+                    onClose={handleCloseProgressModal}
+                    patientName={selectedPatientForProgress.name}
                 />
             )}
         </>

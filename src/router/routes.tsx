@@ -52,11 +52,13 @@ const DischargeSummaryPage = lazy(() => import('../pages/Shared/index'));
 const AdmissionReport = lazy(() => import('../pages/admin/ReportAndAnalytics/AdmissionReport'))
 const DischargeReport = lazy(() => import('../pages/admin/ReportAndAnalytics/DischargeReport'))
 const BillingDischarge = lazy(() => import('../pages/admin/BillingAndDischarge/BillingDischargePage'))
-import PatientTherapyDetails from '../pages/Therapist/PatientTherapyDetails/PatientTherapyDetails';
-import TreatmentDetails from '../pages/Therapist/TreatmentDetails/TreatmentDetails';
+const PatientTherapyDetails = lazy(() => import('../pages/Therapist/PatientTherapyDetails/PatientTherapyDetails'));
+const TreatmentDetails = lazy(() => import('../pages/Therapist/TreatmentDetails/TreatmentDetails'));
+const TherapistPatientView = lazy(() => import('../pages/Therapist/PatientTherapyDetails/TherapistPatientView'));
 const EntryExit = lazy(() => import('../pages/Therapist/EntryExit/EntryExit'));
 const TherapyProgress = lazy(() => import('../pages/Therapist/TherapySessions/TherapyProgress'));
-
+import WhatsAppMarketing from '../pages/Receptionist/Marketing/index.tsx';
+import path from 'path';
 
 const routeComponents = {
     doctors: AdminUserManagementDoctor,
@@ -347,6 +349,11 @@ const routes = [
         layout: 'default',
     },
     {
+        path: '/therapist/patient/:id',
+        element: <TherapistPatientView />,
+        layout: 'default',
+    },
+    {
         path: '/therapist/treatment-details',
         element: <TreatmentDetails />,
         layout: 'default',
@@ -360,7 +367,13 @@ const routes = [
         path: '/therapist/therapy-progress',
         element: <TherapyProgress />,
         layout: 'default',
+    },
+    {
+        path: '/marketing',
+        element: <WhatsAppMarketing />,
+        layout: 'default',
     }
+
 
 ];
 

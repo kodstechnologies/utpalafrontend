@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 
-export type ModalMode = "create" | "edit";
+export type ModalMode = "create" | "edit" | "view";
 
 export interface FieldConfig {
-    name: string;
+    name: string; // Changed to allow 'view' mode
     label: string;
     type:
     | "text"
@@ -53,7 +53,11 @@ const GlobalModal = <T extends Record<string, any>>({
     useEffect(() => {
         if (mode === "edit" && initialData) {
             setFormData(initialData);
-        } else {
+        }
+        else  if (mode === "view" && initialData) {
+            setFormData(initialData);
+        }
+         else {
             const emptyData = fields.reduce((acc, field) => {
                 acc[field.name] = field.type === "checkbox" ? false : "";
                 return acc;
@@ -103,7 +107,7 @@ const GlobalModal = <T extends Record<string, any>>({
                 {/* Header */}
                 <div className="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-gray-700 pb-3">
                     <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
-                        {mode === "create" ? `Add ${title}` : `Edit ${title}`}
+                        {mode === "create" ? `Add ${title}` : mode === "edit" ? `Edit ${title}` : `View ${title}`}
                     </h2>
                     <button
                         onClick={onClose}
@@ -125,9 +129,9 @@ const GlobalModal = <T extends Record<string, any>>({
                                 name: field.name,
                                 onChange: handleChange,
                                 required: field.required,
-                                size: field.textareaSize, // Property 'size' does not exist on type
+                                size: field.textareaSize,
                                 placeholder: field.label,
-                                disabled: field.disabledInEdit === true || (mode === "edit" && field.disabledInEdit !== false),
+                                disabled: field.disabledInEdit === true || (mode === "edit" && field.disabledInEdit !== false) || (mode === "view" && field.disabledInEdit !== false) ,
                             };
 
                             // ✅ Custom render (for special fields)

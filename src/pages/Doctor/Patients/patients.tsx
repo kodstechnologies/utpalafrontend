@@ -7,6 +7,7 @@ import IconEye from '../../../components/Icon/IconEye';
 import { useNavigate } from 'react-router-dom';
 import Table, { Column } from '../../../components/Table/Table';
 import IconSearch from '../../../components/Icon/IconSearch';
+import ProgressModal from './ProgressModal';
 
 interface Patient {
     id: number;
@@ -20,7 +21,7 @@ interface Patient {
     treatmentType: string;
     lastVisit: string;
     nextVisit: string;
-    paymentStatus: 'Paid' | 'Pending';
+    // paymentStatus: 'Paid' | 'Pending';
 }
 
 const MyPatients = () => {
@@ -40,7 +41,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Panchakarma - Basti',
         lastVisit: '2025-09-23',
         nextVisit: '2025-10-15',
-        paymentStatus: 'Paid'
+        // paymentStatus: 'Paid'
     },
     {
         id: 2,
@@ -54,7 +55,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Shamana - Herbal Decoction',
         lastVisit: '2025-09-19',
         nextVisit: '2025-10-10',
-        paymentStatus: 'Pending'
+        // paymentStatus: 'Pending'
     },
     {
         id: 3,
@@ -68,7 +69,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Shamana - Herbal Powder',
         lastVisit: '2025-09-18',
         nextVisit: '2025-10-12',
-        paymentStatus: 'Pending'
+        // paymentStatus: 'Pending'
     },
     {
         id: 4,
@@ -82,7 +83,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Rasayana - Herbal Tonic',
         lastVisit: '2025-09-25',
         nextVisit: '2025-10-17',
-        paymentStatus: 'Paid'
+        // paymentStatus: 'Paid'
     },
     {
         id: 5,
@@ -96,7 +97,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Panchakarma - Abhyanga',
         lastVisit: '2025-09-10',
         nextVisit: '2025-10-08',
-        paymentStatus: 'Paid'
+        // paymentStatus: 'Paid'
     },
     {
         id: 6,
@@ -110,7 +111,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Shamana - Nasya Therapy',
         lastVisit: '2025-09-30',
         nextVisit: '2025-10-18',
-        paymentStatus: 'Pending'
+        // paymentStatus: 'Pending'
     },
     {
         id: 7,
@@ -124,7 +125,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Panchakarma - Shirodhara',
         lastVisit: '2025-09-28',
         nextVisit: '2025-10-16',
-        paymentStatus: 'Paid'
+        // paymentStatus: 'Paid'
     },
     {
         id: 8,
@@ -138,7 +139,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Panchakarma - Shiro Abhyanga',
         lastVisit: '2025-09-20',
         nextVisit: '2025-10-14',
-        paymentStatus: 'Pending'
+        // paymentStatus: 'Pending'
     },
     {
         id: 9,
@@ -152,7 +153,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Shamana - Herbal Decoction',
         lastVisit: '2025-09-12',
         nextVisit: '2025-10-09',
-        paymentStatus: 'Paid'
+        // paymentStatus: 'Paid'
     },
     {
         id: 10,
@@ -166,7 +167,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Shamana - Herbal Churna',
         lastVisit: '2025-09-29',
         nextVisit: '2025-10-19',
-        paymentStatus: 'Pending'
+        // paymentStatus: 'Pending'
     },
     {
         id: 11,
@@ -180,7 +181,7 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Panchakarma - Kati Basti',
         lastVisit: '2025-09-21',
         nextVisit: '2025-10-13',
-        paymentStatus: 'Paid'
+        // paymentStatus: 'Paid'
     },
     {
         id: 12,
@@ -194,14 +195,23 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         treatmentType: 'Shamana - Herbal Tablets',
         lastVisit: '2025-09-26',
         nextVisit: '2025-10-20',
-        paymentStatus: 'Pending'
+        // paymentStatus: 'Pending'
     }
 ]);
 
     const navigate = useNavigate();
     const [search, setSearch] = useState('');
     const [treatmentFilter, setTreatmentFilter] = useState('');
-    const [activeTreatments, setActiveTreatments] = useState<ActiveTreatmentsMap>({});
+    const [activeTreatments, setActiveTreatments] = useState<ActiveTreatmentsMap>({ 3: 'Completed' });
+    const [isProgressModalOpen, setIsProgressModalOpen] = useState(false);
+    const [selectedPatientForProgress, setSelectedPatientForProgress] = useState<Patient | null>(null);
+
+    const handleViewProgress = (patient: Patient) => {
+        setSelectedPatientForProgress(patient);
+        setIsProgressModalOpen(true);
+    };
+
+    const handleCloseProgressModal = () => setIsProgressModalOpen(false);
 
      const handleStartStopTreatment = (patientId: number, currentStatus: TreatmentStatus) => {
         if (currentStatus === 'Pending') {
@@ -243,15 +253,15 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
             { Header: 'Condition', accessor: 'condition' },
             { Header: 'Treatment Type', accessor: 'treatmentType' },
             { Header: 'Last Visit', accessor: 'lastVisit' },
-            {
-                Header: 'Payment',
-                accessor: 'paymentStatus',
-                Cell: ({ value }) => (
-                    <span className={`px-2 py-1 rounded-full text-xs ${value === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                        {value}
-                    </span>
-                ),
-            },
+            // {
+            //     Header: 'Payment',
+            //     accessor: 'paymentStatus',
+            //     Cell: ({ value }) => (
+            //         <span className={`px-2 py-1 rounded-full text-xs ${value === 'Paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+            //             {value}
+            //         </span>
+            //     ),
+            // },
         ],
         []
     );
@@ -275,28 +285,25 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
         let buttonClass = 'btn-outline-success';
         let isDisabled = false;
 
-        if (status === 'Active') {
-            buttonText = 'Stop Treatment';
-            buttonClass = 'btn-danger'; // Tailwind class for red/stop
-        } else if (status === 'Completed') {
-            buttonText = 'Treatment Complete';
-            buttonClass = 'btn-outline-secondary opacity-70 cursor-not-allowed';
-            isDisabled = true;
-        }
-
         return (
             <div className="flex items-center justify-center gap-4">
                 <Link to={`/patients/${patient.id}`} className="text-blue-600 hover:text-blue-800" title="View Patient Details">
                     <IconEye />
                 </Link>
-                <button 
-                    type="button" 
-                    onClick={() => handleStartStopTreatment(patient.id, status)} 
-                    className={`btn btn-sm whitespace-nowrap ${buttonClass}`}
-                    disabled={isDisabled}
-                >
-                    {buttonText}
-                </button>
+                {status === 'Completed' ? (
+                    <button type="button" onClick={() => handleViewProgress(patient)} className="btn btn-sm btn-outline-info whitespace-nowrap">
+                        View Progress
+                    </button>
+                ) : (
+                    <button
+                        type="button"
+                        onClick={() => handleStartStopTreatment(patient.id, status)}
+                        className={`btn btn-sm whitespace-nowrap ${status === 'Active' ? 'btn-danger' : 'btn-outline-success'}`}
+                        disabled={isDisabled}
+                    >
+                        {status === 'Active' ? 'Stop Treatment' : 'Start Treatment'}
+                    </button>
+                )}
             </div>
         );
     };
@@ -340,6 +347,13 @@ type ActiveTreatmentsMap = Record<number, TreatmentStatus>;
                     itemsPerPage={10}
                 />
             </div>
+            {selectedPatientForProgress && (
+                <ProgressModal
+                    isOpen={isProgressModalOpen}
+                    onClose={handleCloseProgressModal}
+                    patientName={selectedPatientForProgress.name}
+                />
+            )}
         </div>
     );
 };

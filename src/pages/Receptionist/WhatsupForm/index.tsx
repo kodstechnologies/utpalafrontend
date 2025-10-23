@@ -18,6 +18,7 @@ const PatientRegistrationForm = () => {
         preferredDate: '',
         preferredTime: '',
         notes: '',
+        complaints: '',
     });
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -75,6 +76,10 @@ const PatientRegistrationForm = () => {
                     <div>
                         <label htmlFor="address">Address</label>
                         <textarea id="address" name="address" rows={3} className="form-textarea" value={formData.address} onChange={handleInputChange}></textarea>
+                    </div>
+                     <div>
+                        <label htmlFor="complaints">Complaints</label>
+                        <textarea id="complaints" name="complaints" rows={3} className="form-textarea" value={formData.complaints} onChange={handleInputChange}></textarea>
                     </div>
                     <h3 className="text-lg font-semibold border-t pt-5 mt-5">Appointment Preference</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">

@@ -7,11 +7,11 @@ import React, { useEffect, useState, useMemo, ReactNode } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 
 // --- ICONS ---
-const IconEye = (props) => (<svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>);
-const IconPrinter = (props) => (
+const IconEye = (props: React.SVGProps<SVGSVGElement>) => (<svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M2 12C2 12 5 5 12 5C19 5 22 12 22 12C22 12 19 19 12 19C5 19 2 12 2 12Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>);
+const IconPrinter = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 17H4C2.89543 17 2 16.1046 2 15V10C2 8.89543 2.89543 8 4 8H20C21.1046 8 22 8.89543 22 10V15C22 16.1046 21.1046 17 20 17H17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M17 8V4C17 2.89543 16.1046 2 15 2H9C7.89543 2 7 2.89543 7 4V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><path d="M6 14H18V21C18 21.5523 17.5523 22 17 22H7C6.44772 22 6 21.5523 6 21V14Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 );
-const IconX = (props) => (
+const IconX = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M18 6L6 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 6L18 18" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
 );
 
@@ -24,8 +24,9 @@ interface Medicine {
     specialInstructions: string;
 }
 
-interface Prescription {
+interface Prescription { // Removed <T>
     id: string;
+    patientName: string;
     consultationId: string;
     consultationDate: string;
     doctorName: string;
@@ -41,7 +42,7 @@ interface Column<T> {
 }
 
 // Minimal implementation of Table for self-containment
-const Table = ({ columns, data, actions, topContent }) => {
+const Table = ({ columns, data, actions, topContent }: { columns: Column<any>[], data: any[], actions?: (data: any) => ReactNode, topContent?: ReactNode }) => {
     // In a real environment, this component would handle filtering, sorting, and pagination.
     // Here, we just render a simple table for demonstration.
     return (
@@ -82,6 +83,7 @@ const Table = ({ columns, data, actions, topContent }) => {
 const mockPrescriptions: Prescription[] = [
     {
         id: 'PRES-001',
+        patientName: 'Self',
         consultationId: 'CON-001',
         consultationDate: '2024-05-20',
         doctorName: 'Dr. Priya Singh',
@@ -93,6 +95,7 @@ const mockPrescriptions: Prescription[] = [
     },
     {
         id: 'PRES-002',
+        patientName: 'Rohan Sharma', // Family Member
         consultationId: 'CON-002',
         consultationDate: '2024-04-15',
         doctorName: 'Dr. Anjali Verma',
@@ -101,6 +104,17 @@ const mockPrescriptions: Prescription[] = [
             { name: 'Hingwashtak Churna', dosage: '1/2 tsp', timing: 'Before meals with ghee', duration: '15 days', specialInstructions: 'To improve digestion.' },
         ],
         generalInstructions: 'Follow a light and easily digestible diet. Avoid spicy and oily foods.',
+    },
+    {
+        id: 'PRES-003',
+        patientName: 'Priya Sharma', // Family Member
+        consultationId: 'CON-003',
+        consultationDate: '2024-05-18',
+        doctorName: 'Dr. Priya Singh',
+        medicines: [
+            { name: 'Chyawanprash', dosage: '1 tsp', timing: 'Twice a day', duration: '60 days', specialInstructions: 'For general immunity.' },
+        ],
+        generalInstructions: 'Continue with a balanced diet.',
     },
 ];
 
@@ -133,6 +147,12 @@ const PatientPrescriptions = () => {
     // Define columns for the main prescription table
     const columns: Column<Prescription>[] = useMemo(() => [
         {
+            header: 'Patient Name',
+            accessor: 'patientName',
+            sortable: true,
+            cell: (data) => <span className="font-semibold">{data.patientName}</span>
+        },
+        {
             header: 'Prescription ID',
             accessor: 'id',
             sortable: true,
@@ -151,8 +171,8 @@ const PatientPrescriptions = () => {
             cell: (data) => <span className="text-gray-700 dark:text-gray-300">{data.doctorName}</span>
         },
         {
-            header: 'Medicines',
-            accessor: (data) => `${data.medicines.length} items`,
+            header: 'Medicines Count',
+            accessor: (data: Prescription) => `${data.medicines.length} items`,
             sortable: false,
             cell: (data) => (
                 <span className="text-sm bg-success/10 text-success py-1 px-2 rounded-full font-medium">

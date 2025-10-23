@@ -44,7 +44,7 @@ const prescriptionFields: FieldConfig[] = [
         type: 'select',
         required: true, // This is correct for a select field
         options: [ // This is correct for a select field
-            'Select Type','Vati (Tablet)', 'Churna (Powder)', 'Kwatha (Decoction)', 'Taila (Oil)', 'Leha (Paste)'
+            'Select Type','Vati (Tablet)', 'Churna (Powder)', 'Taila (Oil)', 'Leha (Paste)','Customize'
             // '', 'kwatha', 'taila', 'leha'
             // { value: '', label: 'Select Type',type },
             // { value: 'vati', label: 'Vati (Tablet)' },
@@ -67,7 +67,7 @@ const prescriptionFields: FieldConfig[] = [
         type: 'select',
         required: true,
         options: [
-            'Select Intake Time','Before Food', 'After Food', 'With Honey', 'With Ghee'
+            'Select Intake Time','Before Food', 'After Food', 'With Honey', 'With Ghee','With Water'
             // { value: '', label: 'Select Intake Time' },
             // { value: 'before_food', label: 'Before Food' },
             // { value: 'after_food', label: 'After Food' },

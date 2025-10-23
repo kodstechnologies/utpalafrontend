@@ -19,10 +19,11 @@ const IconX = (props:React.SVGProps<SVGSVGElement>) => (
 );
 
 // --- DATA TYPES & MOCK DATA ---
-interface Consultation { id: string; doctorName: string; consultationDate: string; chiefComplaint: string; followUpDate: string | null; }
+interface Consultation { id: string; patientName: string; doctorName: string; consultationDate: string; chiefComplaint: string; followUpDate: string | null; }
 const mockConsultations = [
     {
         id: 'CON-001',
+        patientName: 'Self',
         doctorName: 'Dr. Priya Singh',
         consultationDate: '2024-05-20',
         chiefComplaint: 'Persistent cough and cold for over a week. Recommended antibiotics and rest.',
@@ -30,6 +31,7 @@ const mockConsultations = [
     },
     {
         id: 'CON-002',
+        patientName: 'Rohan Sharma', // Family Member
         doctorName: 'Dr. Anjali Verma',
         consultationDate: '2024-04-15',
         chiefComplaint: 'General check-up and consultation for mild digestive issues (bloating). Prescribed a diet chart and probiotics.',
@@ -37,6 +39,7 @@ const mockConsultations = [
     },
     {
         id: 'CON-003',
+        patientName: 'Self',
         doctorName: 'Dr. Priya Singh',
         consultationDate: '2024-03-10',
         chiefComplaint: 'Follow-up on previous treatment for chronic knee joint pain. Adjusted medication dosage.',
@@ -44,6 +47,7 @@ const mockConsultations = [
     },
     {
         id: 'CON-004',
+        patientName: 'Priya Sharma', // Family Member
         doctorName: 'Dr. Rohan Sharma',
         consultationDate: '2024-06-18',
         chiefComplaint: 'Severe headache and nausea. Referred to a specialist for further neurological evaluation.',
@@ -51,6 +55,7 @@ const mockConsultations = [
     },
     {
         id: 'CON-005',
+        patientName: 'Self',
         doctorName: 'Dr. Anjali Verma',
         consultationDate: '2024-02-01',
         chiefComplaint: 'Annual physical examination. All vitals within normal range.',
@@ -190,6 +195,11 @@ const PatientConsultations = () => {
 
     // 1. Define Table Columns
     const columns: Column<Consultation>[] = [
+        {
+            Header: 'Patient Name',
+            accessor: 'patientName',
+            Cell: ({ value }) => <span className="font-semibold">{value}</span>,
+        },
         { 
             Header: 'ID', 
             accessor: 'id',

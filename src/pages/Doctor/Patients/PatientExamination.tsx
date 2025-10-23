@@ -50,8 +50,15 @@ const useAccordionState = (initialState: Record<string, boolean>) => {
     return { openStates, toggle };
 };
 
-const PatientExamination: React.FC = () => {
-    const { id } = useParams<{ id: string }>();
+interface PatientExaminationProps {
+    patientId?: string;
+    isModalView?: boolean;
+    viewOnly?: boolean;
+}
+
+const PatientExamination: React.FC<PatientExaminationProps> = ({ patientId, isModalView = false, viewOnly = false }) => {
+    const { id: routeId } = useParams<{ id: string }>();
+    const id = patientId || routeId;
     const dispatch = useDispatch();
     const [patient, setPatient] = useState<Patient | null>(null);
     const [activeTab, setActiveTab] = useState<'examination' | 'prescription' | 'treatment'|'followup'>('examination');
@@ -60,7 +67,7 @@ const PatientExamination: React.FC = () => {
     const tabInactiveClasses = 'text-gray-500 hover:text-green-600 border-b-2 border-transparent hover:border-green-300 transition';
 
     // --- MODIFICATION: Reusable style for inputs and textareas ---
-    const formInputStyles = "w-full text-sm rounded-md border border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-100 bg-transparent transition-all duration-300 placeholder-gray-400 px-3 py-2";
+    const formInputStyles = `w-full text-sm rounded-md border border-green-400 focus:border-green-600 focus:ring-2 focus:ring-green-100 bg-transparent transition-all duration-300 placeholder-gray-400 px-3 py-2 ${viewOnly ? 'bg-gray-100 dark:bg-gray-800 cursor-not-allowed' : ''}`;
 
 
     const { openStates, toggle } = useAccordionState({
@@ -80,7 +87,27 @@ const PatientExamination: React.FC = () => {
     const [examinationValues, setExaminationValues] = useState<Record<string, string>>({});
     const [additionalExamFields, setAdditionalExamFields] = useState<DynamicField[]>([]);
 
-    const patientData: Patient[] = [
+    const allPatientsData: Patient[] = [
+        {
+            id: 'P001',
+            name: 'Ravi Kumar',
+            age: 45,
+            gender: 'Male',
+            image: '/assets/images/user-profile.jpeg',
+            condition: 'Arthritis',
+            prakruti: 'Vata-Pitta',
+            vikruti: 'Vata Imbalance',
+        },
+        {
+            id: 'P002',
+            name: 'Sunita Sharma',
+            age: 38,
+            gender: 'Female',
+            image: '/assets/images/profile-34.jpeg',
+            condition: 'Migraine',
+            prakruti: 'Pitta',
+            vikruti: 'Pitta Imbalance',
+        },
         {
             id: '1',
             name: 'Jay Sharma',
@@ -95,7 +122,7 @@ const PatientExamination: React.FC = () => {
 
     useEffect(() => {
         dispatch(setPageTitle('Patient Examination'));
-        const selectedPatient = patientData.find((p) => p.id === id);
+        const selectedPatient = allPatientsData.find((p) => p.id === id);
         setPatient(selectedPatient || null);
     }, [id, dispatch]);
 
@@ -123,7 +150,7 @@ const PatientExamination: React.FC = () => {
         setAdditionalExamFields((prev) => prev.filter((item) => item.id !== id));
 
     // Generic Accordion Component
-    const SectionAccordion: React.FC<{ title: string; stateKey: string; required?: boolean }> = ({
+    const SectionAccordion: React.FC<{ title: string; stateKey: string; required?: boolean; children?: React.ReactNode }> = ({
         title,
         stateKey,
         required = false,
@@ -150,16 +177,18 @@ const PatientExamination: React.FC = () => {
                         className={`${formInputStyles} resize-none`}
                         placeholder={`Enter ${title}...`}
                         rows={4}
-                        readOnly // Kept as readOnly as in original code, remove if editing is needed
+                        readOnly={viewOnly}
                     />
                     {title.includes('Investigations') && (
                         <div className="mt-2">
-                            <button
-                                type="button"
-                                className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm"
-                            >
-                                Upload file
-                            </button>
+                            {!viewOnly && (
+                                <button
+                                    type="button"
+                                    className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm"
+                                >
+                                    Upload file
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -171,22 +200,24 @@ const PatientExamination: React.FC = () => {
 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
-            {/* Breadcrumb */}
-            <ul className="flex space-x-2 mb-5">
-                <li>
-                    <Link to="/" className="text-green-600 hover:underline">
-                        Dashboard
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <Link to="/my-patients" className="text-green-600 hover:underline">
-                        My Patients
-                    </Link>
-                </li>
-                <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
-                    <span>Patient Examination</span>
-                </li>
-            </ul>
+            {!isModalView && (
+                /* Breadcrumb */
+                <ul className="flex space-x-2 mb-5">
+                    <li>
+                        <Link to="/" className="text-green-600 hover:underline">
+                            Dashboard
+                        </Link>
+                    </li>
+                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+                        <Link to="/my-patients" className="text-green-600 hover:underline">
+                            My Patients
+                        </Link>
+                    </li>
+                    <li className="before:content-['/'] ltr:before:mr-2 rtl:before:ml-2">
+                        <span>Patient Examination</span>
+                    </li>
+                </ul>
+            )}
 
             {/* Profile Section */}
             <div className="panel p-6 mb-5 rounded-xl border border-green-400 bg-white dark:bg-gray-900 shadow-md">
@@ -230,9 +261,9 @@ const PatientExamination: React.FC = () => {
                 <button onClick={() => setActiveTab('treatment')} className={`py-3 ${activeTab === 'treatment' ? tabActiveClasses : tabInactiveClasses}`}>
                     <IconPrescription className="w-5 h-5 inline mr-2" /> Treatment
                 </button>
-                <button onClick={() => setActiveTab('followup')} className={`py-3 ${activeTab === 'followup' ? tabActiveClasses : tabInactiveClasses}`}>
+                {/* <button onClick={() => setActiveTab('followup')} className={`py-3 ${activeTab === 'followup' ? tabActiveClasses : tabInactiveClasses}`}>
                     <IconBookmark className="w-5 h-5 inline mr-2" /> Follow Up
-                </button>
+                </button> */}
             </div>
 
             {/* Tab Content */}
@@ -241,18 +272,20 @@ const PatientExamination: React.FC = () => {
                     <div className="space-y-5">
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
                             {/* Left side accordions */}
-                            <div className="space-y-5">
+                            <div className="space-y-5 ">
                                 <SectionAccordion title="Prakriti Assessment" stateKey="isPrakritAssessmentOpen" />
                                 <SectionAccordion title="Complaints" stateKey="isComplaintsOpen" required />
                                 <SectionAccordion title="History of Patient Illness" stateKey="isHistoryOfPatientIllnessOpen" />
                                 <SectionAccordion title="Ongoing Medications" stateKey="isOnGoingMedicationsOpen" />
                                 <SectionAccordion title="Previous Investigations" stateKey="isPreviousInvestigationsOpen" />
-                                <SectionAccordion title="Present Investigations" stateKey="isPresentInvestigationsOpen" />
-                                <SectionAccordion title="Medical / Surgical History" stateKey="isMedicalSurgicalHistoryOpen" />
+                                {/* <SectionAccordion title="Present Investigations" stateKey="isPresentInvestigationsOpen" />
+                                <SectionAccordion title="Medical / Surgical History" stateKey="isMedicalSurgicalHistoryOpen" /> */}
                             </div>
 
                             {/* Right side accordions */}
                             <div className="space-y-5">
+                                <SectionAccordion title="Present Investigations" stateKey="isPresentInvestigationsOpen" />
+                                <SectionAccordion title="Medical / Surgical History" stateKey="isMedicalSurgicalHistoryOpen" />
                                 {/* Add Examination */}
                                 <div className="border border-green-400 rounded-xl bg-white dark:bg-gray-900 shadow-md hover:shadow-lg transition-all duration-300">
                                     <div
@@ -281,6 +314,7 @@ const PatientExamination: React.FC = () => {
                                                             className={formInputStyles}
                                                             placeholder={`Enter ${label}...`}
                                                             value={examinationValues[label] || ''}
+                                                            readOnly={viewOnly}
                                                             onChange={(e) => handleStaticExamChange(label, e.target.value)}
                                                         />
                                                     </div>
@@ -298,6 +332,7 @@ const PatientExamination: React.FC = () => {
                                                                 className={formInputStyles}
                                                                 placeholder="Enter name"
                                                                 value={field.label}
+                                                                readOnly={viewOnly}
                                                                 onChange={(e) => handleAdditionalExamChange(field.id, 'label', e.target.value)}
                                                             />
                                                         </div>
@@ -310,28 +345,33 @@ const PatientExamination: React.FC = () => {
                                                                     className={formInputStyles}
                                                                     placeholder="Enter value"
                                                                     value={field.value}
+                                                                    readOnly={viewOnly}
                                                                     onChange={(e) => handleAdditionalExamChange(field.id, 'value', e.target.value)}
                                                                 />
                                                             </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleRemoveAdditionalExamField(field.id)}
-                                                                className="btn border border-red-400 text-red-500 hover:bg-red-50 p-2 rounded-lg"
-                                                            >
-                                                                <IconX className="w-4 h-4" />
-                                                            </button>
+                                                            {!viewOnly && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => handleRemoveAdditionalExamField(field.id)}
+                                                                    className="btn border border-red-400 text-red-500 hover:bg-red-50 p-2 rounded-lg"
+                                                                >
+                                                                    <IconX className="w-4 h-4" />
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 </div>
                                             ))}
 
-                                            <button
-                                                type="button"
-                                                onClick={handleAddAdditionalExamField}
-                                                className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm mt-3"
-                                            >
-                                                + Add More
-                                            </button>
+                                            {!viewOnly && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddAdditionalExamField}
+                                                    className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm mt-3"
+                                                >
+                                                    + Add More
+                                                </button>
+                                            )}
                                         </div>
                                     </AnimateHeight>
                                 </div>
@@ -360,9 +400,10 @@ const PatientExamination: React.FC = () => {
                                                         placeholder={index === 0 ? 'Enter diagnosis...' : 'Enter recommendation...'}
                                                         rows={2}
                                                         value={rec.value}
+                                                        readOnly={viewOnly}
                                                         onChange={(e) => handleRecommendationChange(rec.id, 'value', e.target.value)}
                                                     />
-                                                    {index > 0 && (
+                                                    {index > 0 && !viewOnly && (
                                                         <button
                                                             type="button"
                                                             onClick={() => handleRemoveRecommendation(rec.id)}
@@ -373,34 +414,38 @@ const PatientExamination: React.FC = () => {
                                                     )}
                                                 </div>
                                             ))}
-                                            <button
-                                                type="button"
-                                                onClick={handleAddRecommendation}
-                                                className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm mt-3"
-                                            >
-                                                + Add Diagnosis/Recommendation
-                                            </button>
+                                            {!viewOnly && (
+                                                <button
+                                                    type="button"
+                                                    onClick={handleAddRecommendation}
+                                                    className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20 btn-sm mt-3"
+                                                >
+                                                    + Add Diagnosis/Recommendation
+                                                </button>
+                                            )}
                                         </div>
                                     </AnimateHeight>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Footer Buttons */}
-                        <div className="flex justify-end gap-4 mt-6">
-                            <button className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20">
-                                Cancel
-                            </button>
-                            <button className="btn bg-green-600 text-white hover:bg-green-700">
-                                Confirm
-                            </button>
-                        </div>
+                        {!viewOnly && (
+                            /* Footer Buttons */
+                            <div className="flex justify-end gap-4 mt-6">
+                                <button className="btn border border-green-500 text-green-600 hover:bg-green-100 dark:hover:bg-green-900/20">
+                                    Cancel
+                                </button>
+                                <button className="btn bg-green-600 text-white hover:bg-green-700" onClick={() => setActiveTab('prescription')}>
+                                    Next
+                                </button>
+                            </div>
+                        )}
                     </div>
                 )}
 
                 {activeTab === 'prescription' && <Prescription />}
                 {activeTab === 'treatment' && <TreatmentSessions />}
-                {activeTab === 'followup' && <ScheduleAppointment />}
+                {/* {activeTab === 'followup' && <ScheduleAppointment />} */}
             </div>
         </div>
     );

@@ -166,10 +166,10 @@ const FamilyTree: React.FC = () => {
             <div className="panel">
                 <div className="flex justify-between items-center mb-5">
                     <h2 className="text-xl font-bold text-gray-800 dark:text-white">Family Profiles</h2>
-                    {/* <button type="button" onClick={() => setIsAddModalOpen(true)} className="btn btn-primary flex items-center gap-2">
+                    <button type="button" onClick={() => setIsAddModalOpen(true)} className="btn btn-primary flex items-center gap-2">
                         <IconUserPlus className="w-5 h-5" />
                         Add New Member
-                    </button> */}
+                    </button>
                 </div>
 
                 {members.length > 0 ? (

@@ -332,7 +332,7 @@ const TherapyProgress: React.FC = () => {
     return (
         <div>
             {/* Breadcrumbs and Title */}
-            <div className="flex items-center justify-between mb-6">
+            {/* <div className="flex items-center justify-between mb-6">
                 <ul className="flex space-x-2 rtl:space-x-reverse">
                     <li>
                         <Link to="#" className="text-green-600 hover:underline">
@@ -343,11 +343,11 @@ const TherapyProgress: React.FC = () => {
                         <span>Therapy Progress</span>
                     </li>
                 </ul>
-            </div>
+            </div> */}
 
             <div className="panel bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-md">
                 {/* Header & Search */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                {/* <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
                     <h5 className="font-semibold text-lg dark:text-white-light">
                         Patient Therapy Timeline
                     </h5>
@@ -385,7 +385,7 @@ const TherapyProgress: React.FC = () => {
                             </div>
                         )}
                     </div>
-                </div>
+                </div> */}
 
                 {/* Selected Patient Info */}
                 <div className="border-t pt-4 dark:border-gray-700">

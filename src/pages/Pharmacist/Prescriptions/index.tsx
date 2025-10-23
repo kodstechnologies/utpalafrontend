@@ -47,9 +47,9 @@ const mockPrescriptions: Prescription[] = [
     { id: 4, patientName: 'Anil Gupta', doctorName: 'Dr. Patel', date: '2024-10-12', items: [{ name: 'Omeprazole', dosage: '20mg daily' }, { name: 'Diet Plan', dosage: 'Low Acid' }], internalNote: '' },
 ];
 const mockPatients: Patient[] = [
-    { id: 1, name: 'Sumitra Devi', age: 56, gender: 'Female', diagnosis: 'Stress/Insomnia' },
-    { id: 2, name: 'Rajesh Kumar', age: 48, gender: 'Male', diagnosis: 'Hypertension' },
-    { id: 3, name: 'Anil Gupta', age: 62, gender: 'Male', diagnosis: 'Digestive Issues' },
+    { id: 1, name: 'Sumitra Devi', age: 56, gender: 'Female', diagnosis: 'Stress/Insomnia', doctor:'Dr. Sharma' },
+    { id: 2, name: 'Rajesh Kumar', age: 48, gender: 'Male', diagnosis: 'Hypertension' , doctor:'Dr. Khan'},
+    { id: 3, name: 'Anil Gupta', age: 62, gender: 'Male', diagnosis: 'Digestive Issues' , doctor:'Dr. Patel' },
 ];
 
 interface PrescribedItem {
@@ -100,6 +100,7 @@ const columns: Column<Patient>[] = [
     { Header: 'Name', accessor: 'name' },
     { Header: 'Age', accessor: 'age' },
     { Header: 'Gender', accessor: 'gender' },
+    { Header: 'Doctor', accessor: 'doctor' }, // Changed from 'doctorName' to 'diagnosis'
     { Header: 'Diagnosis', accessor: 'diagnosis' }
 ];
 

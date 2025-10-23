@@ -22,12 +22,13 @@ export interface Patient {
     age: number;
     gender: string;
     diagnosis: string;
+    doctor: string;
 }
 
 const mockPatients: Patient[] = [
-    { id: 1, name: 'Sumitra Devi', age: 56, gender: 'Female', diagnosis: 'Stress/Insomnia' },
-    { id: 2, name: 'Rajesh Kumar', age: 48, gender: 'Male', diagnosis: 'Hypertension' },
-    { id: 3, name: 'Anil Gupta', age: 62, gender: 'Male', diagnosis: 'Digestive Issues' },
+    { id: 1, name: 'Sumitra Devi', age: 56, gender: 'Female', diagnosis: 'Stress/Insomnia', doctor: 'Dr. Sharma'},
+    { id: 2, name: 'Rajesh Kumar', age: 48, gender: 'Male', diagnosis: 'Hypertension' , doctor: 'Dr. Khan'},
+    { id: 3, name: 'Anil Gupta', age: 62, gender: 'Male', diagnosis: 'Digestive Issues', doctor: 'Dr. Patel'},
 ];
 
 
