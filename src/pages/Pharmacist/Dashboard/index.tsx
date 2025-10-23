@@ -144,12 +144,12 @@ const PharmaDashboard = () => {
     }, [searchTerm, prescriptionData]);
 
     // 2. Column Definitions
-    const columns = [
-        { Header: 'Prescription ID', accessor: 'id', Cell: ({ value }) => <span className="font-mono text-xs">{value}</span> },
-        { Header: 'Patient Name', accessor: 'patientName', Cell: ({ value }) => <span className="font-semibold text-gray-700 dark:text-gray-200">{value}</span> },
+    const columns : any[]= [
+        { Header: 'Prescription ID', accessor: 'id', Cell: ({ value }: { value: string }) => <span className="font-mono text-xs">{value}</span> },
+        { Header: 'Patient Name', accessor: 'patientName', Cell: ({ value }: { value: string }) => <span className="font-semibold text-gray-700 dark:text-gray-200">{value}</span> },
         { Header: 'Prescribing Doctor', accessor: 'doctorName', className: 'hidden sm:table-cell' },
-        { Header: 'Status', accessor: 'status', Cell: ({ value }) => getStatusBadge(value) },
-        { Header: 'Actions', accessor: 'actions', Cell: ({ row }) => renderActions(row) },
+        { Header: 'Status', accessor: 'status', Cell: ({ value }: { value: Prescription['status'] }) => getStatusBadge(value) },
+        { Header: 'Actions', accessor: 'actions', Cell: ({ row }: { row: Prescription }) => renderActions(row) },
     ];
 
     // 3. Render Actions

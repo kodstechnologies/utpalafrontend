@@ -34,6 +34,7 @@ type InventoryItem = {
 type BatchTransactionType = 'Add Stock' | 'Edit Batch' | 'Initial Stock' | 'Deduction/Usage';
 
 interface InventoryBatchLogEntry {
+    id: string; // Added for Table component compatibility
     transactionId: string;
     itemId: string;
     batchId: string;
@@ -48,13 +49,13 @@ interface InventoryBatchLogEntry {
 
 // --- MOCK LOG DATA (Simulating the history of transactions) ---
 const mockBatchLog: InventoryBatchLogEntry[] = [
-    { transactionId: 'TX-001', itemId: 'MED-001', batchId: 'ASH-INIT-A', date: '2023-01-01', quantityChange: 100, transactionType: 'Initial Stock', newExpiryDate: '2025-12-31', costprice: 10, sellprice: 15, details: 'Initial stock entry upon creation.' },
-    { transactionId: 'TX-002', itemId: 'MED-002', batchId: 'BRA-202-C', date: '2023-04-15', quantityChange: 45, transactionType: 'Initial Stock', newExpiryDate: '2024-11-30', costprice: 20, sellprice: 25, details: 'Initial purchase batch.' },
-    { transactionId: 'TX-003', itemId: 'MED-001', batchId: 'ASH-101-B', date: '2024-03-10', quantityChange: 50, transactionType: 'Add Stock', newExpiryDate: '2026-03-10', costprice: 11, sellprice: 16, details: 'New purchase order received.' },
-    { transactionId: 'TX-004', itemId: 'MED-002', batchId: 'BRA-202-C', date: '2024-06-01', quantityChange: -5, transactionType: 'Deduction/Usage', newExpiryDate: '2024-11-30', costprice: 20, sellprice: 25, details: '5 units dispensed for Prescription #123.' },
-    { transactionId: 'TX-005', itemId: 'MED-004', batchId: 'ARJ-99-X', date: '2024-09-01', quantityChange: 25, transactionType: 'Initial Stock', newExpiryDate: '2024-10-05', costprice: 30, sellprice: 35, details: 'First stock entry.' },
-    { transactionId: 'TX-006', itemId: 'MED-003', batchId: 'TRI-505-A', date: '2023-05-01', quantityChange: 80, transactionType: 'Initial Stock', newExpiryDate: '2024-09-30', costprice: 5, sellprice: 8, details: 'Initial stock of 80 tablets.' },
-    { transactionId: 'TX-007', itemId: 'MED-003', batchId: 'TRI-505-A', date: '2024-01-10', quantityChange: -80, transactionType: 'Deduction/Usage', newExpiryDate: '2024-09-30', costprice: 5, sellprice: 8, details: 'Stock fully used or expired and removed.' },
+    { id: 'TX-001', transactionId: 'TX-001', itemId: 'MED-001', batchId: 'ASH-INIT-A', date: '2023-01-01', quantityChange: 100, transactionType: 'Initial Stock', newExpiryDate: '2025-12-31', costprice: 10, sellprice: 15, details: 'Initial stock entry upon creation.' },
+    { id: 'TX-002', transactionId: 'TX-002', itemId: 'MED-002', batchId: 'BRA-202-C', date: '2023-04-15', quantityChange: 45, transactionType: 'Initial Stock', newExpiryDate: '2024-11-30', costprice: 20, sellprice: 25, details: 'Initial purchase batch.' },
+    { id: 'TX-003', transactionId: 'TX-003', itemId: 'MED-001', batchId: 'ASH-101-B', date: '2024-03-10', quantityChange: 50, transactionType: 'Add Stock', newExpiryDate: '2026-03-10', costprice: 11, sellprice: 16, details: 'New purchase order received.' },
+    { id: 'TX-004', transactionId: 'TX-004', itemId: 'MED-002', batchId: 'BRA-202-C', date: '2024-06-01', quantityChange: -5, transactionType: 'Deduction/Usage', newExpiryDate: '2024-11-30', costprice: 20, sellprice: 25, details: '5 units dispensed for Prescription #123.' },
+    { id: 'TX-005', transactionId: 'TX-005', itemId: 'MED-004', batchId: 'ARJ-99-X', date: '2024-09-01', quantityChange: 25, transactionType: 'Initial Stock', newExpiryDate: '2024-10-05', costprice: 30, sellprice: 35, details: 'First stock entry.' },
+    { id: 'TX-006', transactionId: 'TX-006', itemId: 'MED-003', batchId: 'TRI-505-A', date: '2023-05-01', quantityChange: 80, transactionType: 'Initial Stock', newExpiryDate: '2024-09-30', costprice: 5, sellprice: 8, details: 'Initial stock of 80 tablets.' },
+    { id: 'TX-007', transactionId: 'TX-007', itemId: 'MED-003', batchId: 'TRI-505-A', date: '2024-01-10', quantityChange: -80, transactionType: 'Deduction/Usage', newExpiryDate: '2024-09-30', costprice: 5, sellprice: 8, details: 'Stock fully used or expired and removed.' },
 ];
 
 interface InventoryBatchLogProps {
@@ -186,11 +187,8 @@ const InventoryBatchLog: React.FC<InventoryBatchLogProps> = ({ item, onBack }) =
             <h2 className="text-xl font-semibold text-gray-800 dark:text-white pt-4">Transaction History</h2>
             <div className="pt-2">
                 <Table<InventoryBatchLogEntry>
-                    columns={logColumns}
-                    data={itemLogs.map(log => ({ ...log, id: log.transactionId }))} // Add a unique 'id' property
-                    itemsPerPage={10}
-                    searchable={true}
-                    searchPlaceholder="Search by Batch ID or Details..."
+                    columns={logColumns} // The columns are already defined to use 'id' if needed, but the accessor is 'transactionId'
+                    data={itemLogs}
                 />
             </div>
 

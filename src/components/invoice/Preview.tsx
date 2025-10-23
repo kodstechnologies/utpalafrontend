@@ -9,13 +9,13 @@ const JsPDFScript = <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.
 
 
 // --- Icon Components (Replacing External Imports) ---
-const IconSend = (props) => (
+const IconSend = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
 );
-const IconPrinter = (props) => (
+const IconPrinter = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
 );
-const IconDownload = (props) => (
+const IconDownload = (props: React.SVGProps<SVGSVGElement>) => (
     <svg {...props} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
 );
 
@@ -62,7 +62,7 @@ const App = () => {
     }, []);
 
     // Helper to format currency
-    const formatCurrency = (amount) => {
+    const formatCurrency = (amount: number) => {
         return `INR ${(amount || 0).toFixed(2)}`;
     };
 
@@ -73,7 +73,7 @@ const App = () => {
         const calculatedTax = calculatedSubtotal * TAX_RATE;
         const calculatedTotalPayable = calculatedSubtotal - calculatedDiscount + calculatedTax;
 
-        const amountPaid = parseFloat(deposit) || 0;
+        const amountPaid = parseFloat(deposit.toString()) || 0;
         const actualAmountPaid = Math.min(amountPaid, calculatedTotalPayable);
         const calculatedAmountDue = calculatedTotalPayable - actualAmountPaid;
 
@@ -86,7 +86,7 @@ const App = () => {
         };
     }, [deposit, items, discountRate]);
 
-    const handleQuantityChange = (id, newQuantityValue) => {
+    const handleQuantityChange = (id: number, newQuantityValue: string) => {
         const quantityAsNumber = parseFloat(newQuantityValue) || 0;
         const quantity = Math.max(0, quantityAsNumber);
 
@@ -101,14 +101,14 @@ const App = () => {
         );
     };
 
-    const handleDepositChange = (e) => {
+    const handleDepositChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setDeposit(value === '' ? '' : Math.max(0, parseFloat(value) || 0));
+        setDeposit(value === '' ? 0 : Math.max(0, parseFloat(value) || 0));
     };
 
-    const handleDiscountChange = (e) => {
+    const handleDiscountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
-        setDiscountRate(value === '' ? '' : Math.max(0, parseFloat(value) || 0));
+        setDiscountRate(value === '' ? 0 : Math.max(0, parseFloat(value) || 0));
     };
 
 
@@ -120,10 +120,11 @@ const App = () => {
     const downloadInvoice = () => {
         const invoicePanel = document.querySelector('.invoice-container');
         // @ts-ignore
-        if (invoicePanel && typeof html2canvas !== 'undefined' && typeof window.jspdf !== 'undefined') {
-            const downloadButton = document.getElementById('download-btn-bottom');
+        if (invoicePanel && typeof html2canvas !== 'undefined' && typeof window.jspdf !== 'undefined' && document.getElementById('download-btn-bottom') instanceof HTMLButtonElement) {
+            const downloadButton = document.getElementById('download-btn-bottom') as HTMLButtonElement;
             const originalText = downloadButton.innerHTML;
             downloadButton.innerHTML = 'Generating PDF...';
+            // @ts-ignore
             downloadButton.disabled = true;
 
             // @ts-ignore
@@ -138,9 +139,10 @@ const App = () => {
                 pdf.save('pharmacy-invoice.pdf');
 
                 downloadButton.innerHTML = originalText;
+                // @ts-ignore
                 downloadButton.disabled = false;
-            }).catch((error) => {
-                console.error('PDF generation failed:', error);
+            }).catch((error: Error) => {
+                console.error('PDF generation failed:', error.message);
                 downloadButton.innerHTML = 'Error Generating PDF';
                 setTimeout(() => {
                     downloadButton.innerHTML = originalText;
@@ -293,9 +295,9 @@ const App = () => {
                                     <label htmlFor="discount" className="whitespace-nowrap">Discount (%):</label>
                                     <input
                                         id="discount"
-                                        type="number"
+                                        type="number" // The type is already number, so no change needed here.
                                         min="0"
-                                        value={discountRate === 0 && discountRate !== '' ? '' : discountRate}
+                                        value={discountRate === 0 ? '' : discountRate}
                                         onChange={handleDiscountChange}
                                         placeholder="0"
                                         className="w-16 p-1 border border-gray-400 dark:border-gray-500 rounded text-right font-bold text-sm bg-white dark:bg-gray-800 focus:ring-1 focus:ring-blue-500"
@@ -325,7 +327,7 @@ const App = () => {
                                     type="number"
                                     step="0.01"
                                     min="0"
-                                    value={deposit === 0 && deposit !== '' ? '' : deposit}
+                                    value={deposit === 0 ? '' : deposit}
                                     onChange={handleDepositChange}
                                     placeholder={formatCurrency(0).replace('INR ', '')}
                                     className="w-1/2 p-1 border border-gray-400 dark:border-gray-500 rounded text-right font-bold text-gray-800 dark:text-white focus:ring-1 focus:ring-blue-500 bg-white dark:bg-gray-800"

@@ -133,17 +133,17 @@ const DoctorDashboard = () => {
         );
     }, [searchTerm]);
 
-    const columns = [
+    const columns: any[] = [
         {
-            Header: 'Patient Name', accessor: 'name', Cell: ({ row }) => (
-                <Link to={`/patient/${row.id}`} className="font-semibold text-green-600 dark:text-green-400 hover:underline">
+            Header: 'Patient Name', accessor: 'name', Cell: ({ row }: { row: Patient }) => (
+                <Link to={`/patient/${(row as Patient).id}`} className="font-semibold text-green-600 dark:text-green-400 hover:underline"> {/* eslint-disable-line @typescript-eslint/no-explicit-any */}
                     {row.name}
                 </Link>
             )
         },
-        { Header: 'Doshic Profile', accessor: 'doshicProfile', className: 'hidden sm:table-cell' },
-        { Header: 'Last Activity', accessor: 'activityType' },
-        { Header: 'Status', accessor: 'status', Cell: ({ value }) => getStatusBadge(value) },
+        { Header: 'Doshic Profile', accessor: 'doshicProfile', className: 'hidden sm:table-cell' }, // No change needed here
+        { Header: 'Last Activity', accessor: 'activityType' }, // No change needed here
+        { Header: 'Status', accessor: 'status', Cell: ({ value }: { value: Patient['status'] }) => getStatusBadge(value) },
     ];
 
     const renderTopContent = () => (

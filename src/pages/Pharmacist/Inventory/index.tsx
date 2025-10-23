@@ -9,7 +9,7 @@ import GlobalModal from '../../../components/Modal/GlobalModal';
 import IconDollarSign from '../../../components/Icon/IconDollarSign';
 
 // --- NEW COMPONENT IMPORT ---
-import InventoryBatchLog, { InventoryItem as InventoryBatchLogItem } from './InventoryBatchLog';
+import InventoryBatchLog from './InventoryBatchLog';
 
 // --- ICONS (Existing) ---
 const IconBox: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -56,17 +56,49 @@ interface InventoryBatch {
 }
 // ... mockInventory and mockBatches (No Change) ...
 const mockInventory: InventoryItem[] = [
-    { id: 'MED-001', itemName: 'Ashwagandha Churna', type: 'Internal', category: 'Powder', quantity: 150, unit: 'g', expiryDate: '2025-12-31', status: 'In Stock' },
+    {
+        id: 'MED-001', itemName: 'Ashwagandha Churna', type: 'Internal', category: 'Powder', quantity: 150, unit: 'g', expiryDate: '2025-12-31', status: 'In Stock',
+        costprice: 0,
+        sellprice: 0
+    },
     { id: 'MED-002', itemName: 'Brahmi Vati', type: 'Internal', category: 'Tablet', quantity: 45, unit: 'units', expiryDate: '2024-11-30', status: 'Low Stock', costprice: 20, sellprice: 25 },
     { id: 'OIL-001', itemName: 'Mahanarayan Oil', type: 'External', category: 'Oil', quantity: 80, unit: 'ml', expiryDate: '2026-01-15', status: 'In Stock', costprice: 15, sellprice: 22 },
-    { id: 'MED-003', itemName: 'Triphala Guggulu', type: 'Internal', category: 'Tablet', quantity: 0, unit: 'units', expiryDate: '2024-09-30', status: 'Out of Stock' }, // Added missing properties
+    {
+        id: 'MED-003', itemName: 'Triphala Guggulu', type: 'Internal', category: 'Tablet', quantity: 0, unit: 'units', expiryDate: '2024-09-30', status: 'Out of Stock',
+        costprice: 0,
+        sellprice: 0
+    }, // Added missing properties
     { id: 'EXT-001', itemName: 'Neem Soap', type: 'External', category: 'Powder', quantity: 200, unit: 'units', expiryDate: '2025-08-20', status: 'In Stock', costprice: 5, sellprice: 10 },
-    { id: 'MED-004', itemName: 'Arjuna Ksheera Paka', type: 'Internal', category: 'Powder', quantity: 25, unit: 'ml', expiryDate: '2024-10-05', status: 'Low Stock' }, // Added missing properties
-    { id: 'OIL-002', itemName: 'Kottamchukkadi Thailam', type: 'External', category: 'Oil', quantity: 60, unit: 'ml', expiryDate: '2025-07-22', status: 'In Stock' },
-    { id: 'MED-005', itemName: 'Dashamoola Kwath', type: 'Internal', category: 'Powder', quantity: 70, unit: 'g', expiryDate: '2026-06-10', status: 'In Stock' },
-    { id: 'MED-006', itemName: 'Guduchi Tablets', type: 'Internal', category: 'Tablet', quantity: 30, unit: 'units', expiryDate: '2024-08-15', status: 'Low Stock' }, // Added missing properties
-    { id: 'OIL-003', itemName: 'Bala Oil', type: 'External', category: 'Oil', quantity: 0, unit: 'ml', expiryDate: '2024-12-31', status: 'Out of Stock' },
-    { id: 'EXT-002', itemName: 'Turmeric Soap', type: 'External', category: 'Powder', quantity: 110, unit: 'units', expiryDate: '2025-10-05', status: 'In Stock' },
+    {
+        id: 'MED-004', itemName: 'Arjuna Ksheera Paka', type: 'Internal', category: 'Powder', quantity: 25, unit: 'ml', expiryDate: '2024-10-05', status: 'Low Stock',
+        costprice: 0,
+        sellprice: 0
+    }, // Added missing properties
+    {
+        id: 'OIL-002', itemName: 'Kottamchukkadi Thailam', type: 'External', category: 'Oil', quantity: 60, unit: 'ml', expiryDate: '2025-07-22', status: 'In Stock',
+        costprice: 0,
+        sellprice: 0
+    },
+    {
+        id: 'MED-005', itemName: 'Dashamoola Kwath', type: 'Internal', category: 'Powder', quantity: 70, unit: 'g', expiryDate: '2026-06-10', status: 'In Stock',
+        costprice: 0,
+        sellprice: 0
+    },
+    {
+        id: 'MED-006', itemName: 'Guduchi Tablets', type: 'Internal', category: 'Tablet', quantity: 30, unit: 'units', expiryDate: '2024-08-15', status: 'Low Stock',
+        costprice: 0,
+        sellprice: 0
+    }, // Added missing properties
+    {
+        id: 'OIL-003', itemName: 'Bala Oil', type: 'External', category: 'Oil', quantity: 0, unit: 'ml', expiryDate: '2024-12-31', status: 'Out of Stock',
+        costprice: 0,
+        sellprice: 0
+    },
+    {
+        id: 'EXT-002', itemName: 'Turmeric Soap', type: 'External', category: 'Powder', quantity: 110, unit: 'units', expiryDate: '2025-10-05', status: 'In Stock',
+        costprice: 0,
+        sellprice: 0
+    },
 ];
 
 const mockBatches: InventoryBatch[] = [
@@ -76,15 +108,7 @@ const mockBatches: InventoryBatch[] = [
 ];
 // ... existing FieldConfig, fields, and helper functions (No Change) ...
 
-interface FieldConfig {
-    name: string;
-    label: string;
-    type: string;
-    required?: boolean;
-    placeholder?: string;
-    options?: { value: string; label: string }[];
-}
-const inventoryFields: FieldConfig[] = [
+const inventoryFields: any[] = [
     { name: 'itemName', label: 'Item Name', type: 'text', required: true, placeholder: 'e.g. Ashwagandha Churna' },
     { name: 'id', label: 'Stock ID', type: 'text', required: true, placeholder: 'Unique Stock ID' },
     {
@@ -116,7 +140,7 @@ const inventoryFields: FieldConfig[] = [
     { name: 'expiryDate', label: 'Initial Expiry Date', type: 'date', required: true }
 ];
 
-const batchFields: FieldConfig[] = [
+const batchFields: any[] = [
     { name: 'batchId', label: 'Batch Number', type: 'text', required: true, placeholder: 'e.g. ASH-101-C' },
     { name: 'manufactureDate', label: 'Manufacture Date', type: 'date', required: true },
     { name: 'expiryDate', label: 'Expiry Date', type: 'date', required: true },
@@ -340,9 +364,9 @@ const PharmacistInventory: React.FC = () => {
                 {/* CONDITIONAL RENDERING: Show Log View OR Main Dashboard */}
                 {showLogView && selectedItem ? (
                     <InventoryBatchLog
-                        item={selectedItem as InventoryBatchLogItem} // Cast to the expected type
+                        item={selectedItem}
                         onBack={closeLogView}
-                        onAddBatch={openAddBatchModal}
+                        // onAddBatch={openAddBatchModal} // This prop is not defined in InventoryBatchLog
                     />
                 ) : (
                     <>
@@ -388,7 +412,7 @@ const PharmacistInventory: React.FC = () => {
                     onClose={handleCloseModal}
                     mode={selectedItem ? 'edit' : 'create'}
                     title={selectedItem ? 'Edit Inventory Item Details' : 'New Inventory Item'}
-                    fields={inventoryFields as FieldConfig[]}
+                    fields={inventoryFields}
                     initialData={getInitialInventoryData(selectedItem || undefined)}
                     onSave={handleSaveInventory}
                 />
@@ -402,7 +426,7 @@ const PharmacistInventory: React.FC = () => {
                     onClose={handleCloseBatchModal}
                     mode={'create'}
                     title={`Add New Batch for: ${selectedItem.itemName}`}
-                    fields={batchFields as FieldConfig[]}
+                    fields={batchFields}
                     initialData={getInitialBatchData(selectedItem.id, selectedItem.unit)}
                     onSave={handleSaveBatch}
                 />

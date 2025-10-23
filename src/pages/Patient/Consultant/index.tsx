@@ -272,7 +272,7 @@ const PatientConsultations = () => {
                 columns={columns}
                 data={mockConsultations}
                 actions={renderActions}
-                topContent={renderTopContent}
+                topContent={renderTopContent()}
             />
 
             {/* Modal for viewing details */}

@@ -42,7 +42,7 @@ interface Column<T> {
 }
 
 // Minimal implementation of Table for self-containment
-const Table = ({ columns, data, actions, topContent }: { columns: Column<any>[], data: any[], actions?: (data: any) => ReactNode, topContent?: ReactNode }) => {
+const Table = ({ columns, data, actions, topContent, itemsPerPage }: { columns: Column<any>[], data: any[], actions?: (data: any) => ReactNode, topContent?: ReactNode, itemsPerPage?: number }) => {
     // In a real environment, this component would handle filtering, sorting, and pagination.
     // Here, we just render a simple table for demonstration.
     return (
@@ -65,7 +65,7 @@ const Table = ({ columns, data, actions, topContent }: { columns: Column<any>[],
                             <tr key={rowIndex}>
                                 {columns.map((col, colIndex) => (
                                     <td key={colIndex} className="px-4 py-3 whitespace-nowrap text-sm text-gray-900 dark:text-white">
-                                        {col.cell ? col.cell(item) : (typeof col.accessor === 'string' ? item[col.accessor] : col.accessor(item))}
+                                        {col.cell ? col.cell(item) : (typeof col.accessor === 'function' ? col.accessor(item) : item[col.accessor])}
                                     </td>
                                 ))}
                                 {actions && <td className="px-4 py-3 text-center text-sm">{actions(item)}</td>}
@@ -326,7 +326,7 @@ const PatientPrescriptions = () => {
 
     return (
         <div className="space-y-6">
-            <Table<Prescription>
+            <Table
                 columns={columns}
                 data={filteredData}
                 actions={renderActions}

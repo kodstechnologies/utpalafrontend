@@ -57,7 +57,7 @@ const TreatmentDetails = lazy(() => import('../pages/Therapist/TreatmentDetails/
 const TherapistPatientView = lazy(() => import('../pages/Therapist/PatientTherapyDetails/TherapistPatientView'));
 const EntryExit = lazy(() => import('../pages/Therapist/EntryExit/EntryExit'));
 const TherapyProgress = lazy(() => import('../pages/Therapist/TherapySessions/TherapyProgress'));
-import WhatsAppMarketing from '../pages/Receptionist/Marketing/index.tsx';
+import WhatsAppMarketing from '../pages/Receptionist/Marketing/index';
 import path from 'path';
 
 const routeComponents = {
